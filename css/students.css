@@ -37,7 +37,7 @@
 #communityPanelBtn{bottom:68px}
 #section-schedule .container{max-width:1600px}
 .schedule-bubbles{display:grid;gap:32px;width:100%;margin:0 auto}
-.schedule-week{display:grid;grid-template-columns:repeat(7,1fr);gap:24px;align-items:start}
+.schedule-week{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:start}
 .schedule-day-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .schedule-day-name{font-family:var(--font-display);font-size:14px;font-weight:700;color:#ccc;padding-bottom:12px;margin-bottom:6px;border-bottom:2px solid;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .schedule-day-name .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
@@ -177,7 +177,7 @@
   .hero p{font-size:15px}
   .hero .tagline{font-size:14px}
   .features-grid,.academy-grid,.stats-grid,.scrim-stats-grid{grid-template-columns:1fr}
-  .schedule-week{grid-template-columns:repeat(2,1fr);gap:10px}
+  .schedule-week{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
   .schedule-day-col{gap:6px}
   .section{padding:60px 0}
   .cta-box{padding:30px 20px}
@@ -197,6 +197,6 @@
   .nav-logo-icon{width:36px;height:36px}
   .section{padding:40px 0}
   .dash-cards{grid-template-columns:1fr}
-  .schedule-week{grid-template-columns:1fr;gap:12px}
+  .schedule-week{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
   .schedule-day-col{gap:6px}
 }
