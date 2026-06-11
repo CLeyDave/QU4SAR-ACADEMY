@@ -688,6 +688,24 @@ function switchAdminSection(groupId,sectionId){
   });
 }
 
+function toggleAdminMenu(){
+  var nav=document.getElementById('adminSidebar');
+  var backdrop=document.getElementById('sidebarBackdrop');
+  if(nav){
+    nav.classList.toggle('mobile-open');
+    if(backdrop)backdrop.classList.toggle('open');
+    document.body.style.overflow=nav.classList.contains('mobile-open')?'hidden':'';
+  }
+}
+
+function closeAdminMenu(){
+  var nav=document.getElementById('adminSidebar');
+  var backdrop=document.getElementById('sidebarBackdrop');
+  if(nav)nav.classList.remove('mobile-open');
+  if(backdrop)backdrop.classList.remove('open');
+  document.body.style.overflow='';
+}
+
 function renderAdminShell(title,activeGroup,activeSection){
   var loginScreen=document.getElementById('loginScreen');
   var adminPanel=document.getElementById('adminPanel');
@@ -700,6 +718,25 @@ function renderAdminShell(title,activeGroup,activeSection){
   adminPanel.classList.add('active');
   document.querySelector('.admin').classList.add('active');
   document.getElementById('adminTitle').textContent=title;
+  // Add hamburger toggle to header
+  var headerLeft=document.querySelector('.admin-header .left');
+  if(headerLeft&&!document.getElementById('menuToggleAdmin')){
+    var btn=document.createElement('button');
+    btn.id='menuToggleAdmin';
+    btn.innerHTML='<i data-lucide="menu" style="width:20px;height:20px"></i>';
+    btn.title='Menú';
+    btn.style.cssText='background:none;border:none;color:#888;cursor:pointer;padding:6px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;line-height:1';
+    btn.onclick=toggleAdminMenu;
+    headerLeft.insertBefore(btn,headerLeft.firstChild);
+  }
+  // Add backdrop for mobile sidebar
+  if(!document.getElementById('sidebarBackdrop')){
+    var backdrop=document.createElement('div');
+    backdrop.id='sidebarBackdrop';
+    backdrop.className='admin-sidebar-backdrop';
+    backdrop.onclick=closeAdminMenu;
+    document.body.appendChild(backdrop);
+  }
   var nav=document.getElementById('adminSidebar');
   var html='';
   if(activeGroup&&activeGroup!=='panel'){
@@ -709,7 +746,7 @@ function renderAdminShell(title,activeGroup,activeSection){
       var isActive=item.id===activeSection;
       html+='<a href="javascript:;" class="nav-link'+(isActive?' active':'')+'" data-section="'+item.id+'" '+
         (item.admin?'id="sidebar_'+item.id+'"':'')+
-        ' onclick="switchAdminSection(\''+grp.id+'\',\''+item.id+'\')">'+
+        ' onclick="closeAdminMenu();switchAdminSection(\''+grp.id+'\',\''+item.id+'\')">'+
         ic(item.icon,16)+'<span>'+item.label+'</span>'+
         (item.count?' <span class="count" id="'+item.count+'">0</span>':'')+
         '</a>';
@@ -722,7 +759,7 @@ function renderAdminShell(title,activeGroup,activeSection){
       html+='<a href="'+grp.href+'" class="nav-link">'+ic(gicon,16)+'<span>'+grp.title+'</span></a>';
     });
   }
-  html+='<button onclick="logout()" class="sidebar-logout" title="Cerrar sesión">'+ic('log-out',16)+'</button>';
+  html+='<button onclick="closeAdminMenu();logout()" class="sidebar-logout" title="Cerrar sesión">'+ic('log-out',16)+'</button>';
   nav.innerHTML=html;
   if(!isCurrentUserAdmin()){
     var adminItems=nav.querySelectorAll('[id^="sidebar_"]');
@@ -773,6 +810,7 @@ function updateCounts(){
 }
 
 function refresh(){
+  closeAdminMenu();
   showLoading();
   var activeLink=document.querySelector('.nav-link.active');
   if(activeLink){

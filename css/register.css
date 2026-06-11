@@ -24,7 +24,7 @@
 .discord-link:hover{background:rgba(139,92,246,0.2);box-shadow:0 0 20px rgba(180,150,255,0.04);transform:translateY(-1px)}
 
 /* NAVBAR */
-.register-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;background:rgba(10,10,10,0.92);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.register-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;background:rgba(0,0,0,0.9);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
 .register-nav .navbar-inner{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 28px 0 16px}
 .register-nav .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;user-select:none}
 .register-nav .nav-logo-icon{width:46px;height:46px;object-fit:contain;border-radius:10px;transition:transform 0.3s}

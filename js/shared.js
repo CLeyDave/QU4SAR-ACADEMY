@@ -54,13 +54,24 @@ function initRipple(){
   });
 }
 function initParticles(){
-  var c=15,cols=['#8B5CF6','#A78BFA','#7C3AED','#6D28D9'];
+  var c=40,cols=['#8B5CF6','#A78BFA','#6D28D9','#ffffff','#c4b5fd','#f43f5e'];
   for(var i=0;i<c;i++){
     var p=document.createElement('div');
     p.className='particle';
-    p.style.width=p.style.height=(Math.random()*3+1)+'px';
-    p.style.left=Math.random()*100+'%';p.style.background=cols[Math.floor(Math.random()*cols.length)];
-    p.style.animation='floatUp '+(Math.random()*10+12)+'s '+(Math.random()*15)+'s linear infinite';
+    var size=Math.random()*2.5+0.5;
+    p.style.width=p.style.height=size+'px';
+    p.style.left=Math.random()*100+'%';
+    p.style.top=Math.random()*100+'%';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];
+    var dur=Math.random()*20+15;
+    var delay=Math.random()*25;
+    var drift=Math.random()*60-30;
+    var startX=Math.random()*100;
+    p.style.setProperty('--drift',drift+'px');
+    p.style.setProperty('--startX',startX+'%');
+    p.style.animation='floatStar '+dur+'s '+delay+'s linear infinite';
+    p.style.boxShadow=size>1.5?'0 0 '+(size*3)+'px '+p.style.background:'none';
+    p.style.opacity=Math.random()*0.6+0.15;
     document.body.appendChild(p);
   }
 }
