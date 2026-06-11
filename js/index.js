@@ -147,6 +147,7 @@ async function initDB(){
         }
       }
     });
+    DATA.schedule.forEach(function(s){if(!s.week_start)s.week_start=getCurrentWeekStart()});
     
     // Sync pending offline applications
     try{

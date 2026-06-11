@@ -15,7 +15,7 @@ function fmtName(n){if(!n)return'';var p=n.split('#');return esc(p[0])+(p[1]?'<s
 // ========== DATA ==========
 const STORAGE_KEY='quasar_data';
 function defaultData(){return{
-  schedule:[],team:[],scrims:[],members:[],coaches:[],academy:[],news:[],stats:[],announcements:[],curriculum:[],tasks:[],substitutions:[],rank_history:[],member_achievements:[],achievements:[],evaluations:[],coach_notes:[],materials:[],task_completions:[],attendance:[],quizzes:[],quiz_responses:[],groups:[],group_coaches:[],applications:[],content:{home:{
+  schedule:[],schedule_history:[],team:[],scrims:[],members:[],coaches:[],academy:[],news:[],stats:[],announcements:[],curriculum:[],tasks:[],substitutions:[],rank_history:[],member_achievements:[],achievements:[],evaluations:[],coach_notes:[],materials:[],task_completions:[],attendance:[],quizzes:[],quiz_responses:[],groups:[],group_coaches:[],applications:[],content:{home:{
     terms_title:'TÉRMINOS, CONDICIONES Y POLÍTICA DE PRIVACIDAD DE QU4SAR ACADEMY',
     terms_content:'Última actualización: Junio de 2026\n\n1. SOBRE QU4SAR ACADEMY\nQU4SAR Academy es una comunidad independiente dedicada al aprendizaje, desarrollo y perfeccionamiento de habilidades dentro del videojuego VALORANT. Nuestra misión es proporcionar un entorno organizado, respetuoso y orientado al crecimiento de jugadores que buscan mejorar su rendimiento individual y colectivo mediante clases, entrenamientos, análisis de partidas, actividades educativas y participación comunitaria.\nActualmente, todos los servicios ofrecidos por QU4SAR Academy son completamente gratuitos y tienen fines educativos, recreativos y comunitarios.\nQU4SAR Academy no está afiliada, asociada, patrocinada ni respaldada oficialmente por Riot Games, Inc.\n\n2. ACEPTACIÓN DE LOS TÉRMINOS\nAl registrarse, acceder al sitio web, unirse al servidor de Discord, participar en entrenamientos, eventos o utilizar cualquier servicio relacionado con QU4SAR Academy, el usuario declara haber leído, comprendido y aceptado los presentes Términos, Condiciones y Política de Privacidad.\nSi el usuario no está de acuerdo con cualquiera de las disposiciones aquí establecidas, deberá abstenerse de utilizar los servicios ofrecidos por la comunidad.\n\n3. DATOS RECOPILADOS\nQU4SAR Academy podrá recopilar información proporcionada voluntariamente por los usuarios durante procesos de inscripción, participación o interacción con la comunidad.\nEsta información puede incluir:\n• Nombre, alias o apodo.\n• Riot ID.\n• Nombre de usuario de Discord.\n• Rango dentro de VALORANT.\n• Rol principal dentro del juego.\n• Disponibilidad horaria.\n• Objetivos de aprendizaje.\n• Información proporcionada mediante formularios de inscripción.\n• Datos relacionados con participación académica dentro de la plataforma.\nQU4SAR Academy no solicita ni almacena información financiera, bancaria o métodos de pago mientras los servicios permanezcan gratuitos.\n\n4. USO DE LA INFORMACIÓN\nLa información recopilada será utilizada exclusivamente para:\n• Gestionar inscripciones.\n• Organizar grupos de entrenamiento.\n• Coordinar horarios y actividades.\n• Asignar coaches o responsables académicos.\n• Mantener comunicación con los participantes.\n• Gestionar asistencia y progreso.\n• Mejorar la calidad de las actividades ofrecidas.\n• Administrar el funcionamiento interno de la comunidad.\nLa información recopilada no será vendida, alquilada ni cedida a terceros con fines comerciales.\n\n5. ALMACENAMIENTO Y SEGURIDAD DE LOS DATOS\nQU4SAR Academy adopta medidas razonables para proteger la información almacenada mediante herramientas tecnológicas y procedimientos organizativos adecuados.\nSin embargo, ningún sistema informático puede garantizar una seguridad absoluta. En consecuencia, el usuario reconoce y acepta los riesgos inherentes al uso de internet y de servicios digitales.\n\n6. NORMAS DE CONDUCTA\nTodos los miembros de la comunidad deberán mantener un comportamiento respetuoso y profesional.\nSe encuentra prohibido:\n• Realizar actos de acoso o intimidación.\n• Discriminar por cualquier motivo.\n• Emitir amenazas o comportamientos hostiles.\n• Difundir contenido ilegal, ofensivo o inapropiado.\n• Alterar deliberadamente el funcionamiento de la comunidad.\n• Utilizar canales oficiales para spam o publicidad no autorizada.\n• Realizar conductas consideradas tóxicas por la administración.\nLa administración podrá aplicar advertencias, restricciones, suspensiones temporales o expulsiones permanentes cuando considere que un usuario incumple estas normas.\n\n7. PARTICIPACIÓN EN ACTIVIDADES\nLas actividades desarrolladas por QU4SAR Academy incluyen, entre otras:\n• Clases teóricas.\n• Entrenamientos prácticos.\n• Revisiones de partidas.\n• Scrims.\n• Actividades académicas.\n• Eventos comunitarios.\nTodas las actividades son ofrecidas con fines educativos y de desarrollo personal.\nQU4SAR Academy no garantiza:\n• Ascensos de rango.\n• Resultados competitivos específicos.\n• Ingreso a equipos oficiales.\n• Participación en torneos.\n• Éxito competitivo o profesional.\nLos resultados obtenidos dependerán del compromiso, esfuerzo, práctica y desempeño individual de cada participante.\n\n8. CONTENIDO GENERADO POR LOS USUARIOS\nLos usuarios conservan la titularidad de los contenidos que publiquen o compartan dentro de la comunidad.\nAl participar en QU4SAR Academy, el usuario concede una autorización no exclusiva para utilizar dicho contenido con fines educativos, informativos, promocionales o comunitarios relacionados con la academia, respetando siempre la autoría correspondiente.\n\n9. PROPIEDAD INTELECTUAL\nLos elementos identificativos de QU4SAR Academy, incluyendo:\n• Nombre de la comunidad.\n• Logotipos.\n• Diseño visual.\n• Materiales educativos.\n• Recursos gráficos.\n• Documentación interna.\npertenecen a sus respectivos creadores y propietarios.\nSu uso, reproducción o distribución con fines comerciales requerirá autorización previa por escrito.\n\n10. LIMITACIÓN DE RESPONSABILIDAD\nQU4SAR Academy es una iniciativa comunitaria, gratuita y desarrollada por colaboradores voluntarios.\nLa organización, sus administradores, coaches, moderadores y colaboradores no serán responsables por:\n• Pérdida de cuentas de terceros.\n• Problemas técnicos ajenos a la plataforma.\n• Interrupciones de servicios externos.\n• Conflictos entre usuarios.\n• Daños derivados del uso de plataformas de terceros.\n• Resultados competitivos obtenidos por los participantes.\n• Decisiones tomadas por usuarios basadas en recomendaciones proporcionadas dentro de la comunidad.\n\n11. MODIFICACIONES DE LOS TÉRMINOS\nQU4SAR Academy podrá actualizar, modificar o ampliar estos términos cuando resulte necesario para mejorar el funcionamiento de la comunidad o adaptarse a nuevos requerimientos operativos.\nLas modificaciones entrarán en vigor desde el momento de su publicación en los canales oficiales de la academia.\n\n12. CONTACTO\nPara consultas relacionadas con la comunidad, protección de datos, funcionamiento de la plataforma o cualquier aspecto relacionado con estos términos, los usuarios podrán comunicarse mediante los canales oficiales de QU4SAR Academy.\n\nDECLARACIÓN FINAL\nAl registrarse, acceder a la plataforma o participar en cualquiera de las actividades organizadas por QU4SAR Academy, el usuario declara haber leído, comprendido y aceptado íntegramente los presentes Términos, Condiciones y Política de Privacidad.\n\nQU4SAR Academy\n"Aprender, mejorar y competir."'
   }}
@@ -217,4 +217,54 @@ function toLocalTime(hhmm,sourceTZ){
   var total=((h*60+m+srcOff-locOff)%1440+1440)%1440;
   var d=new Date();d.setHours(Math.floor(total/60),Math.round(total%60),0,0);
   return d.toLocaleTimeString('es',{hour:'numeric',minute:'2-digit',hour12:true});
+}
+
+// ========== WEEK HELPERS ==========
+function getWeekStart(date){
+  if (!date) date = new Date();
+  var d = date instanceof Date ? new Date(date) : new Date(date);
+  var day = d.getDay();
+  var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return d.toISOString().slice(0, 10);
+}
+function getCurrentWeekStart(){return getWeekStart(new Date())}
+function getWeekLabel(ws){
+  if (!ws) return '';
+  var d = new Date(ws + 'T12:00:00');
+  var end = new Date(d);
+  end.setDate(end.getDate() + 6);
+  var o = {day:'numeric', month:'long', year:'numeric'};
+  return d.toLocaleDateString('es', o) + ' - ' + end.toLocaleDateString('es', o);
+}
+function saveHistory(item, action){
+  if (!DATA.schedule_history) DATA.schedule_history = [];
+  DATA.schedule_history.push({
+    id: uid(),
+    schedule_id: item.id,
+    title: item.title,
+    snapshot: JSON.parse(JSON.stringify(item)),
+    week_start: item.week_start || '',
+    action: action,
+    timestamp: new Date().toISOString(),
+    modified_by: (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.coachName || currentUser.email || '') : ''
+  });
+}
+function autoCopySchedule(){
+  var cw = getCurrentWeekStart();
+  var has = (DATA.schedule || []).some(function(s){ return s.week_start === cw; });
+  if (has) return 0;
+  var weeks = {}; (DATA.schedule || []).forEach(function(s){ if (s.week_start) weeks[s.week_start] = true; });
+  var sorted = Object.keys(weeks).sort().reverse();
+  var lastWeek = sorted[0];
+  if (!lastWeek) return 0;
+  var src = (DATA.schedule || []).filter(function(s){ return s.week_start === lastWeek; });
+  if (!src.length) return 0;
+  src.forEach(function(s){
+    var cp = JSON.parse(JSON.stringify(s));
+    cp.id = uid();
+    cp.week_start = cw;
+    DATA.schedule.push(cp);
+  });
+  return src.length;
 }

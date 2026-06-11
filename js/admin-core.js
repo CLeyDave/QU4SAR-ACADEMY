@@ -259,6 +259,7 @@ async function loadAdminData(){
         }
       }
     });
+    DATA.schedule.forEach(function(s){if(!s.week_start)s.week_start=getCurrentWeekStart()});
     if(te.data&&te.data.length)DATA.team=te.data;
     if(sc.data&&sc.data.length){
       var localScrims=(localData.scrims||[]).reduce(function(acc,s){acc[s.id]=s;return acc},{});

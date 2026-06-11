@@ -258,6 +258,7 @@ async function loadAdminData(){
         }
       }
     });
+    DATA.schedule.forEach(function(s){if(!s.week_start)s.week_start=getCurrentWeekStart()});
     if(te.data&&te.data.length)DATA.team=te.data;
     if(sc.data&&sc.data.length){
       var localScrims=(localData.scrims||[]).reduce(function(acc,s){acc[s.id]=s;return acc},{});
@@ -335,6 +336,7 @@ async function loadAdminData(){
     if(elCoaches)elCoaches.style.display='none';
     if(elContent)elContent.style.display='none';
   }
+  if(autoCopySchedule())saveLocal(DATA);
   refresh();
   document.getElementById('adminDbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('adminDbStatus').className='ok';if(typeof lucide!=='undefined')lucide.createIcons();
   toast('Bienvenido, '+currentUser.email,'ok');

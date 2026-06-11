@@ -180,11 +180,31 @@ function renderFooter(){
 
 // ========== RENDER SCHEDULE ==========
 function renderSchedule(){
+  var cw=getCurrentWeekStart();
+  var weekSet={}; (DATA.schedule||[]).forEach(function(s){if(s.week_start) weekSet[s.week_start]=true});
+  weekSet[cw]=true;
+  var sortedWeeks=Object.keys(weekSet).sort().reverse();
+  var selWeek=document.getElementById('sf_weekFilter')?document.getElementById('sf_weekFilter').value:cw;
+  var weekOpts=sortedWeeks.map(function(w){
+    var label=w===cw?'Esta semana ('+getWeekLabel(w)+')':getWeekLabel(w);
+    return '<option value="'+w+'" '+(selWeek===w?'selected':'')+'>'+esc(label)+'</option>';
+  }).join('');
+
   var items=DATA.schedule||[];
   items=filterByCoach(filterByGroup(items));
+  items=items.filter(function(s){return(s.week_start||cw)===selWeek});
+
   var days=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
   var container=document.getElementById('scheduleBubbles');
-  if(!items.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#555">'+ic('calendar',48)+'<br>No hay horarios disponibles</div>';return}
+
+  var weekHTML='<div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">'+
+    '<label style="font-size:13px;color:#888">Semana:</label>'+
+    '<select class="input-field" id="sf_weekFilter" onchange="renderSchedule()" style="width:auto;min-width:220px;padding:6px 12px;font-size:13px">'+weekOpts+'</select></div>';
+
+  if(!items.length){
+    container.innerHTML=weekHTML+'<div style="text-align:center;padding:40px;color:#555">'+ic('calendar',48)+'<br>No hay horarios disponibles para esta semana</div>';
+    return;
+  }
 
   var dotColors=['#8b5cf6','#f97316','#eab308','#8b5cf6','#3b82f6','#8b5cf6','#a78bfa'];
   var html='<div class="schedule-week">';
@@ -201,8 +221,7 @@ function renderSchedule(){
     html+='</div>';
   }
   html+='</div>';
-  if(!html)html='<div style="text-align:center;padding:40px;color:#555">'+ic('calendar',48)+'<br>No hay horarios disponibles</div>';
-  container.innerHTML=html;
+  container.innerHTML=weekHTML+html;
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
@@ -934,6 +953,7 @@ async function initDB(){
         }
       }
     });
+    DATA.schedule.forEach(function(s){if(!s.week_start)s.week_start=getCurrentWeekStart()});
     
     try{
       var pending;try{pending=JSON.parse(localStorage.getItem('qsr_pending_apps')||'[]')}catch(e){pending=[]}
