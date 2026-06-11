@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QU4SAR Admin – Comunicación</title>
+  <link rel="icon" href="../../QU4SAR.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/base.css?v=4">
+  <link rel="stylesheet" href="../../css/admin/shared.css?v=4">
+</head>
+<body>  <div id="loadingOverlay">
+    <div class="loader-circle">
+      <img src="../../QU4SAR.ico" alt="QU4SAR" class="loader-logo">
+    </div>
+    <div class="loading-text">Cargando...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <div class="login-screen" id="loginScreen">
+    <div class="glass-card login-box">
+      <div class="icon"><i data-lucide="shield" style="width:36px;height:36px"></i></div>
+      <h1 class="gradient-text">QU4SAR Admin</h1>
+      <p>Acceso al panel de administración</p>
+      <form id="loginForm" onsubmit="event.preventDefault();doLogin()">
+        <div class="form-group">
+          <label><i data-lucide="mail" style="width:14px;height:14px"></i> Email</label>
+          <input class="input-field" type="email" id="loginEmail" placeholder="tu@email.com" autofocus>
+        </div>
+        <div class="form-group">
+          <label><i data-lucide="key" style="width:14px;height:14px"></i> Contraseña</label>
+          <input class="input-field" type="password" id="loginPass" placeholder="••••••">
+        </div>
+        <div class="error" id="loginError"></div>
+        <button class="btn-primary btn-full" onclick="doLogin()" id="loginBtn"><i data-lucide="shield" style="width:18px;height:18px"></i> Ingresar</button>
+      </form>
+    </div>
+  </div>
+  <div class="admin active" id="adminPanel">
+    <div class="admin-header">
+      <div class="left">
+        <a href="../../" class="back" title="Volver al sitio"><i data-lucide="arrow-left" style="width:18px;height:18px"></i></a>
+        <div style="display:flex;align-items:center;gap:8px">
+          <img src="../../QU4SAR.ico" alt="QU4SAR" style="width:32px;height:32px;object-fit:contain;border-radius:6px">
+          <h2 class="gradient-text" id="adminTitle">Comunicación</h2>
+        </div>
+      </div>
+      <div class="right">
+        <button onclick="refresh()" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:6px;display:flex" title="Recargar"><i data-lucide="refresh-cw" style="width:18px;height:18px"></i></button>
+        <span id="adminDbStatus" class="err"><i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>desconectado</span></span>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="admin-sidebar" id="adminSidebar"></div>
+      <div class="admin-main" id="adminContent"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" onclick="if(event.target===this)closeModal()">
+    <div class="glass-card modal-box" id="modalBox"></div>
+  </div>
+  <script src="../../js/shared.js"></script>
+  <script src="../../js/admin/shared.js"></script>
+  <script src="../../js/admin/news.js"></script>
+  <script src="../../js/admin/announcements.js"></script>
+</body>
+</html>

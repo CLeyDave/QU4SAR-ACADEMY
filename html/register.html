@@ -8,15 +8,21 @@
   <link rel="icon" href="../QU4SAR.ico">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/register.css">
+  <link rel="stylesheet" href="../css/base.css?v=4">
+  <link rel="stylesheet" href="../css/register.css?v=4">
 </head>
 <body>
+<div id="loadingOverlay">
+  <div class="loader-circle">
+    <img src="../QU4SAR.ico" alt="QU4SAR" class="loader-logo">
+  </div>
+  <div class="loading-text">Cargando...</div>
+</div>
 
 <nav class="register-nav">
   <div class="navbar-inner">
     <a class="nav-logo" href="../">
-      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <img src="../QU4SAR.ico" alt="QU4SAR" class="nav-logo-icon">
       <span class="nav-logo-text">QU4SAR</span>
     </a>
     <div style="display:flex;gap:8px;align-items:center">
@@ -76,7 +82,7 @@
           <div class="register-field"><label for="reg_objectives">Objetivos personales dentro de QU4SAR Academy</label><textarea class="input-field" id="reg_objectives" rows="3" placeholder="¿Qué te gustaría lograr?"></textarea></div>
           <div class="register-field"><label for="reg_reason">¿Por qué deseas formar parte de QU4SAR Academy?</label><textarea class="input-field" id="reg_reason" rows="3" placeholder="Cuéntanos sobre ti..."></textarea></div>
 
-          <label style="display:flex;align-items:center;gap:8px;margin:16px 0;cursor:pointer;font-size:13px;color:#aaa">
+          <label style="display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0;cursor:pointer;font-size:13px;color:#aaa;text-align:center">
             <input type="checkbox" id="reg_terms" required>
             <span>Acepto los <a href="terms.html" target="_blank" style="color:var(--neon);text-decoration:underline">términos y condiciones</a></span>
           </label>
@@ -91,8 +97,8 @@
   </div>
 </section>
 
-<footer class="footer" style="margin-top:40px;border:none;padding:30px 0">
-    <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+<footer class="footer" style="margin-top:40px;border:none;padding:30px 0;text-align:center">
+    <div style="color:#666;font-size:14px">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
 </footer>
 
 <div class="toast" id="toast"></div>

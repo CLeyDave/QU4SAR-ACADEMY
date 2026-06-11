@@ -196,7 +196,7 @@
   .nav-logo-text{font-size:17px}
   .nav-logo-icon{width:36px;height:36px}
   .section{padding:40px 0}
-  .dash-cards{grid-template-columns:1fr}
+  .dash-cards{grid-template-columns:repeat(2,1fr)}
   .schedule-week{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
   .schedule-day-col{gap:6px}
 }

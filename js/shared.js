@@ -6,6 +6,10 @@ var db=null; var rtChannel=null; var _dbFailed=false;
 // ========== TOAST ==========
 function toast(m,t){var el=document.getElementById('toast');if(!el)return;el.textContent=m;el.className='toast show '+(t||'ok');setTimeout(function(){el.classList.remove('show')},2800)}
 
+// ========== LOADING OVERLAY ==========
+function showLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.remove('hidden')}
+function hideLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.add('hidden')}
+
 // ========== UTILS ==========
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}

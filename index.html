@@ -8,24 +8,29 @@
   <link rel="icon" href="QU4SAR.ico">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/public.css">
+  <link rel="stylesheet" href="css/base.css?v=4">
+  <link rel="stylesheet" href="css/public.css?v=4">
 </head>
 <body>
+<div id="loadingOverlay">
+  <div class="loader-circle">
+    <img src="QU4SAR.ico" alt="QU4SAR" class="loader-logo">
+  </div>
+  <div class="loading-text">Cargando...</div>
+</div>
 
 <!-- NAVBAR -->
 <nav class="navbar public-nav" id="navbar">
   <div class="navbar-inner">
     <a class="nav-logo" href="index.html">
-      <img src="QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <img src="QU4SAR.ico" alt="QU4SAR" class="nav-logo-icon">
       <span class="nav-logo-text">QU4SAR</span>
     </a>
-    <div class="nav-links" id="navLinks">
-      <a href="html/register.html" class="btn-sm primary" style="text-decoration:none;padding:8px 16px">Inscripción</a>
-      <a href="html/students.html" class="btn-sm secondary" id="plataformaBtn" style="text-decoration:none;padding:8px 16px">Plataforma</a>
+    <div class="nav-actions">
+      <a href="html/students.html" class="btn-sm secondary" id="plataformaBtn" style="text-decoration:none;padding:8px 16px">Iniciar sesión</a>
       <a href="html/coaches.html" class="btn-sm" style="text-decoration:none;padding:8px 16px;background:rgba(139,92,246,0.12);color:var(--neon);border:1px solid rgba(139,92,246,0.2)">IS COACHES</a>
+      <a href="html/register.html" class="btn-sm primary" style="text-decoration:none;padding:8px 16px">Inscripción</a>
     </div>
-    <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menú">☰</button>
   </div>
 </nav>
 
@@ -35,10 +40,10 @@
   <div class="hero-glow1"></div>
   <div class="hero-glow2"></div>
   <div class="hero-content" id="heroContent">
-    <img src="QU4SAR.png" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">
+    <img src="QU4SAR.ico" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">
     <h1><span class="gradient-text">QU4SAR</span></h1>
     <p>Organización competitiva de Valorant Premier</p>
-    <p class="tagline">Academia · Scrims · Creación de contenido · Esports de alto nivel</p>
+    <p class="tagline">Academia · Scrims · Creación de contenido</p>
   </div>
 </section>
 

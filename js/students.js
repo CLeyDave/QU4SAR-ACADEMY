@@ -62,7 +62,11 @@ function showSection(name){
   var lnk=document.querySelector('.nav-links a[data-section="'+name+'"]');
   if(lnk)lnk.classList.add('active');
   document.getElementById('navLinks').classList.remove('open');
-  renderSection(name);
+  showLoading();
+  requestAnimationFrame(function(){
+    renderSection(name);
+    hideLoading();
+  });
 }
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function renderSection(n){try{switch(n){
@@ -162,11 +166,11 @@ function renderHero(){
   var c=DATA.content.home||{};
   var h=document.getElementById('heroContent');
   h.innerHTML=
-    '<img src="'+esc(c.logo_url||'../QU4SAR.png')+'" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">'+
+    '<img src="'+esc(c.logo_url||'../QU4SAR.ico')+'" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">'+
     '<h1><span class="gradient-text">'+esc(c.hero_title||'QU4SAR')+'</span></h1>'+
     '<p>'+esc(c.hero_subtitle||'Organización competitiva de Valorant Premier')+'</p>'+
     (c.hero_desc?'<p style="color:#888;font-size:15px;max-width:600px;margin:0 auto">'+esc(c.hero_desc)+'</p>':'')+
-    '<p class="tagline">'+esc(c.site_tagline||'Academia · Scrims · Creación de contenido · Esports de alto nivel')+'</p>';
+    '<p class="tagline">'+esc(c.site_tagline||'Academia · Scrims · Creación de contenido')+'</p>';
 }
 
 // ========== RENDER FOOTER ==========
@@ -852,6 +856,7 @@ function toggleTaskCompletion(taskId){
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 
 function renderAll(){
+  showLoading();
   safeRender(renderFooter,'footer');
   var sectionFns={'schedule':renderSchedule,'academy':renderAcademy,'team':renderTeam,'scrims':renderScrims,'stats':renderStats,'news':renderNews,'members':renderMembers,'dashboard':renderDashboard,'announcements':renderAnnouncements,'substitutions':renderSubstitutions};
   Object.keys(sectionFns).forEach(function(id){
@@ -860,22 +865,27 @@ function renderAll(){
   if(typeof lucide!=='undefined')lucide.createIcons();
   setTimeout(function(){
     document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
-  },50);
+    hideLoading();
+  },80);
 }
 
 function reRenderTable(table){
-  if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=='undefined')lucide.createIcons();return}
-  if(table==='schedule')renderSchedule();
-  else if(table==='team')renderTeam();
-  else if(table==='scrims')renderScrims();
-  else if(table==='members')renderMembers();
-  else if(table==='news')renderNews();
-   else if(table==='academy'){renderAcademy();var d=document.getElementById('section-dashboard');if(d&&d.style.display!=='none')renderDashContent();}
-  else if(table==='announcements')renderAnnouncements();
-  else if(table==='substitutions')renderSubstitutions();
-  else renderDashboard();
-  if(typeof lucide!=='undefined')lucide.createIcons();
-  document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
+  showLoading();
+  requestAnimationFrame(function(){
+    if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=='undefined')lucide.createIcons();hideLoading();return}
+    if(table==='schedule')renderSchedule();
+    else if(table==='team')renderTeam();
+    else if(table==='scrims')renderScrims();
+    else if(table==='members')renderMembers();
+    else if(table==='news')renderNews();
+     else if(table==='academy'){renderAcademy();var d=document.getElementById('section-dashboard');if(d&&d.style.display!=='none')renderDashContent();}
+    else if(table==='announcements')renderAnnouncements();
+    else if(table==='substitutions')renderSubstitutions();
+    else renderDashboard();
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
+    hideLoading();
+  });
 }
 async function initDB(){
   try{
@@ -1030,6 +1040,7 @@ function showLoginOverlay(){
     initParticles();
     initRipple();
     showSection('team');
+    hideLoading();
     return;
   }
   if(isLoggedIn()){
@@ -1041,4 +1052,5 @@ function showLoginOverlay(){
   initParticles();
   initRipple();
   if(isLoggedIn())showSection('dashboard');
+  hideLoading();
 })();

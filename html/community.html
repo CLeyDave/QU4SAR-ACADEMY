@@ -10,10 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
-  <link rel="stylesheet" href="../css/base.css?v=2">
-  <link rel="stylesheet" href="../css/students.css?v=2">
+  <link rel="stylesheet" href="../css/base.css?v=4">
+  <link rel="stylesheet" href="../css/students.css?v=4">
 </head>
 <body>
+<div id="loadingOverlay">
+  <div class="loader-circle">
+    <img src="../QU4SAR.ico" alt="QU4SAR" class="loader-logo">
+  </div>
+  <div class="loading-text">Cargando...</div>
+</div>
 
 <span id="isCommunity" style="display:none"></span>
 
@@ -21,7 +27,7 @@
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
     <a class="nav-logo" href="students.html">
-      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <img src="../QU4SAR.ico" alt="QU4SAR" class="nav-logo-icon">
       <span class="nav-logo-text">QU4SAR</span>
     </a>
     <div class="nav-links" id="navLinks">
@@ -155,7 +161,7 @@
     <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
 </footer>
 
-<div id="dbStatus" class="offline">? sin conexi&oacute;n</div>
+<div id="dbStatus" class="offline"><i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span></div>
 <div class="toast" id="toast"></div>
 <a href="students.html" class="community-home-btn" id="communityPanelBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Mi Panel</a>
 <a href="../" class="community-home-btn" id="communityHomeBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Inicio</a>

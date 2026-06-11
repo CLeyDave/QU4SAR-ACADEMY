@@ -127,22 +127,21 @@ textarea.input-field{resize:vertical;min-height:80px}
 #adminDbStatus{font-size:10px;padding:3px 8px;border-radius:8px;transition:all 0.3s}
 #adminDbStatus.ok{color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.06)}
 #adminDbStatus.err{color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.06)}
-.admin-body{display:flex;flex:1;overflow:hidden;max-width:100%}
-.admin-sidebar{width:200px;border-right:1px solid var(--border);padding:12px 8px;overflow-y:auto;flex-shrink:0;background:rgba(10,10,10,0.5)}
-.admin-sidebar a,.admin-sidebar button{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;background:none;border:none;color:#777;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;margin-bottom:1px;text-align:left;user-select:none;text-decoration:none}
-.admin-sidebar a:active,.admin-sidebar button:active{transform:scale(0.97)}
-.admin-sidebar a:hover,.admin-sidebar button:hover{color:#eee;background:rgba(255,255,255,0.03)}
-.admin-sidebar a.active,.admin-sidebar button.active{color:var(--neon);background:rgba(139,92,246,0.08);box-shadow:inset 2px 0 0 var(--neon)}
-.admin-sidebar a .count,.admin-sidebar button .count{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(139,92,246,0.12);color:var(--neon)}
-.admin-sidebar .sidebar-group-title{font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:1px;padding:8px 12px 4px;margin-top:4px}
-.admin-sidebar .sidebar-back{display:flex;align-items:center;gap:6px;padding:8px 12px;font-size:12px;color:#666;text-decoration:none;border-radius:8px;transition:all 0.2s;cursor:pointer}
-.admin-sidebar .sidebar-back:hover{color:#fff;background:rgba(255,255,255,0.03)}
-.admin-sidebar .sidebar-group-link{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;font-weight:500;color:#888;text-decoration:none;border-radius:8px;transition:all 0.2s;margin-bottom:1px;cursor:pointer}
-.admin-sidebar .sidebar-group-link:hover{color:#eee;background:rgba(255,255,255,0.03)}
-.admin-sidebar .sidebar-logout{margin-top:4px;color:rgba(180,150,255,0.6)}
+.admin-body{display:flex;flex-direction:column;flex:1;overflow:hidden;max-width:100%;padding-bottom:76px}
+.admin-sidebar{position:fixed;bottom:0;left:0;right:0;height:72px;z-index:100;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;overflow-x:auto;overflow-y:hidden;background:rgba(10,10,10,0.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--border);flex-shrink:0}
+.admin-sidebar a,.admin-sidebar button{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 18px;border-radius:10px;font-size:11px;font-weight:600;background:none;border:none;color:#888;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;user-select:none;text-decoration:none;min-width:64px;white-space:nowrap;flex-shrink:0}
+.admin-sidebar a:active,.admin-sidebar button:active{transform:scale(0.95)}
+.admin-sidebar a:hover,.admin-sidebar button:hover{color:#ddd;background:rgba(255,255,255,0.04)}
+.admin-sidebar a.active,.admin-sidebar button.active{color:var(--neon);background:rgba(139,92,246,0.1)}
+.admin-sidebar a .count,.admin-sidebar button .count{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.12);color:var(--neon);margin-left:2px}
+.admin-sidebar .sidebar-group-title,.admin-sidebar .sidebar-back{display:none}
+.admin-sidebar .sidebar-group-link,.admin-sidebar .nav-link{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 18px;border-radius:10px;font-size:11px;font-weight:600;color:#888;text-decoration:none;transition:all 0.2s;cursor:pointer;min-width:64px;white-space:nowrap;flex-shrink:0}
+.admin-sidebar .sidebar-group-link:hover,.admin-sidebar .nav-link:hover{color:#ddd;background:rgba(255,255,255,0.04)}
+.admin-sidebar .sidebar-group-link.active,.admin-sidebar .nav-link.active{color:var(--neon);background:rgba(139,92,246,0.1)}
+.admin-sidebar .sidebar-logout{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 18px;border-radius:10px;font-size:11px;font-weight:600;color:rgba(180,150,255,0.5);background:none;border:none;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;min-width:64px;flex-shrink:0}
 .admin-sidebar .sidebar-logout:hover{color:#8b5cf6;background:rgba(139,92,246,0.1)}
-.admin-sidebar .divider,.sidebar-divider{border-top:1px solid var(--border);margin:8px 0;padding-top:8px}
-.admin-main{flex:1;padding:20px 24px;overflow-y:auto;min-width:0;word-break:break-word}
+.admin-sidebar .sidebar-divider{display:none}
+.admin-main{flex:1;padding:16px 20px;overflow-y:auto;min-width:0;word-break:break-word}
 
 /* DASHBOARD CARDS */
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
@@ -167,16 +166,23 @@ textarea.input-field{resize:vertical;min-height:80px}
 .admin-actions button:hover{background:rgba(139,92,246,0.1);color:var(--neon)}
 .admin-actions .del:hover{background:rgba(139,92,246,0.1);color:#8b5cf6}
 
-/* LOADING OVERLAY */
-#loadingOverlay{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity 0.3s}
-#loadingOverlay.hidden{opacity:0;pointer-events:none}
-.loading-spinner{width:40px;height:40px;border:3px solid rgba(139,92,246,0.12);border-top:3px solid var(--neon);border-radius:50%;animation:spin 0.7s linear infinite}
-.loading-text{font-family:var(--font-display);font-size:14px;color:#888;margin-top:4px}
+/* FLOATING PAGE SWITCHER */
+.admin-page-switcher{position:fixed;right:12px;bottom:90px;z-index:101;display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(10,10,10,0.88);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:12px}
+.admin-page-switcher a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:#555;text-decoration:none;transition:all 0.2s;position:relative}
+.admin-page-switcher a:hover{color:#ddd;background:rgba(255,255,255,0.04)}
+.admin-page-switcher a.active{color:var(--neon);background:rgba(139,92,246,0.1)}
+.admin-page-switcher a::after{content:attr(data-label);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);background:rgba(10,10,10,0.92);color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s;font-family:var(--font-body)}
+.admin-page-switcher a:hover::after{opacity:1}
+.admin-page-switcher .switcher-divider{height:1px;background:var(--border);margin:2px 4px}
+
+@media(max-width:768px){
+  .admin-page-switcher{right:8px;bottom:78px;padding:4px}
+  .admin-page-switcher a{width:32px;height:32px}
+}
 
 /* ICON BUTTONS */
 .icon-btn{background:none;border:none;color:#888;cursor:pointer;padding:6px;border-radius:6px;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;line-height:1}
 .icon-btn:hover{color:#fff;background:rgba(255,255,255,0.04)}
-#menuToggleAdmin{display:none}
 
 /* ACADEMY TABS */
 .academy-tab{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:#888;font-size:13px;cursor:pointer;transition:all .2s;font-family:var(--font-body);font-weight:500;user-select:none}
@@ -228,12 +234,10 @@ textarea.input-field{resize:vertical;min-height:80px}
 .info-card{padding:20px}
 
 @media(max-width:768px){
-  #menuToggleAdmin{display:block!important}
-  .admin-sidebar{position:fixed;left:-220px;top:56px;bottom:0;width:220px;z-index:150;background:var(--bg);border-right:1px solid var(--border);transition:left 0.25s;padding:8px 4px;overflow-y:auto}
-  .admin-sidebar.mobile-open{left:0}
-  .admin-sidebar a,.admin-sidebar button{padding:7px 10px;font-size:12px}
-  .admin-sidebar a .count,.admin-sidebar button .count{font-size:9px;padding:1px 5px}
+  .admin-sidebar a,.admin-sidebar button,.admin-sidebar .sidebar-group-link,.admin-sidebar .nav-link,.admin-sidebar .sidebar-logout{font-size:10px;padding:6px 12px;min-width:52px}
   .admin-main{padding:12px;min-width:0;max-width:100%}
+  .admin-body{padding-bottom:68px}
+  .admin-sidebar{height:64px}
   .dash-cards{grid-template-columns:repeat(2,1fr)}
   .quick-grid{grid-template-columns:1fr}
   .modal-box .grid-2,.modal-box .grid-3{grid-template-columns:1fr}
@@ -252,9 +256,9 @@ textarea.input-field{resize:vertical;min-height:80px}
 @media(max-width:480px){
   .dash-cards{grid-template-columns:1fr}
   .admin-main{padding:8px;max-width:100%}
-  .admin-sidebar{width:100%;left:-100%}
-  .admin-sidebar.mobile-open{left:0}
-  .admin-sidebar a,.admin-sidebar button{font-size:14px;padding:12px 14px}
+  .admin-body{padding-bottom:60px}
+  .admin-sidebar{height:56px}
+  .admin-sidebar a,.admin-sidebar button,.admin-sidebar .sidebar-group-link,.admin-sidebar .nav-link,.admin-sidebar .sidebar-logout{font-size:9px;padding:4px 8px;min-width:44px}
   .admin-header{padding:8px 10px}
   .admin-header h2{font-size:13px}
   .modal-box{padding:14px}

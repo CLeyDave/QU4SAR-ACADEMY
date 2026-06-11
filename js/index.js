@@ -12,11 +12,11 @@ function renderHero(){
   var c=DATA.content.home||{};
   var h=document.getElementById('heroContent');
   h.innerHTML=
-    '<img src="'+esc(c.logo_url||'QU4SAR.png')+'" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">'+
+    '<img src="'+esc(c.logo_url||'QU4SAR.ico')+'" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">'+
     '<h1><span class="gradient-text">'+esc(c.hero_title||'QU4SAR')+'</span></h1>'+
     '<p>'+esc(c.hero_subtitle||'OrganizaciÃ³n competitiva de Valorant Premier')+'</p>'+
     (c.hero_desc?'<p style="color:#888;font-size:15px;max-width:600px;margin:0 auto">'+esc(c.hero_desc)+'</p>':'')+
-    '<p class="tagline">'+esc(c.site_tagline||'Academia Â· Scrims Â· CreaciÃ³n de contenido Â· Esports de alto nivel')+'</p>';
+    '<p class="tagline">'+esc(c.site_tagline||'Academia Â· Scrims Â· CreaciÃ³n de contenido Â')+'</p>';
 }
 
 // ========== RENDER FOOTER ==========

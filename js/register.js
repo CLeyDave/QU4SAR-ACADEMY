@@ -109,4 +109,5 @@ function showLoginStatus(){
   showLoginStatus();
   initParticles();
   initRipple();
+  hideLoading();
 })();

@@ -8,8 +8,8 @@
   <link rel="icon" href="../QU4SAR.ico">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/public.css">
+  <link rel="stylesheet" href="../css/base.css?v=4">
+  <link rel="stylesheet" href="../css/public.css?v=4">
   <style>
     .terms-section{padding:120px 0 60px}
     .terms-content{max-width:860px;margin:0 auto}
@@ -34,11 +34,17 @@
   </style>
 </head>
 <body>
+<div id="loadingOverlay">
+  <div class="loader-circle">
+    <img src="../QU4SAR.ico" alt="QU4SAR" class="loader-logo">
+  </div>
+  <div class="loading-text">Cargando...</div>
+</div>
 
 <nav class="register-nav">
   <div class="navbar-inner">
     <a class="nav-logo" href="../">
-      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <img src="../QU4SAR.ico" alt="QU4SAR" class="nav-logo-icon">
       <span class="nav-logo-text">QU4SAR</span>
     </a>
     <div style="display:flex;gap:8px;align-items:center">
@@ -79,8 +85,9 @@
     '<div class="body">' + esc(c.terms_content || 'Términos y condiciones próximamente.') + '</div>';
 
   if (typeof initDB === 'function') {
-    initDB().then(function(){}).catch(function(){});
-  }
-</script>
+    initDB().then(function(){hideLoading()}).catch(function(){hideLoading()});
+  } else {
+    hideLoading();
+  }</script>
 </body>
 </html>
