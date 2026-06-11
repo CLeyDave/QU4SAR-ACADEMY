@@ -32,7 +32,7 @@ function renderSchedule(){
     var dayEvents=items.filter(function(e){return e.day===d});
     if(!dayEvents.length)continue;
     html+='<div class="has-glow schedule-day-group"><div class="schedule-day-header"><span class="dot" style="background:'+dotColors[d]+'"></span>'+days[d]+'</div><div class="schedule-bubble-row">'+
-      dayEvents.map(function(e){return'<div class="schedule-event '+e.type+'"><span class="title">'+esc(e.title)+'</span><span class="time">'+e.start+' - '+e.end+'</span>'+(e.coach?'<span style="font-size:11px;opacity:0.6;margin-top:2px">'+ic('user',11)+' '+esc(e.coach)+'</span>':'')+'</div>'}).join('')+
+      dayEvents.map(function(e){return'<div class="schedule-event '+e.type+'"><span class="title">'+esc(e.title)+'</span><span class="time">'+toLocalTime(e.start)+' - '+toLocalTime(e.end)+'</span>'+(e.coach?'<span style="font-size:11px;opacity:0.6;margin-top:2px">'+ic('user',11)+' '+esc(e.coach)+'</span>':'')+'</div>'}).join('')+
     '</div></div>';
   }
   if(!html)html='<div style="text-align:center;padding:40px;color:#555">'+ic('calendar',48)+'<br>No hay horarios disponibles</div>';

@@ -202,3 +202,18 @@ function closeDetail(){
   ov.classList.remove('open');
   document.body.style.overflow='';
 }
+
+// ========== TIMEZONE ==========
+var SOURCE_TZ='America/Lima';
+function toLocalTime(hhmm,sourceTZ){
+  if(!hhmm)return'';
+  var p=hhmm.split(':');var h=+p[0];var m=+p[1];
+  var now=new Date();var tz=sourceTZ||SOURCE_TZ;
+  var fmt=new Intl.DateTimeFormat('en',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  var parts=fmt.formatToParts(now);
+  function v(t){for(var i=0;i<parts.length;i++)if(parts[i].type===t)return+parts[i].value;return 0}
+  var srcOff=(now.getTime()-Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'),v('second')))/60000;
+  var locOff=now.getTimezoneOffset();
+  var total=((h*60+m+srcOff-locOff)%1440+1440)%1440;
+  return String(Math.floor(total/60)).padStart(2,'0')+':'+String(Math.round(total%60)).padStart(2,'0');
+}
