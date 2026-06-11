@@ -193,7 +193,7 @@ function renderSchedule(){
     html+='<div class="schedule-day-col"><div class="schedule-day-name" style="border-color:'+dotColors[d]+'"><span class="dot" style="background:'+dotColors[d]+'"></span>'+days[d]+'</div>';
     if(dayEvents.length){
       dayEvents.forEach(function(e){
-        html+='<div class="schedule-card '+e.type+'"><div class="sc-head"><span class="title">'+esc(e.title)+'</span><span class="type-badge">'+esc(e.type)+'</span></div><div class="sc-time">'+ic('clock',14)+' '+toLocalTime(e.start)+' - '+toLocalTime(e.end)+'</div>'+(e.coach?'<div class="sc-coach">'+ic('user',14)+' '+esc(e.coach)+'</div>':'')+'</div>';
+        html+='<div class="schedule-card '+e.type+'"><div class="sc-head"><span class="title">'+esc(e.title)+'</span><span class="type-badge">'+esc(e.type)+'</span></div><div class="sc-time">'+ic('clock',14)+' '+toLocalTime(e.start,e.tz)+' - '+toLocalTime(e.end,e.tz)+'</div>'+(e.coach?'<div class="sc-coach">'+ic('user',14)+' '+esc(e.coach)+'</div>':'')+'</div>';
       });
     }else{
       html+='<div class="schedule-empty">—</div>';

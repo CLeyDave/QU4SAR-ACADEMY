@@ -312,7 +312,7 @@ function subForm(id){
   var item=id?(DATA.substitutions||[]).find(function(s){return s.id===id}):null;
   var f=item||{schedule_id:'',requesting_member:'',needed_role:'',status:'open',filled_by:'',coach:dc(),group_id:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nueva')+' Sustitución</h3>'+
-    '<div class="field"><label>Horario</label><select class="input-field" id="sf_schedule_id">'+    (DATA.schedule||[]).map(function(s){var days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];return'<option value="'+s.id+'" '+(s.id===f.schedule_id?'selected':'')+'>'+esc(s.title)+' ('+days[s.day]+' '+toLocalTime(s.start)+')</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label>Horario</label><select class="input-field" id="sf_schedule_id">'+    (DATA.schedule||[]).map(function(s){var days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];return'<option value="'+s.id+'" '+(s.id===f.schedule_id?'selected':'')+'>'+esc(s.title)+' ('+days[s.day]+' '+toLocalTime(s.start,s.tz)+')</option>'}).join('')+'</select></div>'+
     '<div class="field"><label>Solicitante</label><input class="input-field" id="sf_requesting_member" value="'+esc(f.requesting_member)+'"></div>'+
     '<div class="field"><label>Rol necesario</label><input class="input-field" id="sf_needed_role" value="'+esc(f.needed_role)+'"></div>'+
     '<div class="field"><label>Estado</label><select class="input-field" id="sf_status"><option value="open" '+(f.status==='open'?'selected':'')+'>Abierta</option><option value="fulfilled" '+(f.status==='fulfilled'?'selected':'')+'>Cumplida</option><option value="cancelled" '+(f.status==='cancelled'?'selected':'')+'>Cancelada</option></select></div>'+
@@ -471,7 +471,7 @@ function renderSchedule(){
     '<select class="input-field" id="sf_filterGroup" onchange="renderSchedule()" style="width:auto;min-width:140px;padding:6px 10px;font-size:13px">'+
     '<option value="">Todos</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'" '+(gid===g.id?'selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>';
   document.getElementById('adminContent').innerHTML=filter+adminTable(items,['Título','Tipo','Día','Horario','Coach','Grupo'],function(s){
-    return '<td>'+esc(s.title)+'</td><td>'+esc(s.type)+'</td><td>'+days[s.day]+'</td><td>'+esc(toLocalTime(s.start))+' - '+esc(toLocalTime(s.end))+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td>'+
+    return '<td>'+esc(s.title)+'</td><td>'+esc(s.type)+'</td><td>'+days[s.day]+'</td><td>'+esc(toLocalTime(s.start,s.tz))+' - '+esc(toLocalTime(s.end,s.tz))+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td>'+
       '<td><div class="has-glow admin-actions">'+
         '<button onclick="schedForm(\''+s.id+'\')" title="Editar">'+ic('pencil',14)+'</button>'+
         '<button class="del" onclick="delSched(\''+s.id+'\')" title="Eliminar">'+ic('trash-2',14)+'</button>'+
@@ -493,7 +493,7 @@ function schedForm(id){
     '<button class="btn-primary" onclick="saveSched(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 function saveSched(id){
-  var obj={title:document.getElementById('sf_title').value,day:parseInt(document.getElementById('sf_day').value),start:document.getElementById('sf_start').value,end:document.getElementById('sf_end').value,type:document.getElementById('sf_type').value,group_id:document.getElementById('sf_group').value,coach:document.getElementById('sf_coach')?.value||''};
+  var obj={title:document.getElementById('sf_title').value,day:parseInt(document.getElementById('sf_day').value),start:document.getElementById('sf_start').value,end:document.getElementById('sf_end').value,type:document.getElementById('sf_type').value,group_id:document.getElementById('sf_group').value,coach:document.getElementById('sf_coach')?.value||'',tz:detectTZ()};
   if(id){var idx=DATA.schedule.findIndex(function(s){return s.id===id});if(idx>=0)DATA.schedule[idx]={...DATA.schedule[idx],...obj}}else{obj.id=uid();DATA.schedule.push(obj)}
   saveData(DATA);closeModal();renderSchedule();updateCounts();toast(id?'Horario actualizado':'Horario creado');
 }

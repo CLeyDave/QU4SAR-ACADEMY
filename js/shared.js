@@ -204,11 +204,11 @@ function closeDetail(){
 }
 
 // ========== TIMEZONE ==========
-var SOURCE_TZ='America/Lima';
+function detectTZ(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}return'America/Lima'}
 function toLocalTime(hhmm,sourceTZ){
   if(!hhmm)return'';
   var p=hhmm.split(':');var h=+p[0];var m=+p[1];
-  var now=new Date();var tz=sourceTZ||SOURCE_TZ;
+  var now=new Date();var tz=sourceTZ||'America/Lima';
   var fmt=new Intl.DateTimeFormat('en',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
   var parts=fmt.formatToParts(now);
   function v(t){for(var i=0;i<parts.length;i++)if(parts[i].type===t)return+parts[i].value;return 0}
