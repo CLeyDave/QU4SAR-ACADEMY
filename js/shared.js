@@ -215,5 +215,6 @@ function toLocalTime(hhmm,sourceTZ){
   var srcOff=(now.getTime()-Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'),v('second')))/60000;
   var locOff=now.getTimezoneOffset();
   var total=((h*60+m+srcOff-locOff)%1440+1440)%1440;
-  return String(Math.floor(total/60)).padStart(2,'0')+':'+String(Math.round(total%60)).padStart(2,'0');
+  var d=new Date();d.setHours(Math.floor(total/60),Math.round(total%60),0,0);
+  return d.toLocaleTimeString('es',{hour:'numeric',minute:'2-digit',hour12:true});
 }
