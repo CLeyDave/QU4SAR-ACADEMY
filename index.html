@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QU4SAR | Valorant Premier Organization</title>
+  <meta name="description" content="QU4SAR (QSR) - Organización competitiva de Valorant Premier">
+  <link rel="icon" href="QU4SAR.ico">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/public.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar public-nav" id="navbar">
+  <div class="navbar-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <span class="nav-logo-text">QU4SAR</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="html/register.html" class="btn-sm primary" style="text-decoration:none;padding:8px 16px">Inscripción</a>
+      <a href="html/students.html" class="btn-sm secondary" id="plataformaBtn" style="text-decoration:none;padding:8px 16px">Plataforma</a>
+      <a href="html/coaches.html" class="btn-sm" style="text-decoration:none;padding:8px 16px;background:rgba(139,92,246,0.12);color:var(--neon);border:1px solid rgba(139,92,246,0.2)">IS COACHES</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menú">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="section-home" class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-glow1"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-content" id="heroContent">
+    <img src="QU4SAR.png" alt="QU4SAR" style="max-width:300px;max-height:300px;width:auto;height:auto;margin-bottom:36px;animation:float 8s ease-in-out infinite">
+    <h1><span class="gradient-text">QU4SAR</span></h1>
+    <p>Organización competitiva de Valorant Premier</p>
+    <p class="tagline">Academia · Scrims · Creación de contenido · Esports de alto nivel</p>
+  </div>
+</section>
+
+<!-- IMAGE OVERLAY -->
+<div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+  <div class="image-overlay-container" onclick="event.stopPropagation()">
+    <button class="image-overlay-close" onclick="closeImageOverlay()" aria-label="Cerrar">&times;</button>
+    <div class="image-overlay-img-wrap">
+      <div class="image-overlay-loader" id="imageOverlayLoader"></div>
+      <img id="imageOverlayImg" src="" alt="" onload="document.getElementById('imageOverlayLoader').style.display='none'" onerror="document.getElementById('imageOverlayLoader').style.display='none'">
+    </div>
+    <div class="image-overlay-caption" id="imageOverlayCaption"></div>
+  </div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detailOverlay" class="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<!-- LOGIN BADGE -->
+<div id="loginBadge" class="login-badge-public" style="display:none">
+  <i data-lucide="user" style="width:14px;height:14px;vertical-align:middle"></i>
+  <span id="loginNameIndex"></span>
+  <div class="login-badge-actions">
+    <a href="javascript:;" onclick="logoutIndex()" class="login-badge-btn"><i data-lucide="log-out" style="width:14px;height:14px"></i> Cerrar sesión</a>
+    <a href="html/students.html" class="login-badge-btn"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i> Mi Panel</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div id="footerSocial"></div>
+  <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="html/terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+</footer>
+
+<div id="dbStatus" class="offline"><i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span></div>
+<div class="toast" id="toast"></div>
+<script src="js/shared.js"></script>
+<script src="js/public.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QU4SAR Coaches</title>
+  <link rel="icon" href="../QU4SAR.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/coaches.css">
+</head>
+<body>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="glass-card login-box">
+    <div class="icon"><i data-lucide="shield" style="width:36px;height:36px"></i></div>
+    <h1 class="gradient-text">QU4SAR Coaches</h1>
+    <p>Acceso restringido al panel de coaches</p>
+    <div class="form-group">
+      <label><i data-lucide="mail" style="width:14px;height:14px"></i> Email</label>
+      <input class="input-field" type="email" id="loginEmail" placeholder="tu@email.com" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()" autofocus>
+    </div>
+    <div class="form-group">
+      <label><i data-lucide="key" style="width:14px;height:14px"></i> Contraseña</label>
+      <input class="input-field" type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="error" id="loginError"></div>
+    <button class="btn-primary btn-full" onclick="doLogin()" id="loginBtn"><i data-lucide="shield" style="width:18px;height:18px"></i> Ingresar</button>
+  </div>
+</div>
+<!-- ADMIN -->
+<div class="admin active" id="adminPanel">
+  <div class="admin-header">
+    <div class="left">
+      <button id="menuToggle" class="icon-btn" onclick="document.getElementById('adminSidebar').classList.toggle('mobile-open')" style="display:none;font-size:22px" title="Menú"><i data-lucide="menu" style="width:20px;height:20px;display:block"></i></button>
+      <a href="../" class="back" title="Volver al sitio"><i data-lucide="arrow-left" style="width:18px;height:18px"></i></a>
+      <div style="display:flex;align-items:center;gap:8px">
+        <img src="../QU4SAR.png" alt="QU4SAR" style="width:32px;height:32px;object-fit:contain;border-radius:6px">
+        <h2 class="gradient-text" id="adminTitle">Dashboard</h2>
+      </div>
+    </div>
+    <div class="right">
+      <button onclick="refresh()" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:6px;display:flex" title="Recargar"><i data-lucide="refresh-cw" style="width:18px;height:18px"></i></button>
+      <span id="adminDbStatus" class="err"><i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>desconectado</span></span>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div class="admin-sidebar" id="adminSidebar">
+      <button class="active" onclick="switchTab('dashboard',this)"><i data-lucide="layout-dashboard" style="width:16px;height:16px;flex-shrink:0"></i> Dashboard</button>
+      <button onclick="switchTab('content',this)" id="sidebar_content"><i data-lucide="file-text" style="width:16px;height:16px;flex-shrink:0"></i> Contenido</button>
+      <button onclick="switchTab('sections',this)"><i data-lucide="eye" style="width:16px;height:16px;flex-shrink:0"></i> Secciones</button>
+      <div class="sidebar-divider"></div>
+      <button onclick="switchTab('team',this)"><i data-lucide="trophy" style="width:16px;height:16px;flex-shrink:0"></i> Equipo <span class="count" id="countTeam">0</span></button>
+      <button onclick="switchTab('members',this)"><i data-lucide="users" style="width:16px;height:16px;flex-shrink:0"></i> Miembros <span class="count" id="countMembers">0</span></button>
+      <button onclick="switchTab('scrims',this)"><i data-lucide="crosshair" style="width:16px;height:16px;flex-shrink:0"></i> Scrims <span class="count" id="countScrims">0</span></button>
+      <button onclick="switchTab('stats',this)"><i data-lucide="bar-chart-3" style="width:16px;height:16px;flex-shrink:0"></i> Stats <span class="count" id="countStats">0</span></button>
+      <button onclick="switchTab('groups',this)"><i data-lucide="layers" style="width:16px;height:16px;flex-shrink:0"></i> Grupos <span class="count" id="countGroups">0</span></button>
+      <button onclick="switchTab('coaches',this)" id="sidebar_coaches"><i data-lucide="user-check" style="width:16px;height:16px;flex-shrink:0"></i> Coaches <span class="count" id="countCoaches">0</span></button>
+      <div class="sidebar-divider"></div>
+      <button onclick="switchTab('academy',this)"><i data-lucide="graduation-cap" style="width:16px;height:16px;flex-shrink:0"></i> Academia <span class="count" id="countAcademy">0</span></button>
+      <div class="sidebar-divider"></div>
+      <button onclick="switchTab('news',this)"><i data-lucide="newspaper" style="width:16px;height:16px;flex-shrink:0"></i> Noticias <span class="count" id="countNews">0</span></button>
+      <button onclick="switchTab('announcements',this)"><i data-lucide="megaphone" style="width:16px;height:16px;flex-shrink:0"></i> Anuncios <span class="count" id="countAnnouncements">0</span></button>
+      <div class="sidebar-divider"></div>
+      <button onclick="switchTab('schedule',this)"><i data-lucide="calendar" style="width:16px;height:16px;flex-shrink:0"></i> Horarios <span class="count" id="countSchedule">0</span></button>
+      <button onclick="switchTab('substitutions',this)"><i data-lucide="user-plus" style="width:16px;height:16px;flex-shrink:0"></i> Sustituciones <span class="count" id="countSubs">0</span></button>
+      <button onclick="switchTab('applications',this)" style="position:relative"><i data-lucide="clipboard-list" style="width:16px;height:16px;flex-shrink:0"></i> Inscripciones <span class="count" id="countApps">0</span></button>
+      <div class="sidebar-divider"></div>
+      <button onclick="switchTab('achievements',this)"><i data-lucide="award" style="width:16px;height:16px;flex-shrink:0"></i> Logros <span class="count" id="countAchievements">0</span></button>
+      <button onclick="logout()" style="color:#8b5cf6"><i data-lucide="log-out" style="width:16px;height:16px;flex-shrink:0"></i> Salir</button>
+    </div>
+    <div class="admin-main" id="adminContent"></div>
+  </div>
+</div>
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" onclick="if(event.target===this)closeModal()">
+  <div class="glass-card modal-box" id="modalBox"></div>
+</div>
+<script src="../js/shared.js"></script>
+<script src="../js/coaches-core.js"></script>
+<script src="../js/coaches-crud-academy.js"></script>
+<script src="../js/coaches-crud-content.js"></script>
+</body>
+</html>

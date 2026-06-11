@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscripción | QU4SAR Academy</title>
+  <meta name="description" content="Únete a QU4SAR Academy - Organización competitiva de Valorant Premier">
+  <link rel="icon" href="../QU4SAR.ico">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/register.css">
+</head>
+<body>
+
+<nav class="register-nav">
+  <div class="navbar-inner">
+    <a class="nav-logo" href="../">
+      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <span class="nav-logo-text">QU4SAR</span>
+    </a>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="loginBadge" style="display:none;font-size:13px;color:#888" id="loginBadge"><span id="loginName"></span></span>
+      <a href="students.html" class="btn-sm secondary" style="text-decoration:none">Iniciar sesión</a>
+      <a href="../" class="btn-sm cancel" style="text-decoration:none">Volver</a>
+    </div>
+  </div>
+</nav>
+
+<section class="register-hero">
+  <h1><span class="gradient-text">Únete a QU4SAR Academy</span></h1>
+  <p>Completa el formulario y forma parte de nuestra comunidad competitiva</p>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="register-grid">
+      <div class="glass-card register-form-card">
+        <div id="registerForm">
+          <h3><i data-lucide="edit-3" style="width:18px;height:18px"></i> Información Personal</h3>
+          <div class="register-row">
+            <div class="register-field"><label for="reg_name">Nombre</label><input class="input-field" id="reg_name" placeholder="Tu nombre" required></div>
+            <div class="register-field"><label for="reg_age">Edad</label><input class="input-field" id="reg_age" type="number" placeholder="18" min="13" max="99"></div>
+          </div>
+          <div class="register-row">
+            <div class="register-field"><label for="reg_discord">Usuario de Discord</label><input class="input-field" id="reg_discord" placeholder="ej: usuario#0000"></div>
+            <div class="register-field"><label for="reg_valorant">Usuario de VALORANT</label><input class="input-field" id="reg_valorant" placeholder="ej: Jugador#NA1"></div>
+          </div>
+          <div class="register-row">
+            <div class="register-field"><label for="reg_rank">Rango actual</label><select class="input-field" id="reg_rank"><option value="">Selecciona tu rango</option><option>Hierro</option><option>Bronce</option><option>Plata</option><option>Oro</option><option>Platino</option><option>Diamante</option><option>Ascendente</option><option>Inmortal</option><option>Radiante</option><option>Sin rango</option></select></div>
+            <div class="register-field"><label for="reg_role">Rol principal</label><select class="input-field" id="reg_role"><option value="">Selecciona tu rol</option><option>Duelista</option><option>Iniciador</option><option>Controlador</option><option>Centinela</option><option>Flex</option></select></div>
+          </div>
+          <div class="register-row">
+            <div class="register-field"><label for="reg_server">Servidor</label><select class="input-field" id="reg_server"><option value="">Selecciona servidor</option><option>LATAM Norte</option><option>LATAM Sur</option><option>Brazil</option><option>NA</option><option>EU</option></select></div>
+            <div class="register-field"><label for="reg_avail">Disponibilidad</label><select class="input-field" id="reg_avail"><option value="">Selecciona disponibilidad</option><option>Diario</option><option>Varios días a la semana</option><option>Solo fines de semana</option><option>Horario flexible</option></select></div>
+          </div>
+
+          <h3 style="margin-top:28px"><i data-lucide="layers" style="width:18px;height:18px"></i> Roles de Interés</h3>
+          <p style="color:#666;font-size:13px;margin-bottom:14px">Selecciona los roles con los que te identifiques (puedes elegir varios)</p>
+          <div class="roles-grid" id="reg_roles">
+            <label class="role-opt"><input type="checkbox" value="Jugador Competitivo"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Jugador Competitivo</strong><span>Entrenamientos, scrims y actividades competitivas</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Estudiante"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Estudiante</strong><span>Aprender y recibir orientación en la academia</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="IGL"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>IGL (In-Game Leader)</strong><span>Liderar estrategias y coordinar al equipo</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Duelista"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Duelista</strong><span>Generar espacio y buscar enfrentamientos</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Iniciador"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Iniciador</strong><span>Obtener información y facilitar entradas</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Controlador"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Controlador</strong><span>Control de zonas, humos y manejo del mapa</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Centinela"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Centinela</strong><span>Defensa, vigilancia y apoyo táctico</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Creador de Contenido"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Creador de Contenido</strong><span>Videos, transmisiones y contenido</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Diseñador"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Diseñador</strong><span>Material gráfico, banners y contenido visual</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Moderador"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Moderador</strong><span>Mantener orden y cumplimiento de normas</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Reclutador"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Reclutador</strong><span>Buscar nuevos miembros para la comunidad</span></span></label>
+            <label class="role-opt"><input type="checkbox" value="Coach Aspirante"><span class="check"><i data-lucide="check" style="width:14px;height:14px"></i></span><span class="info"><strong>Coach Aspirante</strong><span>Aprender y apoyar en la enseñanza</span></span></label>
+          </div>
+
+          <h3 style="margin-top:20px"><i data-lucide="target" style="width:18px;height:18px"></i> Motivación</h3>
+          <div class="register-field"><label for="reg_objectives">Objetivos personales dentro de QU4SAR Academy</label><textarea class="input-field" id="reg_objectives" rows="3" placeholder="¿Qué te gustaría lograr?"></textarea></div>
+          <div class="register-field"><label for="reg_reason">¿Por qué deseas formar parte de QU4SAR Academy?</label><textarea class="input-field" id="reg_reason" rows="3" placeholder="Cuéntanos sobre ti..."></textarea></div>
+
+          <label style="display:flex;align-items:center;gap:8px;margin:16px 0;cursor:pointer;font-size:13px;color:#aaa">
+            <input type="checkbox" id="reg_terms" required>
+            <span>Acepto los <a href="terms.html" target="_blank" style="color:var(--neon);text-decoration:underline">términos y condiciones</a></span>
+          </label>
+          <div class="submit-row">
+            <button class="btn-primary" onclick="submitApp()" id="regBtn"><i data-lucide="send" style="width:16px;height:16px"></i> Enviar Solicitud</button>
+            <a class="discord-link" href="https://discord.gg/52X3NdNmG8" target="_blank"><i data-lucide="message-circle" style="width:16px;height:16px"></i> Únete a nuestro Discord</a>
+            <span id="regMsg" style="font-size:13px;color:#888"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" style="margin-top:40px;border:none;padding:30px 0">
+    <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="../js/shared.js"></script>
+<script src="../js/register.js"></script>
+</body>
+</html>

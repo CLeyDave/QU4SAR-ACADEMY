@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Términos y Condiciones | QU4SAR Academy</title>
+  <meta name="description" content="Términos, condiciones y política de privacidad de QU4SAR Academy">
+  <link rel="icon" href="../QU4SAR.ico">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/public.css">
+  <style>
+    .terms-section{padding:120px 0 60px}
+    .terms-content{max-width:860px;margin:0 auto}
+    .terms-content .glass-card{padding:48px 52px;line-height:2;border-color:rgba(139,92,246,0.08)}
+    .terms-content .glass-card h3{font-family:var(--font-display);margin-bottom:28px;font-size:clamp(1.3rem,3vw,2rem);background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;letter-spacing:-0.3px}
+    .terms-content .glass-card .body{color:#d0d0d0;font-size:15px;white-space:pre-wrap;line-height:2}
+    .terms-content .glass-card .body strong{color:#fff;font-weight:600}
+    .terms-content .glass-card .body::before{content:'';display:block;width:60px;height:3px;background:linear-gradient(90deg,var(--neon),transparent);border-radius:2px;margin:0 auto 28px}
+    .terms-content .glass-card .body:empty::before{display:none}
+    .terms-hero h1{font-family:var(--font-display);font-size:clamp(2.4rem,6vw,4.5rem);font-weight:900}
+    .terms-hero p{color:#999;font-size:17px;font-family:var(--font-body);margin-top:14px}
+    @media(max-width:768px){
+      .terms-section{padding:100px 0 40px}
+      .terms-content .glass-card{padding:28px 20px;line-height:1.8}
+      .terms-content .glass-card .body{font-size:14px;line-height:1.8}
+      .terms-content .glass-card h3{font-size:clamp(1.1rem,4vw,1.5rem)}
+      .terms-hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+    }
+    @media(max-width:480px){
+      .terms-content .glass-card{padding:20px 14px}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="register-nav">
+  <div class="navbar-inner">
+    <a class="nav-logo" href="../">
+      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <span class="nav-logo-text">QU4SAR</span>
+    </a>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="register.html" class="btn-sm secondary" style="text-decoration:none">Inscripción</a>
+      <a href="../" class="btn-sm cancel" style="text-decoration:none">Volver</a>
+    </div>
+  </div>
+</nav>
+
+<section class="terms-hero" style="padding:120px 0 0;text-align:center;position:relative">
+  <h1><span class="gradient-text">Términos y Condiciones</span></h1>
+  <p>Términos, condiciones y política de privacidad de QU4SAR Academy</p>
+</section>
+
+<section class="section terms-section" style="padding-top:40px">
+  <div class="container">
+    <div class="terms-content">
+      <div class="glass-card" id="termsContent">
+        <div class="body">Cargando términos y condiciones...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" style="margin-top:0;border:none;padding:30px 0">
+    <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="../js/shared.js"></script>
+<script>
+  lucide.createIcons();
+
+  var c = DATA.content.home || {};
+  var el = document.getElementById('termsContent');
+  el.innerHTML =
+    (c.terms_title ? '<h3>' + esc(c.terms_title) + '</h3>' : '') +
+    '<div class="body">' + esc(c.terms_content || 'Términos y condiciones próximamente.') + '</div>';
+
+  if (typeof initDB === 'function') {
+    initDB().then(function(){}).catch(function(){});
+  }
+</script>
+</body>
+</html>

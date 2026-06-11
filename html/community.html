@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QU4SAR | Comunidad</title>
+  <meta name="description" content="QU4SAR (QSR) - Comunidad, estadísticas y actividades.">
+  <link rel="icon" href="../QU4SAR.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/students.css?v=2">
+</head>
+<body>
+
+<span id="isCommunity" style="display:none"></span>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a class="nav-logo" href="students.html">
+      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <span class="nav-logo-text">QU4SAR</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="javascript:;" onclick="showSection('team')" data-section="team" class="active"><i data-lucide="sword" style="width:14px;height:14px"></i> Equipo</a>
+      <a href="javascript:;" onclick="showSection('members')" data-section="members"><i data-lucide="users" style="width:14px;height:14px"></i> Miembros</a>
+      <a href="javascript:;" onclick="showSection('scrims')" data-section="scrims"><i data-lucide="crosshair" style="width:14px;height:14px"></i> Scrims</a>
+      <a href="javascript:;" onclick="showSection('academy')" data-section="academy"><i data-lucide="book-open" style="width:14px;height:14px"></i> Academia</a>
+      <a href="javascript:;" onclick="showSection('stats')" data-section="stats"><i data-lucide="bar-chart-3" style="width:14px;height:14px"></i> Stats</a>
+      <a href="javascript:;" onclick="showSection('news')" data-section="news"><i data-lucide="newspaper" style="width:14px;height:14px"></i> Noticias</a>
+      <a href="javascript:;" onclick="showSection('announcements')" data-section="announcements"><i data-lucide="megaphone" style="width:14px;height:14px"></i> Anuncios</a>
+      <a href="javascript:;" onclick="showSection('substitutions')" data-section="substitutions"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Suplentes</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menú">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<!-- TEAM -->
+<section id="section-team" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Equipo Premier</span></h2>
+    <p class="section-subtitle">Jugadores que representan a QU4SAR en Valorant Premier</p>
+    <div id="teamContainer"></div>
+  </div>
+</section>
+
+<!-- MEMBERS -->
+<section id="section-members" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Miembros</span></h2>
+    <p class="section-subtitle">Integrantes de la comunidad QU4SAR</p>
+    <div class="members-search">
+      <span class="icon"><i data-lucide="search" style="width:16px;height:16px"></i></span>
+      <input class="input-field" type="text" placeholder="Buscar miembros..." oninput="filterMembers(this.value)">
+    </div>
+    <div id="membersGrid" class="members-grid"></div>
+  </div>
+</section>
+
+<!-- SCRIMS -->
+<section id="section-scrims" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Scrims</span></h2>
+    <p class="section-subtitle">Historial de partidas de práctica y resultados</p>
+    <div id="scrimStats" class="scrim-stats-grid"></div>
+    <div id="scrimList" class="scrim-list"></div>
+  </div>
+</section>
+
+<!-- ACADEMY -->
+<section id="section-academy" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Academia QU4SAR</span></h2>
+    <p class="section-subtitle">Programa de entrenamiento estructurado para llevar tus habilidades al siguiente nivel</p>
+    <div id="academyGrid" class="academy-grid"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="section-stats" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Estadísticas</span></h2>
+    <p class="section-subtitle">Rendimiento general del equipo</p>
+    <div id="statsGrid" class="stats-grid"></div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section id="section-news" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Noticias</span></h2>
+    <p class="section-subtitle">Últimas actualizaciones, anuncios y novedades</p>
+    <div id="newsGrid" class="news-grid"></div>
+  </div>
+</section>
+
+<!-- ANNOUNCEMENTS -->
+<section id="section-announcements" class="section page">
+  <div class="section-bg"></div>
+  <div class="container" style="max-width:800px">
+    <h2 class="section-title"><span class="gradient-text">Anuncios</span></h2>
+    <p class="section-subtitle">Últimas novedades de QU4SAR Academy</p>
+    <div id="announcementsList"></div>
+  </div>
+</section>
+
+<!-- SUBSTITUTIONS -->
+<section id="section-substitutions" class="section page">
+  <div class="section-bg"></div>
+  <div class="container" style="max-width:700px">
+    <h2 class="section-title"><span class="gradient-text">Sustituciones</span></h2>
+    <p class="section-subtitle">Solicita o únete como suplente para las clases y scrims</p>
+    <div id="substitutionsList"></div>
+    <div class="glass-card" style="padding:24px;margin-top:16px">
+      <h3>Solicitar suplente</h3>
+      <div class="field"><label>Tu nombre</label><input class="input-field" id="subReqName" style="width:100%"></div>
+      <div class="field"><label>Rol necesario</label><input class="input-field" id="subReqRole" placeholder="ej: Duelist" style="width:100%"></div>
+      <button class="btn-primary btn-full" onclick="submitSubRequest()">Solicitar Suplente</button>
+      <div id="subReqMsg" style="margin-top:8px;font-size:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DETAIL OVERLAY -->
+<div id="detailOverlay" class="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<!-- IMAGE OVERLAY -->
+<div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+  <div class="image-overlay-container" onclick="event.stopPropagation()">
+    <button class="image-overlay-close" onclick="closeImageOverlay()" aria-label="Cerrar">&times;</button>
+    <div class="image-overlay-img-wrap">
+      <div class="image-overlay-loader" id="imageOverlayLoader"></div>
+      <img id="imageOverlayImg" src="" alt="" onload="document.getElementById('imageOverlayLoader').style.display='none'" onerror="document.getElementById('imageOverlayLoader').style.display='none'">
+    </div>
+    <div class="image-overlay-caption" id="imageOverlayCaption"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div id="footerSocial"></div>
+    <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+</footer>
+
+<div id="dbStatus" class="offline">? sin conexi&oacute;n</div>
+<div class="toast" id="toast"></div>
+<a href="students.html" class="community-home-btn" id="communityPanelBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Mi Panel</a>
+<a href="../" class="community-home-btn" id="communityHomeBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Inicio</a>
+<script src="../js/shared.js"></script>
+<script src="../js/students.js"></script>
+</body>
+</html>

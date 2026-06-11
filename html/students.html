@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QU4SAR | Panel de Alumnos</title>
+  <meta name="description" content="QU4SAR (QSR) - Panel de alumnos, academia y progreso.">
+  <link rel="icon" href="../QU4SAR.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/students.css?v=2">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a class="nav-logo" onclick="toggleNav()">
+      <img src="../QU4SAR.png" alt="QU4SAR" class="nav-logo-icon">
+      <span class="nav-logo-text">QU4SAR</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="javascript:;" onclick="showSection('dashboard')" data-section="dashboard" class="active"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i> Panel</a>
+      <a href="javascript:;" onclick="showSection('schedule')" data-section="schedule"><i data-lucide="calendar" style="width:14px;height:14px"></i> Horarios</a>
+      <a href="javascript:;" onclick="showSection('clases')" data-section="clases"><i data-lucide="graduation-cap" style="width:14px;height:14px"></i> Clases</a>
+      <a href="javascript:;" onclick="showSection('curriculum')" data-section="curriculum"><i data-lucide="book-open" style="width:14px;height:14px"></i> Plan</a>
+      <a href="javascript:;" onclick="showSection('materials')" data-section="materials"><i data-lucide="book" style="width:14px;height:14px"></i> Materiales</a>
+      <a href="javascript:;" onclick="showSection('tasks')" data-section="tasks"><i data-lucide="check-square" style="width:14px;height:14px"></i> Tareas</a>
+      <a href="javascript:;" onclick="showSection('evaluations')" data-section="evaluations"><i data-lucide="bar-chart-3" style="width:14px;height:14px"></i> Evaluaciones</a>
+      <a href="javascript:;" onclick="showSection('quizzes')" data-section="quizzes"><i data-lucide="help-circle" style="width:14px;height:14px"></i> Quizzes</a>
+      <a href="javascript:;" onclick="showSection('coach_notes')" data-section="coach_notes"><i data-lucide="message-square" style="width:14px;height:14px"></i> Coach Notes</a>
+      <a href="community.html" class="nav-comunidad"><i data-lucide="users" style="width:14px;height:14px"></i> Comunidad</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menú">☰</button>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<section id="section-dashboard" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Panel del Alumno</span></h2>
+    <p class="section-subtitle">Tu progreso y actividad en QU4SAR Academy</p>
+    <div id="dashContent"></div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="section-schedule" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Horarios</span></h2>
+    <p class="section-subtitle">Calendario semanal de actividades, entrenamientos y competiciones</p>
+    <div id="scheduleBubbles" class="schedule-bubbles"></div>
+  </div>
+</section>
+
+<!-- CLASES -->
+<section id="section-clases" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Clases</span></h2>
+    <p class="section-subtitle">Clases de academia para tu grupo y coach</p>
+    <div id="clasesContent"></div>
+  </div>
+</section>
+
+<!-- CURRICULUM -->
+<section id="section-curriculum" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Plan de Estudios</span></h2>
+    <p class="section-subtitle">Programa estructurado de aprendizaje semana a semana</p>
+    <div id="curriculumContent"></div>
+  </div>
+</section>
+
+<!-- MATERIALS -->
+<section id="section-materials" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Materiales</span></h2>
+    <p class="section-subtitle">Recursos, guías y material de estudio</p>
+    <div id="materialsContent"></div>
+  </div>
+</section>
+
+<!-- TASKS -->
+<section id="section-tasks" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Tareas</span></h2>
+    <p class="section-subtitle">Tareas asignadas por tu coach</p>
+    <div id="tasksContent"></div>
+  </div>
+</section>
+
+<!-- EVALUATIONS -->
+<section id="section-evaluations" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Evaluaciones</span></h2>
+    <p class="section-subtitle">Tus evaluaciones de rendimiento</p>
+    <div id="evaluationsContent"></div>
+  </div>
+</section>
+
+<!-- QUIZZES -->
+<section id="section-quizzes" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Quizzes</span></h2>
+    <p class="section-subtitle">Poné a prueba tus conocimientos</p>
+    <div id="quizzesContent"></div>
+  </div>
+</section>
+
+<!-- COACH NOTES -->
+<section id="section-coach_notes" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Coach Notes</span></h2>
+    <p class="section-subtitle">Notas y seguimiento de tu coach</p>
+    <div id="coachNotesContent"></div>
+  </div>
+</section>
+
+<!-- DETAIL OVERLAY -->
+<div id="detailOverlay" class="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<!-- IMAGE OVERLAY -->
+<div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+  <div class="image-overlay-container" onclick="event.stopPropagation()">
+    <button class="image-overlay-close" onclick="closeImageOverlay()" aria-label="Cerrar">&times;</button>
+    <div class="image-overlay-img-wrap">
+      <div class="image-overlay-loader" id="imageOverlayLoader"></div>
+      <img id="imageOverlayImg" src="" alt="" onload="document.getElementById('imageOverlayLoader').style.display='none'" onerror="document.getElementById('imageOverlayLoader').style.display='none'">
+    </div>
+    <div class="image-overlay-caption" id="imageOverlayCaption"></div>
+  </div>
+</div>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" class="login-overlay hidden" role="dialog" aria-modal="true">
+  <div class="glass-card" style="padding:32px 40px;max-width:400px;width:90%;text-align:center">
+    <img src="../QU4SAR.png" alt="QU4SAR" style="width:72px;margin-bottom:16px">
+    <h2 style="margin:0 0 4px;font-size:22px"><span class="gradient-text">QU4SAR</span></h2>
+    <p style="color:#888;font-size:13px;margin-bottom:20px">Ingres&aacute; tu nombre de VALORANT</p>
+    <input class="input-field" id="loginInput" placeholder="ej: Jugador#NA1" style="width:100%;margin-bottom:12px;text-align:center" onkeydown="if(event.key==='Enter')handleLogin()">
+    <div id="loginMsg" style="font-size:13px;margin-bottom:12px;min-height:20px"></div>
+    <button class="btn-primary btn-full" onclick="handleLogin()" id="loginBtn">Iniciar Sesi&oacute;n</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div id="footerSocial"></div>
+    <div class="footer-bottom">© 2026 QU4SAR. Todos los derechos reservados. &middot; <a href="terms.html" style="color:var(--neon);text-decoration:none">Términos y condiciones</a></div>
+</footer>
+
+<div id="dbStatus" class="offline"><i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span></div>
+<div class="toast" id="toast"></div>
+<div id="loginBadge" class="login-badge" style="display:none">
+  <span id="loginName"></span>
+  <span id="loginCoach" style="display:none"></span>
+  <div class="login-badge-actions">
+    <a href="javascript:;" onclick="logout()" class="login-badge-btn" id="logoutBtn"><i data-lucide="log-out" style="width:14px;height:14px"></i> Cerrar sesión</a>
+    <a href="../" class="login-badge-btn"><i data-lucide="arrow-left" style="width:14px;height:14px"></i> Inicio</a>
+  </div>
+</div>
+<script src="../js/shared.js"></script>
+<script src="../js/students.js"></script>
+</body>
+</html>
