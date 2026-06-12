@@ -737,7 +737,7 @@ function renderAdminShell(title,activeGroup,activeSection){
     backdrop.id='sidebarBackdrop';
     backdrop.className='admin-sidebar-backdrop';
     backdrop.onclick=closeAdminMenu;
-    document.body.appendChild(backdrop);
+    (document.querySelector('.admin')||document.body).appendChild(backdrop);
   }
   var nav=document.getElementById('adminSidebar');
   var html='';
