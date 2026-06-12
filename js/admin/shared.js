@@ -727,7 +727,7 @@ function renderAdminShell(title,activeGroup,activeSection){
     btn.id='menuToggleAdmin';
     btn.innerHTML='<i data-lucide="menu" style="width:20px;height:20px"></i>';
     btn.title='Menú';
-    btn.style.cssText='background:none;border:none;color:#888;cursor:pointer;padding:6px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;line-height:1';
+    btn.style.cssText='background:none;border:none;color:#888;cursor:pointer;padding:6px;border-radius:6px;align-items:center;justify-content:center;line-height:1';
     btn.onclick=toggleAdminMenu;
     headerLeft.insertBefore(btn,headerLeft.firstChild);
   }
@@ -737,8 +737,7 @@ function renderAdminShell(title,activeGroup,activeSection){
     backdrop.id='sidebarBackdrop';
     backdrop.className='admin-sidebar-backdrop';
     backdrop.onclick=closeAdminMenu;
-    var adminPanel=document.getElementById('adminPanel')||document.querySelector('.admin');
-    (adminPanel||document.body).appendChild(backdrop);
+    document.body.appendChild(backdrop);
   }
   var nav=document.getElementById('adminSidebar');
   var html='';
