@@ -27,15 +27,15 @@ function coachForm(id){
     '<input type="checkbox" id="cg_'+g.id+'" '+(assigned.indexOf(g.id)>=0?'checked':'')+' style="width:18px;height:18px;accent-color:var(--neon)">'+
     '<span>'+esc(g.name)+' <span style="color:#555">('+esc(g.description||'')+')</span></span></label>'}).join('');
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Coach</h3>'+
-    '<div class="field"><label>Nombre</label><input class="input-field" id="cf_name" value="'+esc(f.name)+'"></div>'+
-    '<div class="field"><label>Email</label><input class="input-field" id="cf_email" value="'+esc(f.email||'')+'"></div>'+
+    '<div class="field"><label for="cf_name">Nombre</label><input class="input-field" id="cf_name" value="'+esc(f.name)+'"></div>'+
+    '<div class="field"><label for="cf_email">Email</label><input class="input-field" id="cf_email" value="'+esc(f.email||'')+'"></div>'+
     (isNew?'<p style="font-size:12px;color:#888;margin:-8px 0 12px">Se enviará invitación al email ingresado</p>':'')+
-    '<div class="grid-2"><div class="field"><label>Nombre VALORANT</label><input class="input-field" id="cf_nickname" value="'+esc(f.nickname)+'" placeholder="ej: Jugador#NA1"></div>'+
-    '<div class="field"><label>Discord</label><input class="input-field" id="cf_discord" value="'+esc(f.discord)+'" placeholder="Opcional"></div></div>'+
-    '<div class="field"><label>Especialidad</label><input class="input-field" id="cf_specialty" value="'+esc(f.specialty)+'"></div>'+
-    '<div class="field"><label>Descripción</label><textarea class="input-field" id="cf_description" rows="3">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="grid-2"><div class="field"><label>Avatar URL</label><input class="input-field" id="cf_avatar" value="'+esc(f.avatar||'')+'"></div>'+
-    '<div class="field"><label>Estado</label><select class="input-field" id="cf_status"><option value="active" '+(f.status==='active'?'selected':'')+'>Activo</option><option value="inactive" '+(f.status==='inactive'?'selected':'')+'>Inactivo</option></select></div></div>'+
+    '<div class="grid-2"><div class="field"><label for="cf_nickname">Nombre VALORANT</label><input class="input-field" id="cf_nickname" value="'+esc(f.nickname)+'" placeholder="ej: Jugador#NA1"></div>'+
+    '<div class="field"><label for="cf_discord">Discord</label><input class="input-field" id="cf_discord" value="'+esc(f.discord)+'" placeholder="Opcional"></div></div>'+
+    '<div class="field"><label for="cf_specialty">Especialidad</label><input class="input-field" id="cf_specialty" value="'+esc(f.specialty)+'"></div>'+
+    '<div class="field"><label for="cf_description">Descripción</label><textarea class="input-field" id="cf_description" rows="3">'+esc(f.description||'')+'</textarea></div>'+
+    '<div class="grid-2"><div class="field"><label for="cf_avatar">Avatar URL</label><input class="input-field" id="cf_avatar" value="'+esc(f.avatar||'')+'"></div>'+
+    '<div class="field"><label for="cf_status">Estado</label><select class="input-field" id="cf_status"><option value="active" '+(f.status==='active'?'selected':'')+'>Activo</option><option value="inactive" '+(f.status==='inactive'?'selected':'')+'>Inactivo</option></select></div></div>'+
     (groupHTML?'<hr><div class="field"><label>Grupos asignados</label>'+groupHTML+'</div>':'')+
     '<button class="btn-primary" onclick="saveCoach(\''+(id||'')+'\')" style="width:100%;justify-content:center;margin-top:8px">'+ic('save',16)+' Guardar</button>');
 }

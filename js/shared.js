@@ -4,7 +4,7 @@ var ANON='sb_publishable_2TrSxTYex3tHeswK99e4jQ_95sONVN6';
 var db=null; var rtChannel=null; var _dbFailed=false;
 
 // ========== TOAST ==========
-function toast(m,t){var el=document.getElementById('toast');if(!el)return;el.textContent=m;el.className='toast show '+(t||'ok');setTimeout(function(){el.classList.remove('show')},2800)}
+function toast(m,t){var el=document.getElementById('toast');if(!el)return;el.innerHTML=m;el.className='toast show '+(t||'ok');setTimeout(function(){el.classList.remove('show')},2800)}
 
 // ========== LOADING OVERLAY ==========
 function showLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.remove('hidden')}

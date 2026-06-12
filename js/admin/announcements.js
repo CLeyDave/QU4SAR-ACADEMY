@@ -14,12 +14,12 @@ function announcementForm(id){
   var item=id?(DATA.announcements||[]).find(function(a){return a.id===id}):null;
   var f=item||{title:'',content:'',author:'',pinned:false,coach:dc(),group_id:'',image_url:'',attachment_url:'',attachment_name:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Anuncio</h3>'+
-    '<div class="field"><label>Título</label><input class="input-field" id="af_title" value="'+esc(f.title)+'"></div>'+
-    '<div class="field"><label>Contenido</label><textarea class="input-field" id="af_content" rows="4">'+esc(f.content||'')+'</textarea></div>'+
-    '<div class="field"><label>Autor</label><input class="input-field" id="af_author" value="'+esc(f.author)+'"></div>'+
+    '<div class="field"><label for="af_title">Título</label><input class="input-field" id="af_title" value="'+esc(f.title)+'"></div>'+
+    '<div class="field"><label for="af_content">Contenido</label><textarea class="input-field" id="af_content" rows="4">'+esc(f.content||'')+'</textarea></div>'+
+    '<div class="field"><label for="af_author">Autor</label><input class="input-field" id="af_author" value="'+esc(f.author)+'"></div>'+
     '<div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="af_pinned" '+(f.pinned?'checked':'')+'> Fijado</label></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="af_coach" onchange="setGroupFromCoach(\'af_group\',\'af_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="af_group" onchange="reloadCoachDropdown(\'af_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="af_coach">Coach</label><select class="input-field" id="af_coach" onchange="setGroupFromCoach(\'af_group\',\'af_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field" style="display:none"><label for="af_group">Grupo</label><select class="input-field" id="af_group" onchange="reloadCoachDropdown(\'af_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
     '<hr>'+
     '<div class="field"><label>Imagen</label>'+fileUploadHTML('Imagen','image/*','anf_img_status','anf_image_url',f.image_url||'')+(f.image_url?mediaPreview(f.image_url):'')+'</div>'+
     '<div class="field"><label>Archivo adjunto (PDF)</label>'+fileUploadHTML('PDF','.pdf,application/pdf','anf_doc_status','anf_attachment_url',f.attachment_url||'')+'<input class="input-field" id="anf_attachment_name" placeholder="Nombre del archivo" value="'+esc(f.attachment_name||'')+'"></div>'+

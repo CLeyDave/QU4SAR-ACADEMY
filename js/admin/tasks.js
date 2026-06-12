@@ -26,12 +26,12 @@ function taskForm(id){
   var item=id?(DATA.tasks||[]).find(function(t){return t.id===id}):null;
   var f=item||{title:'',description:'',type:'vod',due_date:'',group_id:'',coach:dc(),image_url:'',attachment_url:'',attachment_name:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nueva')+' Tarea</h3>'+
-    '<div class="field"><label>Título</label><input class="input-field" id="tf_title" value="'+esc(f.title)+'"></div>'+
-    '<div class="field"><label>Descripción</label><textarea class="input-field" id="tf_description" rows="3">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="field"><label>Tipo</label><select class="input-field" id="tf_type"><option value="vod" '+(f.type==='vod'?'selected':'')+'>VOD</option><option value="aim" '+(f.type==='aim'?'selected':'')+'>Aim</option><option value="game" '+(f.type==='game'?'selected':'')+'>Game</option><option value="other" '+(f.type==='other'?'selected':'')+'>Otro</option></select></div>'+
-    '<div class="field"><label>Fecha límite</label><input type="date" class="input-field" id="tf_due_date" value="'+f.due_date+'"></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="tf_group" onchange="reloadCoachDropdown(\'tf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Coach asignado</label><select class="input-field" id="tf_coach" onchange="setGroupFromCoach(\'tf_group\',\'tf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="tf_title">Título</label><input class="input-field" id="tf_title" value="'+esc(f.title)+'"></div>'+
+    '<div class="field"><label for="tf_description">Descripción</label><textarea class="input-field" id="tf_description" rows="3">'+esc(f.description||'')+'</textarea></div>'+
+    '<div class="field"><label for="tf_type">Tipo</label><select class="input-field" id="tf_type"><option value="vod" '+(f.type==='vod'?'selected':'')+'>VOD</option><option value="aim" '+(f.type==='aim'?'selected':'')+'>Aim</option><option value="game" '+(f.type==='game'?'selected':'')+'>Game</option><option value="other" '+(f.type==='other'?'selected':'')+'>Otro</option></select></div>'+
+    '<div class="field"><label for="tf_due_date">Fecha límite</label><input type="date" class="input-field" id="tf_due_date" value="'+f.due_date+'"></div>'+
+    '<div class="field" style="display:none"><label for="tf_group">Grupo</label><select class="input-field" id="tf_group" onchange="reloadCoachDropdown(\'tf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="tf_coach">Coach asignado</label><select class="input-field" id="tf_coach" onchange="setGroupFromCoach(\'tf_group\',\'tf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
     '<hr>'+
     '<div class="field"><label>Imagen</label>'+fileUploadHTML('Imagen','image/*','tf_img_status','tf_image_url',f.image_url||'')+(f.image_url?mediaPreview(f.image_url):'')+'</div>'+
     '<div class="field"><label>Archivo adjunto (PDF)</label>'+fileUploadHTML('PDF','.pdf,application/pdf','tf_doc_status','tf_attachment_url',f.attachment_url||'')+'<input class="input-field" id="tf_attachment_name" placeholder="Nombre del archivo" value="'+esc(f.attachment_name||'')+'"></div>'+

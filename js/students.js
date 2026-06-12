@@ -62,11 +62,7 @@ function showSection(name){
   var lnk=document.querySelector('.nav-links a[data-section="'+name+'"]');
   if(lnk)lnk.classList.add('active');
   document.getElementById('navLinks').classList.remove('open');
-  showLoading();
-  requestAnimationFrame(function(){
-    renderSection(name);
-    hideLoading();
-  });
+  renderSection(name);
 }
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function renderSection(n){try{switch(n){
@@ -856,36 +852,28 @@ function toggleTaskCompletion(taskId){
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 
 function renderAll(){
-  showLoading();
   safeRender(renderFooter,'footer');
   var sectionFns={'schedule':renderSchedule,'academy':renderAcademy,'team':renderTeam,'scrims':renderScrims,'stats':renderStats,'news':renderNews,'members':renderMembers,'dashboard':renderDashboard,'announcements':renderAnnouncements,'substitutions':renderSubstitutions};
   Object.keys(sectionFns).forEach(function(id){
     if(document.getElementById('section-'+id))safeRender(sectionFns[id],id);
   });
   if(typeof lucide!=='undefined')lucide.createIcons();
-  setTimeout(function(){
-    document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
-    hideLoading();
-  },80);
+  document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 
 function reRenderTable(table){
-  showLoading();
-  requestAnimationFrame(function(){
-    if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=='undefined')lucide.createIcons();hideLoading();return}
-    if(table==='schedule')renderSchedule();
-    else if(table==='team')renderTeam();
-    else if(table==='scrims')renderScrims();
-    else if(table==='members')renderMembers();
-    else if(table==='news')renderNews();
-     else if(table==='academy'){renderAcademy();var d=document.getElementById('section-dashboard');if(d&&d.style.display!=='none')renderDashContent();}
-    else if(table==='announcements')renderAnnouncements();
-    else if(table==='substitutions')renderSubstitutions();
-    else renderDashboard();
-    if(typeof lucide!=='undefined')lucide.createIcons();
-    document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
-    hideLoading();
-  });
+  if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=='undefined')lucide.createIcons();return}
+  if(table==='schedule'&&document.getElementById('scheduleBubbles'))renderSchedule();
+  else if(table==='team'&&document.getElementById('teamContainer'))renderTeam();
+  else if(table==='scrims'&&document.getElementById('scrimStats'))renderScrims();
+  else if(table==='members'&&document.getElementById('membersGrid'))renderMembers();
+  else if(table==='news'&&document.getElementById('newsGrid'))renderNews();
+  else if(table==='academy'){if(document.getElementById('academyGrid'))renderAcademy();var d=document.getElementById('section-dashboard');if(d&&d.style.display!=='none')renderDashContent();}
+  else if(table==='announcements'&&document.getElementById('announcementsList'))renderAnnouncements();
+  else if(table==='substitutions'&&document.getElementById('substitutionsList'))renderSubstitutions();
+  else if(document.getElementById('dashContent'))renderDashboard();
+  if(typeof lucide!=='undefined')lucide.createIcons();
+  document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 async function initDB(){
   try{

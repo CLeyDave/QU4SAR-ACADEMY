@@ -14,14 +14,14 @@ function scrimForm(id){
   var item=id?DATA.scrims.find(function(s){return s.id===id}):null;
   var f=item||{opponent:'',opponent_logo:'',our:0,opponent_score:0,result:'Pendiente',date:new Date().toISOString().slice(0,10),coach:dc(),group_id:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Scrim</h3>'+
-    '<div class="field"><label>Oponente</label><input class="input-field" id="sf_opp" value="'+esc(f.opponent)+'"></div>'+
+    '<div class="field"><label for="sf_opp">Oponente</label><input class="input-field" id="sf_opp" value="'+esc(f.opponent)+'"></div>'+
     '<div class="field"><label>Logo del oponente</label>'+fileUploadHTML('Logo','image/*','sf_logo_img_status','sf_opponent_logo',f.opponent_logo||'')+(f.opponent_logo?mediaPreview(f.opponent_logo):'')+'</div>'+
-    '<div class="grid-2"><div class="field"><label>Nuestro Score</label><input type="number" class="input-field" id="sf_our" value="'+f.our+'"></div>'+
-    '<div class="field"><label>Su Score</label><input type="number" class="input-field" id="sf_opp_score" value="'+(f.opponent_score||0)+'"></div></div>'+
-    '<div class="field"><label>Resultado</label><select class="input-field" id="sf_result">'+['Pendiente','Victoria','Derrota','Empate'].map(function(r){return'<option value="'+r+'" '+(r===f.result?'selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Fecha</label><input type="date" class="input-field" id="sf_date" value="'+f.date+'"></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="scf_coach" onchange="setGroupFromCoach(\'scf_group\',\'scf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="scf_group" onchange="reloadCoachDropdown(\'scf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="grid-2"><div class="field"><label for="sf_our">Nuestro Score</label><input type="number" class="input-field" id="sf_our" value="'+f.our+'"></div>'+
+    '<div class="field"><label for="sf_opp_score">Su Score</label><input type="number" class="input-field" id="sf_opp_score" value="'+(f.opponent_score||0)+'"></div></div>'+
+    '<div class="field"><label for="sf_result">Resultado</label><select class="input-field" id="sf_result">'+['Pendiente','Victoria','Derrota','Empate'].map(function(r){return'<option value="'+r+'" '+(r===f.result?'selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="sf_date">Fecha</label><input type="date" class="input-field" id="sf_date" value="'+f.date+'"></div>'+
+    '<div class="field"><label for="scf_coach">Coach</label><select class="input-field" id="scf_coach" onchange="setGroupFromCoach(\'scf_group\',\'scf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field" style="display:none"><label for="scf_group">Grupo</label><select class="input-field" id="scf_group" onchange="reloadCoachDropdown(\'scf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
     '<button class="btn-primary" onclick="saveScrim(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 

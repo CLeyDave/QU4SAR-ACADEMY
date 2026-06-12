@@ -62,13 +62,13 @@ function schedForm(id){
   var f=item||{title:'',day:0,start:'18:00',end:'20:00',type:'entrenamiento',group_id:'',coach:dc()};
   var days=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Horario</h3>'+
-    '<div class="field"><label>Título</label><input class="input-field" id="sf_title" value="'+esc(f.title)+'"></div>'+
-    '<div class="grid-2"><div class="field"><label>Día</label><select class="input-field" id="sf_day">'+days.map(function(d,i){return'<option value="'+i+'" '+(i===f.day?'selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Tipo</label><select class="input-field" id="sf_type"><option value="entrenamiento" '+(f.type==='entrenamiento'?'selected':'')+'>Entrenamiento</option><option value="academia" '+(f.type==='academia'?'selected':'')+'>Academia</option><option value="scrim" '+(f.type==='scrim'?'selected':'')+'>Scrim</option><option value="premier" '+(f.type==='premier'?'selected':'')+'>Premier</option></select></div></div>'+
-    '<div class="grid-2"><div class="field"><label>Hora inicio</label><input type="time" class="input-field" id="sf_start" value="'+f.start+'"></div>'+
-    '<div class="field"><label>Hora fin</label><input type="time" class="input-field" id="sf_end" value="'+f.end+'"></div></div>'+
-    '<div class="field"><label>Grupo</label><select class="input-field" id="sf_group" onchange="reloadCoachDropdown(\'sf_coach\',this.value)"><option value="">General</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'" '+(f.group_id===g.id?'selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="sf_coach" onchange="setGroupFromCoach(\'sf_group\',\'sf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="sf_title">Título</label><input class="input-field" id="sf_title" value="'+esc(f.title)+'"></div>'+
+    '<div class="grid-2"><div class="field"><label for="sf_day">Día</label><select class="input-field" id="sf_day">'+days.map(function(d,i){return'<option value="'+i+'" '+(i===f.day?'selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="sf_type">Tipo</label><select class="input-field" id="sf_type"><option value="entrenamiento" '+(f.type==='entrenamiento'?'selected':'')+'>Entrenamiento</option><option value="academia" '+(f.type==='academia'?'selected':'')+'>Academia</option><option value="scrim" '+(f.type==='scrim'?'selected':'')+'>Scrim</option><option value="premier" '+(f.type==='premier'?'selected':'')+'>Premier</option></select></div></div>'+
+    '<div class="grid-2"><div class="field"><label for="sf_start">Hora inicio</label><input type="time" class="input-field" id="sf_start" value="'+f.start+'"></div>'+
+    '<div class="field"><label for="sf_end">Hora fin</label><input type="time" class="input-field" id="sf_end" value="'+f.end+'"></div></div>'+
+    '<div class="field"><label for="sf_group">Grupo</label><select class="input-field" id="sf_group" onchange="reloadCoachDropdown(\'sf_coach\',this.value)"><option value="">General</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'" '+(f.group_id===g.id?'selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="sf_coach">Coach</label><select class="input-field" id="sf_coach" onchange="setGroupFromCoach(\'sf_group\',\'sf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
     '<button class="btn-primary" onclick="saveSched(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 

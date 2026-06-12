@@ -55,13 +55,13 @@ function memberForm(id){
   var item=id?DATA.members.find(function(m){return m.id===id}):null;
   var f=item||{name:'',role:'Duelist',rank:'',coach:dc(),image:'',description:'',group_id:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Miembro</h3>'+
-    '<div class="field"><label>Nombre</label><input class="input-field" id="mf_name" value="'+esc(f.name)+'"></div>'+
-    '<div class="grid-2"><div class="field"><label>Rol</label><select class="input-field" id="mf_role">'+['Duelist','Initiator','Controller','Sentinel','Flex','Coach'].map(function(r){return'<option value="'+r+'" '+(r===f.role?'selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Rango</label><input class="input-field" id="mf_rank" value="'+esc(f.rank||'')+'"></div></div>'+
-    '<div class="grid-2"><div class="field"><label>Coach</label><select class="input-field" id="mf_coach" onchange="setGroupFromCoach(\'mf_group\',\'mf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
-    '<div class="field"><label>Imagen URL</label><input class="input-field" id="mf_image" value="'+esc(f.image||'')+'"></div></div>'+
-    '<div class="field"><label>Descripción</label><textarea class="input-field" id="mf_desc" rows="3">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="field"><label>Grupo</label><select class="input-field" id="mf_group" onchange="reloadCoachDropdown(\'mf_coach\',this.value);autoAssignCoachToMember(\'mf_coach\',this.value)"><option value="">Sin grupo</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="mf_name">Nombre</label><input class="input-field" id="mf_name" value="'+esc(f.name)+'"></div>'+
+    '<div class="grid-2"><div class="field"><label for="mf_role">Rol</label><select class="input-field" id="mf_role">'+['Duelist','Initiator','Controller','Sentinel','Flex','Coach'].map(function(r){return'<option value="'+r+'" '+(r===f.role?'selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="mf_rank">Rango</label><input class="input-field" id="mf_rank" value="'+esc(f.rank||'')+'"></div></div>'+
+    '<div class="grid-2"><div class="field"><label for="mf_coach">Coach</label><select class="input-field" id="mf_coach" onchange="setGroupFromCoach(\'mf_group\',\'mf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="mf_image">Imagen URL</label><input class="input-field" id="mf_image" value="'+esc(f.image||'')+'"></div></div>'+
+    '<div class="field"><label for="mf_desc">Descripción</label><textarea class="input-field" id="mf_desc" rows="3">'+esc(f.description||'')+'</textarea></div>'+
+    '<div class="field"><label for="mf_group">Grupo</label><select class="input-field" id="mf_group" onchange="reloadCoachDropdown(\'mf_coach\',this.value);autoAssignCoachToMember(\'mf_coach\',this.value)"><option value="">Sin grupo</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
     '<button class="btn-primary" onclick="saveMember(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 
@@ -93,9 +93,9 @@ function makeCoachFromMember(name){
   var base=realName||name.split('#')[0].split(' ').pop();
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>Hacer Coach: '+esc(name)+'</h3>'+
     '<p style="color:#888;font-size:13px;margin-bottom:14px">Crea un nuevo coach a partir de este miembro. Luego completa los datos en la página de Coaches.</p>'+
-    '<div class="field"><label>Nombre</label><input class="input-field" id="cf_name" value="'+esc(realName||name)+'"></div>'+
-    '<div class="field"><label>Nickname (Valorant)</label><input class="input-field" id="cf_nickname" value="'+esc(name)+'"></div>'+
-    '<div class="field"><label>Contraseña temporal</label><input class="input-field" id="cf_password" value="qu4sar'+base+'_"></div>'+
+    '<div class="field"><label for="cf_name">Nombre</label><input class="input-field" id="cf_name" value="'+esc(realName||name)+'"></div>'+
+    '<div class="field"><label for="cf_nickname">Nickname (Valorant)</label><input class="input-field" id="cf_nickname" value="'+esc(name)+'"></div>'+
+    '<div class="field"><label for="cf_password">Contraseña temporal</label><input class="input-field" id="cf_password" value="qu4sar'+base+'_"></div>'+
     '<button class="btn-primary" onclick="saveQuickCoach()" style="width:100%;justify-content:center">'+ic('user-check',16)+' Crear Coach</button>');
 }
 
@@ -120,7 +120,7 @@ function showCoachNotes(name){
       '<div style="color:#555;font-size:11px;margin-top:4px">'+esc(n.category)+' · '+(n.created_at?new Date(n.created_at).toLocaleString('es-ES'):'')+'</div></div>';
   });
   h+='</div><div class="field"><textarea class="input-field" id="cn_text" rows="2" placeholder="Nueva nota..."></textarea></div>'+
-    '<div class="field"><label>Categoría</label><input class="input-field" id="cn_cat" value="general" placeholder="ej: aim, game_sense, actitud"></div>'+
+    '<div class="field"><label for="cn_cat">Categoría</label><input class="input-field" id="cn_cat" value="general" placeholder="ej: aim, game_sense, actitud"></div>'+
     '<button class="btn-primary" onclick="addCoachNote(\''+esc(name)+'\')" style="width:100%;justify-content:center">'+ic('plus',16)+' Agregar Nota</button>';
   openModal(h);
 }
@@ -143,8 +143,8 @@ function showRankHistory(name){
     h+='<div class="has-glow" style="display:flex;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:8px">'+
       '<span>'+esc(r.rank)+arrow+'</span><span style="color:#555;font-size:13px">'+esc(r.date||'')+'</span></div>';
   });
-  h+='</div><div class="field"><label>Nuevo rango</label><input class="input-field" id="rh_rank" placeholder="ej: Diamond 3"></div>'+
-    '<div class="field"><label>Fecha</label><input type="date" class="input-field" id="rh_date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+
+  h+='</div><div class="field"><label for="rh_rank">Nuevo rango</label><input class="input-field" id="rh_rank" placeholder="ej: Diamond 3"></div>'+
+    '<div class="field"><label for="rh_date">Fecha</label><input type="date" class="input-field" id="rh_date" value="'+new Date().toISOString().slice(0,10)+'"></div>'+
     '<button class="btn-primary" onclick="addRankRecord(\''+esc(name)+'\')" style="width:100%;justify-content:center">'+ic('plus',16)+' Registrar Rango</button>';
   openModal(h);
 }

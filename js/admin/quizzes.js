@@ -20,10 +20,10 @@ function quizForm(id){
   }else{_quizQCounter=0}
   var qhtml='<div id="quizQs">'+(f.questions||[{text:'',options:['','','',''],correct:0,explanation:''}]).map(function(q,i){return quizQHTML(q,i)}).join('')+'</div>';
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Quiz</h3>'+
-    '<div class="field"><label>Título</label><input class="input-field" id="qf_title" value="'+esc(f.title)+'"></div>'+
-    '<div class="field"><label>Descripción</label><textarea class="input-field" id="qf_description" rows="2">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="qf_group" onchange="reloadCoachDropdown(\'qf_coach\',this.value)"><option value="">General</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Coach asignado</label><select class="input-field" id="qf_coach" onchange="setGroupFromCoach(\'qf_group\',\'qf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="qf_title">Título</label><input class="input-field" id="qf_title" value="'+esc(f.title)+'"></div>'+
+    '<div class="field"><label for="qf_description">Descripción</label><textarea class="input-field" id="qf_description" rows="2">'+esc(f.description||'')+'</textarea></div>'+
+    '<div class="field" style="display:none"><label for="qf_group">Grupo</label><select class="input-field" id="qf_group" onchange="reloadCoachDropdown(\'qf_coach\',this.value)"><option value="">General</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="qf_coach">Coach asignado</label><select class="input-field" id="qf_coach" onchange="setGroupFromCoach(\'qf_group\',\'qf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
     '<hr>'+qhtml+
     '<button class="btn-secondary" onclick="addQuizQ()" style="width:100%;justify-content:center;margin-top:8px">'+ic('plus',14)+' Agregar Pregunta</button>'+
     '<button class="btn-primary" onclick="saveQuiz(\''+(id||'')+'\')" style="width:100%;justify-content:center;margin-top:12px">'+ic('save',16)+' Guardar Quiz</button>');

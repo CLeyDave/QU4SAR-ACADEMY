@@ -14,11 +14,11 @@ function coachNoteForm(id){
   var item=id?(DATA.coach_notes||[]).find(function(n){return n.id===id}):null;
   var f=item||{member_name:'',note:'',category:'general',group_id:'',coach:dc(),created_at:new Date().toISOString()};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nueva')+' Nota</h3>'+
-    '<div class="field"><label>Miembro</label><select class="input-field" id="cnf_member">'+(DATA.members||[]).map(function(m){return'<option value="'+esc(m.name)+'" '+(m.name===f.member_name?'selected':'')+'>'+esc(m.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Nota</label><textarea class="input-field" id="cnf_note" rows="3">'+esc(f.note)+'</textarea></div>'+
-    '<div class="field"><label>Categoría</label><input class="input-field" id="cnf_cat" value="'+esc(f.category||'general')+'" placeholder="ej: aim, game_sense, actitud"></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="cnf_group" onchange="reloadCoachDropdown(\'cnf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="cnf_coach" onchange="setGroupFromCoach(\'cnf_group\',\'cnf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="cnf_member">Miembro</label><select class="input-field" id="cnf_member">'+(DATA.members||[]).map(function(m){return'<option value="'+esc(m.name)+'" '+(m.name===f.member_name?'selected':'')+'>'+esc(m.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="cnf_note">Nota</label><textarea class="input-field" id="cnf_note" rows="3">'+esc(f.note)+'</textarea></div>'+
+    '<div class="field"><label for="cnf_cat">Categoría</label><input class="input-field" id="cnf_cat" value="'+esc(f.category||'general')+'" placeholder="ej: aim, game_sense, actitud"></div>'+
+    '<div class="field" style="display:none"><label for="cnf_group">Grupo</label><select class="input-field" id="cnf_group" onchange="reloadCoachDropdown(\'cnf_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="cnf_coach">Coach</label><select class="input-field" id="cnf_coach" onchange="setGroupFromCoach(\'cnf_group\',\'cnf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
     '<button class="btn-primary" onclick="saveCoachNote(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 

@@ -26,11 +26,11 @@
       <p>Acceso al panel de administración</p>
       <form id="loginForm" onsubmit="event.preventDefault();doLogin()">
         <div class="form-group">
-          <label><i data-lucide="mail" style="width:14px;height:14px"></i> Email</label>
+          <label for="loginEmail"><i data-lucide="mail" style="width:14px;height:14px"></i> Email</label>
           <input class="input-field" type="email" id="loginEmail" placeholder="tu@email.com" autofocus>
         </div>
         <div class="form-group">
-          <label><i data-lucide="key" style="width:14px;height:14px"></i> Contraseña</label>
+          <label for="loginPass"><i data-lucide="key" style="width:14px;height:14px"></i> Contraseña</label>
           <input class="input-field" type="password" id="loginPass" placeholder="••••••">
         </div>
         <div class="error" id="loginError"></div>

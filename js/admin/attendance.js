@@ -41,10 +41,10 @@ function renderSection_attendance(){
   }else{
     h+='<div class="glass-card" style="padding:20px"><h3 style="margin-bottom:12px">'+ic('clipboard-check',18)+' Marcar / Editar asistencia</h3>';
     h+='<div style="display:grid;gap:12px;max-width:500px">'+
-      '<div class="field"><label>Clase</label><select class="input-field" id="attClassSelect" onchange="renderAttMemberList()">'+
+      '<div class="field"><label for="attClassSelect">Clase</label><select class="input-field" id="attClassSelect" onchange="renderAttMemberList()">'+
       classes.map(function(c,i){var days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];return'<option value="'+c.id+'">'+esc(c.title)+' ('+days[c.day]+' '+toLocalTime(c.start,c.tz)+')</option>'}).join('')+
       '</select></div>'+
-      '<div class="field"><label>Fecha</label><input type="date" class="input-field" id="attDate" value="'+today+'" onchange="renderAttMemberList()"></div>'+
+      '<div class="field"><label for="attDate">Fecha</label><input type="date" class="input-field" id="attDate" value="'+today+'" onchange="renderAttMemberList()"></div>'+
     '</div>';
     h+='<div id="attMemberList"></div>';
     h+='<button class="btn-primary" onclick="saveAllAttendance()" style="margin-top:14px;justify-content:center">'+ic('save',16)+' Guardar Asistencia</button>'+

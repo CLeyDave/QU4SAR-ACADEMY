@@ -59,8 +59,8 @@ function groupForm(id){
   var item=id?(DATA.groups||[]).find(function(g){return g.id===id}):null;
   var f=item||{name:'',description:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Grupo</h3>'+
-    '<div class="field"><label>Nombre</label><input class="input-field" id="gf_name" value="'+esc(f.name)+'"></div>'+
-    '<div class="field"><label>Descripción</label><input class="input-field" id="gf_description" value="'+esc(f.description||'')+'" placeholder="ej: Hierro a Oro"></div>'+
+    '<div class="field"><label for="gf_name">Nombre</label><input class="input-field" id="gf_name" value="'+esc(f.name)+'"></div>'+
+    '<div class="field"><label for="gf_description">Descripción</label><input class="input-field" id="gf_description" value="'+esc(f.description||'')+'" placeholder="ej: Hierro a Oro"></div>'+
     '<button class="btn-primary" onclick="saveGroup(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 

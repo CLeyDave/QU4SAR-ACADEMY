@@ -14,13 +14,13 @@ function academyForm(id){
   var item=id?(DATA.academy||[]).find(function(a){return a.id===id}):null;
   var f=item||{day:'Lunes',topic:'',objectives:[],prerequisites:[],duration:'',group_id:'',coach:dc(),image_url:'',attachment_url:'',attachment_name:''};
    openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nueva')+' Clase</h3>'+
-    '<div class="field"><label>Día</label><select class="input-field" id="af_day">'+['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map(function(d){return'<option value="'+d+'" '+(d===f.day?'selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Tema</label><input class="input-field" id="af_topic" value="'+esc(f.topic)+'"></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="af_coach" onchange="setGroupFromCoach(\'acf_group\',\'af_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
-    '<div class="field"><label>Duración</label><input class="input-field" id="af_duration" placeholder="ej: 90 min" value="'+esc(f.duration||'')+'"></div>'+
-    '<div class="field"><label>Requisitos previos (uno por línea)</label><textarea class="input-field" id="af_prereqs" rows="3">'+esc((f.prerequisites||[]).join('\n'))+'</textarea></div>'+
-    '<div class="field"><label>Objetivos (uno por línea)</label><textarea class="input-field" id="af_objectives" rows="4">'+esc((f.objectives||[]).join('\n'))+'</textarea></div>'+
-     '<div class="field"><label>Grupo</label><select class="input-field" id="acf_group" onchange="reloadCoachDropdown(\'af_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="af_day">Día</label><select class="input-field" id="af_day">'+['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map(function(d){return'<option value="'+d+'" '+(d===f.day?'selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="af_topic">Tema</label><input class="input-field" id="af_topic" value="'+esc(f.topic)+'"></div>'+
+    '<div class="field"><label for="af_coach">Coach</label><select class="input-field" id="af_coach" onchange="setGroupFromCoach(\'acf_group\',\'af_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="af_duration">Duración</label><input class="input-field" id="af_duration" placeholder="ej: 90 min" value="'+esc(f.duration||'')+'"></div>'+
+    '<div class="field"><label for="af_prereqs">Requisitos previos (uno por línea)</label><textarea class="input-field" id="af_prereqs" rows="3">'+esc((f.prerequisites||[]).join('\n'))+'</textarea></div>'+
+    '<div class="field"><label for="af_objectives">Objetivos (uno por línea)</label><textarea class="input-field" id="af_objectives" rows="4">'+esc((f.objectives||[]).join('\n'))+'</textarea></div>'+
+     '<div class="field"><label for="acf_group">Grupo</label><select class="input-field" id="acf_group" onchange="reloadCoachDropdown(\'af_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
     '<hr>'+
     '<div class="field"><label>Imagen</label>'+fileUploadHTML('Imagen','image/*','af_img_status','af_image_url',f.image_url||'')+(f.image_url?mediaPreview(f.image_url):'')+'</div>'+
     '<div class="field"><label>Archivo adjunto (PDF)</label>'+fileUploadHTML('PDF','.pdf,application/pdf','af_doc_status','af_attachment_url',f.attachment_url||'')+'<input class="input-field" id="af_attachment_name" placeholder="Nombre del archivo" value="'+esc(f.attachment_name||'')+'"></div>'+

@@ -14,15 +14,15 @@ function evalForm(id){
   var item=id?(DATA.evaluations||[]).find(function(e){return e.id===id}):null;
   var f=item||{member_name:'',aim:3,game_sense:3,communication:3,teamwork:3,coach:dc(),group_id:'',coach_notes:'',date:new Date().toISOString().slice(0,10),image_url:'',attachment_url:'',attachment_name:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nueva')+' Evaluación</h3>'+
-    '<div class="field"><label>Miembro</label><select class="input-field" id="ef_member_name">'+(DATA.members||[]).map(function(m){return'<option value="'+esc(m.name)+'" '+(m.name===f.member_name?'selected':'')+'>'+esc(m.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="grid-2"><div class="field"><label>AIM (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_aim" value="'+f.aim+'"></div>'+
-    '<div class="field"><label>Game Sense (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_game_sense" value="'+f.game_sense+'"></div></div>'+
-    '<div class="grid-2"><div class="field"><label>Comunicación (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_communication" value="'+f.communication+'"></div>'+
-    '<div class="field"><label>Trabajo Equipo (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_teamwork" value="'+f.teamwork+'"></div></div>'+
-    '<div class="field" style="display:none"><label>Grupo</label><select class="input-field" id="ef_group" onchange="reloadCoachDropdown(\'ef_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
-    '<div class="field"><label>Coach</label><select class="input-field" id="ef_coach" onchange="setGroupFromCoach(\'ef_group\',\'ef_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
-    '<div class="field"><label>Notas del Coach</label><textarea class="input-field" id="ef_coach_notes" rows="3">'+esc(f.coach_notes||'')+'</textarea></div>'+
-    '<div class="field"><label>Fecha</label><input type="date" class="input-field" id="ef_date" value="'+f.date+'"></div>'+
+    '<div class="field"><label for="ef_member_name">Miembro</label><select class="input-field" id="ef_member_name">'+(DATA.members||[]).map(function(m){return'<option value="'+esc(m.name)+'" '+(m.name===f.member_name?'selected':'')+'>'+esc(m.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="grid-2"><div class="field"><label for="ef_aim">AIM (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_aim" value="'+f.aim+'"></div>'+
+    '<div class="field"><label for="ef_game_sense">Game Sense (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_game_sense" value="'+f.game_sense+'"></div></div>'+
+    '<div class="grid-2"><div class="field"><label for="ef_communication">Comunicación (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_communication" value="'+f.communication+'"></div>'+
+    '<div class="field"><label for="ef_teamwork">Trabajo Equipo (1-5)</label><input type="number" min="1" max="5" class="input-field" id="ef_teamwork" value="'+f.teamwork+'"></div></div>'+
+    '<div class="field" style="display:none"><label for="ef_group">Grupo</label><select class="input-field" id="ef_group" onchange="reloadCoachDropdown(\'ef_coach\',this.value)"><option value="">General (Ambos)</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="ef_coach">Coach</label><select class="input-field" id="ef_coach" onchange="setGroupFromCoach(\'ef_group\',\'ef_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
+    '<div class="field"><label for="ef_coach_notes">Notas del Coach</label><textarea class="input-field" id="ef_coach_notes" rows="3">'+esc(f.coach_notes||'')+'</textarea></div>'+
+    '<div class="field"><label for="ef_date">Fecha</label><input type="date" class="input-field" id="ef_date" value="'+f.date+'"></div>'+
     '<hr>'+
     '<div class="field"><label>Imagen</label>'+fileUploadHTML('Imagen','image/*','ef_img_status','ef_image_url',f.image_url||'')+(f.image_url?mediaPreview(f.image_url):'')+'</div>'+
     '<div class="field"><label>Archivo adjunto (PDF)</label>'+fileUploadHTML('PDF','.pdf,application/pdf','ef_doc_status','ef_attachment_url',f.attachment_url||'')+'<input class="input-field" id="ef_attachment_name" placeholder="Nombre del archivo" value="'+esc(f.attachment_name||'')+'"></div>'+

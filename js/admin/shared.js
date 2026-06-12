@@ -14,7 +14,7 @@ function hideLoading(){var el=document.getElementById('loadingOverlay');if(el)el
 
 var DATA_TABLES=['schedule','team','scrims','members','stats','news','academy','attendance','announcements','curriculum','materials','tasks','task_completions','coach_notes','evaluations','rank_history','attendance_confirmations','substitutions','achievements','member_achievements','quizzes','quiz_responses','groups','coaches','group_coaches','applications','sections'];
 var _adminGF='';
-var _syncPromise=Promise.resolve(),_lastFocused=null;
+var _syncPromise=Promise.resolve(),_lastFocused=null,_pendingLocalSave=false;
 
 function adminGroupFilterHTML(gid,reloadFn){
   var h='<div class="admin-filters" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">'+
@@ -59,7 +59,6 @@ async function syncToDB_(){
   for(var i=0;i<DATA_TABLES.length;i++){
     var t=DATA_TABLES[i],items=DATA[t]||[];
     if(t==='task_completions')continue;
-    if(!items.length)continue;
     try{
       if(t==='schedule')var mapped=items.map(function(s){return{id:s.id,title:s.title,day:s.day,start_time:s.start||s.start_time,end_time:s.end||s.end_time,type:s.type,group_id:s.group_id||'',coach:s.coach||''}});
       else if(t==='scrims')var mapped=items.map(function(s){return{id:s.id,opponent:s.opponent||'',our_score:s.our||0,opponent_logo:s.opponent_logo||'',opponent_score:s.opponent_score||0,result:s.result,date:s.date,group_id:s.group_id||'',coach:s.coach||''}});
@@ -121,9 +120,11 @@ async function syncToDB_(){
   else if(okCount>0)toast('Datos sincronizados con la nube','ok');
 }
 
-function saveData(d){
+async function saveData(d){
   try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}
-  syncToDB();
+  _pendingLocalSave=true;
+  await syncToDB();
+  setTimeout(function(){_pendingLocalSave=false},2000);
 }
 
 const SK='quasar_admin_data';
@@ -361,6 +362,7 @@ async function loadAdminData(){
     rtChannel=db.channel('admin-changes')
       .on('postgres_changes',{event:'*',schema:'public'},async function(payload){
         var table=payload.table;
+        if(_pendingLocalSave){return}
         if(table==='content'||table==='sections'||DATA_TABLES.includes(table)){
           if(table==='applications'&&payload.eventType==='INSERT')toast(ic('user-plus',14)+' Nueva inscripción recibida','info');
           else if(payload.eventType!=='DELETE')toast(ic('refresh-cw',14)+' Cambio detectado de otra sesión, recargando...','info');
@@ -499,23 +501,23 @@ function renderContentEdit(){
     '<div class="glass-card" style="padding:28px;max-width:600px;margin-bottom:16px">'+
     '<h3 style="font-family:var(--font-display);font-size:14px;margin-bottom:16px">'+ic('type',16)+' Contenido Principal</h3>'+
     '<div class="content-editor">'+
-    [{k:'hero_title',l:'Título del Hero'},{k:'hero_subtitle',l:'Subtítulo'},{k:'hero_desc',l:'Descripción'},{k:'site_tagline',l:'Tagline'}].map(function(f){return'<div class="field"><label>'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
+    [{k:'hero_title',l:'Título del Hero'},{k:'hero_subtitle',l:'Subtítulo'},{k:'hero_desc',l:'Descripción'},{k:'site_tagline',l:'Tagline'}].map(function(f){return'<div class="field"><label for="cf_'+f.k+'">'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
     '</div></div>'+
     '<div class="glass-card" style="padding:28px;max-width:600px;margin-bottom:16px">'+
     '<h3 style="font-family:var(--font-display);font-size:14px;margin-bottom:16px">'+ic('image',16)+' Imágenes</h3>'+
     '<div class="content-editor">'+
-    [{k:'logo_url',l:'URL del Logo'},{k:'banner_bg',l:'URL Fondo Hero (opcional)'}].map(function(f){return'<div class="field"><label>'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
+    [{k:'logo_url',l:'URL del Logo'},{k:'banner_bg',l:'URL Fondo Hero (opcional)'}].map(function(f){return'<div class="field"><label for="cf_'+f.k+'">'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
     '</div></div>'+
     '<div class="glass-card" style="padding:28px;max-width:600px;margin-bottom:16px">'+
     '<h3 style="font-family:var(--font-display);font-size:14px;margin-bottom:16px">'+ic('link',16)+' Redes Sociales</h3>'+
     '<div class="content-editor">'+
-    [{k:'social_twitch',l:'Twitch'},{k:'social_youtube',l:'YouTube'},{k:'social_twitter',l:'Twitter / X'},{k:'social_instagram',l:'Instagram'}].map(function(f){return'<div class="field"><label>'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
+    [{k:'social_twitch',l:'Twitch'},{k:'social_youtube',l:'YouTube'},{k:'social_twitter',l:'Twitter / X'},{k:'social_instagram',l:'Instagram'}].map(function(f){return'<div class="field"><label for="cf_'+f.k+'">'+f.l+'</label><input class="input-field" id="cf_'+f.k+'" value="'+esc(c[f.k]||'')+'"></div>'}).join('')+
     '</div></div>'+
     '<div class="glass-card" style="padding:28px;max-width:600px;margin-bottom:16px">'+
     '<h3 style="font-family:var(--font-display);font-size:14px;margin-bottom:16px">'+ic('file-text',16)+' Términos y Condiciones</h3>'+
     '<div class="content-editor">'+
-    '<div class="field"><label>Título de Términos</label><input class="input-field" id="cf_terms_title" value="'+esc(c.terms_title||'')+'"></div>'+
-    '<div class="field"><label>Contenido de Términos</label><textarea class="input-field" id="cf_terms_content" rows="12" style="resize:vertical;font-size:13px;line-height:1.6">'+esc(c.terms_content||'')+'</textarea></div>'+
+    '<div class="field"><label for="cf_terms_title">Título de Términos</label><input class="input-field" id="cf_terms_title" value="'+esc(c.terms_title||'')+'"></div>'+
+    '<div class="field"><label for="cf_terms_content">Contenido de Términos</label><textarea class="input-field" id="cf_terms_content" rows="12" style="resize:vertical;font-size:13px;line-height:1.6">'+esc(c.terms_content||'')+'</textarea></div>'+
     '</div></div>'+
     '<button class="btn-primary" onclick="saveContent()" style="margin-top:4px">'+ic('save',16)+' Guardar Cambios</button>';
 }
@@ -684,7 +686,7 @@ function switchAdminSection(groupId,sectionId){
   requestAnimationFrame(function(){
     var fn=window['renderSection_'+sectionId];
     if(typeof fn==='function'){fn();if(typeof lucide!=='undefined')lucide.createIcons();updateCounts()}
-    hideLoading();
+    requestAnimationFrame(function(){hideLoading()});
   });
 }
 
@@ -735,7 +737,8 @@ function renderAdminShell(title,activeGroup,activeSection){
     backdrop.id='sidebarBackdrop';
     backdrop.className='admin-sidebar-backdrop';
     backdrop.onclick=closeAdminMenu;
-    document.body.appendChild(backdrop);
+    var adminPanel=document.getElementById('adminPanel')||document.querySelector('.admin');
+    (adminPanel||document.body).appendChild(backdrop);
   }
   var nav=document.getElementById('adminSidebar');
   var html='';
@@ -811,7 +814,6 @@ function updateCounts(){
 
 function refresh(){
   closeAdminMenu();
-  showLoading();
   var activeLink=document.querySelector('.nav-link.active');
   if(activeLink){
     var sec=activeLink.getAttribute('data-section');
@@ -820,7 +822,6 @@ function refresh(){
       if(typeof fn==='function'){fn();if(typeof lucide!=='undefined')lucide.createIcons();updateCounts()}
     }
   }
-  requestAnimationFrame(function(){hideLoading()});
 }
 
 // ========== INIT ==========
