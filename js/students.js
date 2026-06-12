@@ -66,6 +66,7 @@ function showSection(name){
 }
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function renderSection(n){try{switch(n){
+  case'profile':renderProfile();break;
   case'schedule':renderSchedule();break;
   case'academy':renderAcademy();break;
   case'team':renderTeam();break;
@@ -104,7 +105,7 @@ function handleLogin(){
       if(ov){ov.classList.add('hidden');ov.style.display=''}
       document.body.style.overflow='';
       updateLoginBadge();applyVisibility();
-      showSection('dashboard');
+      showSection('profile');
       btn.disabled=false;btn.innerHTML='Iniciar Sesión';
     },600);
   }else{
@@ -469,6 +470,115 @@ function renderDashContent(){
     case'coach_notes':renderDashCoachNotes();break;
   }
 }
+function renderProfile(){
+  var u=getLogin();
+  var container=document.getElementById('profileContent');
+  if(!container)return;
+  if(!u||!u.id){
+    container.innerHTML='<div style="text-align:center;padding:60px 20px;color:#555">'+ic('log-in',48)+'<br><br><span style="font-size:18px;font-weight:600">Inicia sesión para ver tu perfil</span></div>';
+    return;
+  }
+  var name=u.name||'';
+  var member=(DATA.members||[]).find(function(m){return m.name===name});
+  var isCoach=member&&(DATA.coaches||[]).some(function(c){return c.name===member.name||c.name===member.nickname});
+  var hs=member?member.hs_percent||'—':'—';
+  var kd=member?member.kd||'—':'—';
+  var dpr=member?member.dpr||'—':'—';
+  var course=member?member.course||'—':'—';
+  var avatar=member?member.image||'':'';
+  var rank=member?member.rank||u.rank||'—':'—';
+  var role=member?member.role||'—':'—';
+  var desc=member?member.description||'':'';
+  var coachName=member?member.coach||'—':'—';
+  var groupId=member?member.group_id||'':'';
+
+  var myCompletions=(DATA.task_completions||[]).filter(function(tc){return tc.member_name===name});
+  var myAttendance=(DATA.attendance||[]).filter(function(a){return a.member_name===name});
+  var attThisMonth=myAttendance.filter(function(a){var d=a.date||'';return d.startsWith(new Date().toISOString().slice(0,7))});
+  var attRate=attThisMonth.length?Math.round(attThisMonth.filter(function(a){return a.status==='present'}).length/attThisMonth.length*100):0;
+  var myEvals=filterByCoach(DATA.evaluations||[]).filter(function(e){return e.member_name===name});
+  var avgScore=myEvals.length?Math.round(myEvals.reduce(function(s,e){return s+(e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0)},0)/(myEvals.length*4)*10)/10:0;
+  var myAchs=(DATA.member_achievements||[]).filter(function(ma){return ma.member_name===name});
+
+  container.innerHTML=
+    '<div class="profile-wrap" style="max-width:800px;margin:0 auto">'+
+      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:16px">'+
+        '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(45,10,82,0.4));padding:32px 28px 24px;text-align:center;position:relative">'+
+          '<div style="width:88px;height:88px;border-radius:50%;margin:0 auto 14px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid rgba(139,92,246,0.2)">'+
+            (avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',36))+
+          '</div>'+
+          '<div style="font-size:22px;font-weight:700;font-family:var(--font-display);margin-bottom:6px">'+esc(name)+'</div>'+
+          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">'+
+            (isCoach?'<span class="badge badge-green">Coach</span>':'<span class="badge badge-blue">Player</span>')+
+            '<span class="badge badge-gray">'+(member?'Miembro':'Alumno')+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1px;background:rgba(139,92,246,0.04)">'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(hs)+'%</div><div class="psc-lbl">HS</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(kd)+'</div><div class="psc-lbl">KD</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(dpr)+'</div><div class="psc-lbl">DPR</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(rank)+'</div><div class="psc-lbl">Rango</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(course)+'</div><div class="psc-lbl">Curso</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="glass-card" style="padding:20px 24px;margin-bottom:16px">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Nombre</div><div style="color:#f0f0f0;font-weight:600">'+esc(name)+'</div></div>'+
+          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Rango</div><div style="color:var(--neon-light)">'+esc(rank)+'</div></div>'+
+          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Roles</div><div style="color:#f0f0f0">'+esc(role)+'</div></div>'+
+          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Coach</div><div style="color:#f0f0f0">'+esc(coachName)+'</div></div>'+
+          (groupId?'<div style="grid-column:1/-1"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Grupo</div><div style="color:var(--neon-light);font-weight:600">'+esc(String(groupId).toUpperCase())+'</div></div>':'')+
+        '</div>'+
+        (desc?'<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(139,92,246,0.06)"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px">Experiencia</div><div style="color:#bbb;font-size:14px;line-height:1.6;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+      '</div>'+
+      '<div class="dash-cards" style="margin-bottom:16px">'+
+        '<div class="glass-card dash-card"><div class="num gradient-text">'+myCompletions.length+'</div><div class="lbl">'+ic('check-square',12)+' Tareas</div></div>'+
+        '<div class="glass-card dash-card"><div class="num gradient-text">'+(attRate?attRate+'%':'—')+'</div><div class="lbl">'+ic('calendar',12)+' Asistencia</div></div>'+
+        '<div class="glass-card dash-card"><div class="num gradient-text">'+(avgScore||'—')+'</div><div class="lbl">'+ic('bar-chart-3',12)+' Evaluaciones</div></div>'+
+        '<div class="glass-card dash-card"><div class="num gradient-text">'+myAchs.length+'</div><div class="lbl">'+ic('award',12)+' Logros</div></div>'+
+      '</div>'+
+    '</div>';
+
+  var evalsHTML='<div class="dash-section"><h3>'+ic('bar-chart-3',18)+' Últimas Evaluaciones</h3>';
+  if(myEvals.length){
+    evalsHTML+='<div style="overflow-x:auto"><table class="dash-eval-table"><thead><tr><th>Fecha</th><th>AIM</th><th>GS</th><th>Comms</th><th>TW</th></tr></thead><tbody>'+
+      myEvals.sort(function(a,b){return a.date<b.date?1:-1}).slice(0,5).map(function(e,i){
+        return '<tr style="cursor:pointer" onclick="showEvalDetail('+i+')"><td>'+(e.date?new Date(e.date).toLocaleDateString('es-ES'):'—')+'</td><td>'+e.aim+'</td><td>'+e.game_sense+'</td><td>'+e.communication+'</td><td>'+e.teamwork+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }else evalsHTML+='<div style="padding:16px;text-align:center;color:#555">'+ic('clipboard',24)+'<br>Sin evaluaciones aún</div>';
+  evalsHTML+='</div>';
+
+  var notesHTML='<div class="dash-section"><h3>'+ic('message-square',18)+' Notas del Coach</h3>';
+  var myNotes=(DATA.coach_notes||[]).filter(function(n){return n.member_name===name});
+  if(myNotes.length){
+    notesHTML+=myNotes.sort(function(a,b){return a.created_at<b.created_at?1:-1}).slice(0,4).map(function(n){
+      return '<div class="glass-card dash-note"><span class="date">'+(n.created_at?new Date(n.created_at).toLocaleDateString('es-ES'):'')+'</span><div class="cat">'+(n.category||'general')+'</div><div style="white-space:pre-wrap">'+esc(n.note||n.text||'')+'</div></div>';
+    }).join('');
+  }else notesHTML+='<div style="padding:16px;text-align:center;color:#555">'+ic('inbox',24)+'<br>Sin notas aún</div>';
+  notesHTML+='</div>';
+
+  var rankHTML='<div class="dash-section"><h3>'+ic('trending-up',18)+' Progreso de Rango</h3>';
+  var rankHistory=(DATA.rank_history||[]).filter(function(r){return r.member_name===name});
+  if(rankHistory.length){
+    rankHTML+='<div class="dash-timeline">'+rankHistory.sort(function(a,b){return a.date<b.date?1:-1}).slice(0,8).map(function(r,i){
+      return '<div class="step">'+(i?ic('arrow-right',12)+' ':'')+'<span class="dot"></span><span>'+esc(r.rank)+'</span></div>';
+    }).join('')+'</div>';
+  }else rankHTML+='<div style="padding:16px;text-align:center;color:#555">'+ic('activity',24)+'<br>Sin historial de rango</div>';
+  rankHTML+='</div>';
+
+  var achsHTML='<div class="dash-section"><h3>'+ic('award',18)+' Logros Obtenidos</h3>';
+  var earnedAchs=myAchs.map(function(ma){return(DATA.achievements||[]).find(function(a){return a.id===ma.achievement_id})}).filter(function(a){return a});
+  if(earnedAchs.length){
+    achsHTML+='<div style="display:flex;flex-wrap:wrap;gap:8px">'+earnedAchs.map(function(a){
+      return '<div class="glass-card" style="padding:10px 14px;font-size:13px;text-align:center" title="'+esc(a.description||'')+'">'+ic(a.icon||'trophy',20)+'<br>'+esc(a.name)+'</div>';
+    }).join('')+'</div>';
+  }else achsHTML+='<div style="padding:16px;text-align:center;color:#555">'+ic('star',24)+'<br>Aún no tienes logros</div>';
+  achsHTML+='</div>';
+
+  container.innerHTML+=evalsHTML+notesHTML+rankHTML+achsHTML;
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
 function renderDashboard(){
   var u=getLogin();
   var container=document.getElementById('dashContent');
@@ -853,7 +963,7 @@ function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name
 
 function renderAll(){
   safeRender(renderFooter,'footer');
-  var sectionFns={'schedule':renderSchedule,'academy':renderAcademy,'team':renderTeam,'scrims':renderScrims,'stats':renderStats,'news':renderNews,'members':renderMembers,'dashboard':renderDashboard,'announcements':renderAnnouncements,'substitutions':renderSubstitutions};
+  var sectionFns={'profile':renderProfile,'schedule':renderSchedule,'academy':renderAcademy,'team':renderTeam,'scrims':renderScrims,'stats':renderStats,'news':renderNews,'members':renderMembers,'dashboard':renderDashboard,'announcements':renderAnnouncements,'substitutions':renderSubstitutions};
   Object.keys(sectionFns).forEach(function(id){
     if(document.getElementById('section-'+id))safeRender(sectionFns[id],id);
   });
@@ -1039,6 +1149,6 @@ function showLoginOverlay(){
   applyVisibility();
   initParticles();
   initRipple();
-  if(isLoggedIn())showSection('dashboard');
+  if(isLoggedIn())showSection('profile');
   hideLoading();
 })();

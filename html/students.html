@@ -29,7 +29,8 @@
       <span class="nav-logo-text">QU4SAR</span>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="javascript:;" onclick="showSection('dashboard')" data-section="dashboard" class="active"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i> Panel</a>
+      <a href="javascript:;" onclick="showSection('profile')" data-section="profile"><i data-lucide="user" style="width:14px;height:14px"></i> Perfil</a>
+      <a href="javascript:;" onclick="showSection('dashboard')" data-section="dashboard"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i> Panel</a>
       <a href="javascript:;" onclick="showSection('schedule')" data-section="schedule"><i data-lucide="calendar" style="width:14px;height:14px"></i> Horarios</a>
       <a href="javascript:;" onclick="showSection('clases')" data-section="clases"><i data-lucide="graduation-cap" style="width:14px;height:14px"></i> Clases</a>
       <a href="javascript:;" onclick="showSection('curriculum')" data-section="curriculum"><i data-lucide="book-open" style="width:14px;height:14px"></i> Plan</a>
@@ -163,6 +164,12 @@
     <button class="btn-primary btn-full" onclick="handleLogin()" id="loginBtn">Iniciar Sesi&oacute;n</button>
   </div>
 </div>
+
+<!-- PROFILE -->
+<section id="section-profile" class="section page" style="display:none">
+  <div class="section-bg"></div>
+  <div class="container" id="profileContent"></div>
+</section>
 
 <!-- FOOTER -->
 <footer class="footer">
