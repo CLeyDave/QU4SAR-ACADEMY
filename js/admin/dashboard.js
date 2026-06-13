@@ -155,7 +155,7 @@ function renderCoachDashboard(coachName){
     '</div>';
 
   document.getElementById('adminContent').innerHTML=html;
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function coachEditProfile(coachId){
@@ -192,7 +192,7 @@ function coachEditProfile(coachId){
     '<button class="btn-primary" onclick="saveCoachProfile(\''+coachId+'\')" style="width:100%;justify-content:center;margin-top:14px">'+ic('save',16)+' Guardar Cambios</button>';
 
   openModal(modalHTML);
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function saveCoachProfile(coachId){
@@ -231,5 +231,5 @@ function renderAdminDashboard(){
     {n:(DATA.academy||[]).length,l:'Academia',c:'#eab308, #ca8a04',i:ic('graduation-cap',18)},
     {n:(DATA.announcements||[]).length,l:'Anuncios',c:'#a78bfa, #8b5cf6',i:ic('megaphone',18)},
   ].map(function(c){return'<div class="glass-card dash-card"><div class="glow" style="background:linear-gradient(135deg,'+c.c+')"></div><div class="num gradient-text">'+c.n+'</div><div class="lbl"><span class="icon">'+c.i+'</span> '+c.l+'</div></div>'}).join('')+'</div>';
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }

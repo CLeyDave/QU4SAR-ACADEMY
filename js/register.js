@@ -65,7 +65,7 @@ function submitApp(){
     msg.textContent='Error al enviar: '+err.message;
     msg.style.color='#8b5cf6';
     btn.disabled=false;btn.innerHTML=ic('send',16)+' Enviar Solicitud';
-    _flushIcons();
+    if(typeof lucide!=="undefined")lucide.createIcons();
     setTimeout(function(){msg.textContent=''},5000);
   });
 }
@@ -73,7 +73,7 @@ function resetForm(btn){
   document.getElementById('registerForm').querySelectorAll('input,select,textarea').forEach(function(el){el.value=''});
   document.querySelectorAll('#reg_roles input').forEach(function(cb){cb.checked=false;cb.closest('.role-opt').classList.remove('checked')});
   btn.disabled=false;btn.innerHTML=ic('send',16)+' Enviar Solicitud';
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
   setTimeout(function(){document.getElementById('regMsg').textContent=''},4000);
 }
 

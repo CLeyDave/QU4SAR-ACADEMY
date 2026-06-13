@@ -6,9 +6,6 @@ var db=null; var rtChannel=null; var _dbFailed=false;
 // ========== TOAST ==========
 function toast(m,t){var el=document.getElementById('toast');if(!el)return;el.innerHTML=m;el.className='toast show '+(t||'ok');setTimeout(function(){el.classList.remove('show')},2800)}
 
-// ========== ICON BATCH (reduce lucide.createIcons calls) ==========
-var _iconsPending=false;function _flushIcons(){if(_iconsPending)return;_iconsPending=true;requestAnimationFrame(function(){if(typeof lucide!=='undefined')lucide.createIcons();_iconsPending=false})}
-
 // ========== LOADING OVERLAY ==========
 function showLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.remove('hidden')}
 function hideLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.add('hidden')}
@@ -28,7 +25,8 @@ function defaultData(){return{
   }}
 }}
 function getData(){try{var r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r)}catch(e){}var d=defaultData();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){};return d}
-var _savePending=false;function saveLocal(d){if(_savePending)return;_savePending=true;requestAnimationFrame(function(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}_savePending=false})}
+var _saveStr='';function saveLocal(d){var s=JSON.stringify(d);if(s===_saveStr)return;_saveStr=s;try{localStorage.setItem(STORAGE_KEY,s)}catch(e){}}
+window.addEventListener('beforeunload',function(){if(_saveStr)try{localStorage.setItem(STORAGE_KEY,_saveStr)}catch(e){}})
 var DATA=getData();if(!DATA.content)DATA.content={home:{}};if(!DATA.content.home)DATA.content.home={};if(!DATA.coaches)DATA.coaches=[];if(!DATA.task_completions)DATA.task_completions=[];
 if(!DATA.content.home.terms_title||!DATA.content.home.terms_content){
   var def=defaultData();
@@ -214,7 +212,7 @@ function showDetail(html){
   dc.innerHTML='<button class="close-btn" onclick="closeDetail()">'+ic('x',18)+'</button>'+html;
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow='hidden';
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 function closeDetail(){
   var ov=document.getElementById('detailOverlay');

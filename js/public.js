@@ -89,7 +89,7 @@ function toggleNav(){document.getElementById('navLinks').classList.toggle('open'
 function renderPublicSections(){
   safeRender(renderHero,'hero');
   safeRender(renderFooter,'footer');
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 function updateLoginBadge(){
@@ -134,7 +134,7 @@ function logoutIndex(){
       if(fetches[6].data)DATA.members=fetches[6].data;
       saveLocal(DATA);
       var ds=document.getElementById('dbStatus');
-      if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='online';_flushIcons()}
+      if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='online';if(typeof lucide!=="undefined")lucide.createIcons()}
     }
   }catch(e){console.log('DB unavailable:',e)}
   renderPublicSections();

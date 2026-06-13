@@ -69,5 +69,5 @@ async function showTaskCompletions(taskId){
   }
   html+='</div>';
   openModal(html);
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }

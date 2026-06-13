@@ -94,7 +94,7 @@ function renderSection(n){try{switch(n){
   case'register':break;
   case'announcements':renderAnnouncements();break;
   case'substitutions':renderSubstitutions();break;
-}renderFooter()}catch(e){}_flushIcons()}
+}renderFooter()}catch(e){}if(typeof lucide!=="undefined")lucide.createIcons()}
 
 // ========== LOGIN ==========
 function handleLogin(){
@@ -139,7 +139,7 @@ function logout(){
     var nl=document.getElementById('navLogout');
     if(nl)nl.style.display='none';
   }catch(e){console.log('Logout error:',e)}
-  renderSchedule();renderAcademy();renderScrims();renderStats();renderNews();renderAnnouncements();renderSubstitutions();renderDashboard();
+  renderAll();
 }
 
 function updateLoginBadge(){
@@ -232,7 +232,7 @@ function renderSchedule(){
   }
   html+='</div>';
   container.innerHTML=weekHTML+html;
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 // ========== RENDER ACADEMY ==========
@@ -396,7 +396,7 @@ function renderAnnouncements(){
   var items=DATA.announcements||[];
   items=filterByCoach(filterByGroup(items));
   var container=document.getElementById('announcementsList');
-  if(!items.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#555">'+ic('megaphone',48)+'<br>No hay anuncios aún</div>';_flushIcons();return}
+  if(!items.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#555">'+ic('megaphone',48)+'<br>No hay anuncios aún</div>';if(typeof lucide!=="undefined")lucide.createIcons();return}
   container.innerHTML=items.sort(function(a,b){return a.pinned?b.pinned?0:-1:1}).map(function(a,i){
     return '<div class="glass-card" style="padding:20px;cursor:pointer;'+(a.pinned?'border:1px solid var(--neon);':'')+'" onclick="showAnnouncementDetail('+i+')">'+
       (a.image_url?'<img src="'+esc(a.image_url)+'" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px;cursor:pointer" onclick="event.stopPropagation();showImageOverlay(this.src,this.alt)">':'')+
@@ -620,7 +620,7 @@ function renderProfile(){
       '</div>'+
     '</div>';
   if(trackerData)renderTrackerStats(trackerData);
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function renderTrackerStats(data){
@@ -754,7 +754,7 @@ function shareProfile(){
       '</div>'+
     '</div>';
   document.body.appendChild(overlay);
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function copyShareLink(link){
@@ -796,7 +796,7 @@ function downloadProfilePNG(){
   container.appendChild(ft);
   document.body.appendChild(container);
   // Forzar lucide icons en el clon
-  _flushIcons();
+  if(typeof lucide!=='undefined')lucide.createIcons({attrs:{'stroke':'currentColor'}},container);
   setTimeout(function(){
     html2canvas(container,{
       backgroundColor:'#0a0a0f',
@@ -914,7 +914,7 @@ function renderSharedProfile(member){
         '<div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;padding:0 4px"><span>WIN RATE '+swr+'%</span><span>'+(sw+sl)+' partidas</span></div>'+
       '</div>'+
     '</div>';
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function refreshTrackerStats(){
@@ -927,7 +927,7 @@ function refreshTrackerStats(){
   var c=document.getElementById('trackerStatsContainer');
   if(!c)return;
   c.innerHTML='<div style="text-align:center;padding:10px;color:#666;font-size:12px">'+ic('loader',14)+' Sincronizando...</div>';
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 
   if(!riotId||riotId.indexOf('#')<0){
     c.innerHTML='<div style="color:#666;font-size:12px;margin-top:10px">'+ic('alert-circle',12)+' Configura tu Riot ID (Nombre#Tag) en Editar Perfil</div>';
@@ -1177,7 +1177,7 @@ function editProfile(){
       '<button class="btn-primary" onclick="saveProfileEdit()" style="width:100%;justify-content:center;margin-top:14px">'+ic('save',16)+' Guardar Cambios</button>'+
     '</div>';
   document.body.appendChild(overlay);
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function saveProfileEdit(){
@@ -1508,7 +1508,7 @@ function startDashQuiz(id){
   html+='<button class="btn-primary" onclick="submitDashQuiz(\''+id+'\')" style="width:100%;justify-content:center"><i data-lucide="check" style="width:16px;height:16px"></i> Enviar Respuestas</button></div>';
   var container=document.getElementById('quizzesContent')||document.getElementById('dashContent');
   if(container)container.innerHTML=html;
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
 }
 
 function submitDashQuiz(id){
@@ -1605,7 +1605,6 @@ function toggleTaskCompletion(taskId){
 }
 
 // ========== INIT HELPERS ==========
-var _iconsPending=false;function _flushIcons(){if(_iconsPending)return;_iconsPending=true;requestAnimationFrame(function(){_flushIcons();_iconsPending=false})}
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 
 function renderAll(){
@@ -1614,12 +1613,12 @@ function renderAll(){
   Object.keys(sectionFns).forEach(function(id){
     if(document.getElementById('section-'+id))safeRender(sectionFns[id],id);
   });
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
   document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 
 function reRenderTable(table){
-  if(table==='content'||table==='home'){renderFooter();_flushIcons();return}
+  if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=="undefined")lucide.createIcons();return}
   if(table==='schedule'&&document.getElementById('scheduleBubbles'))renderSchedule();
   else if(table==='team'&&document.getElementById('teamContainer'))renderTeam();
   else if(table==='scrims'&&document.getElementById('scrimStats'))renderScrims();
@@ -1629,7 +1628,7 @@ function reRenderTable(table){
   else if(table==='announcements'&&document.getElementById('announcementsList'))renderAnnouncements();
   else if(table==='substitutions'&&document.getElementById('substitutionsList'))renderSubstitutions();
   else if(document.getElementById('dashContent'))renderDashboard();
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
   document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 async function initDB(){
@@ -1690,7 +1689,7 @@ async function initDB(){
     saveLocal(DATA);
     renderAll();
     applyVisibility();
-    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('dbStatus').className='online';_flushIcons();
+    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('dbStatus').className='online';if(typeof lucide!=="undefined")lucide.createIcons();
     _dbFailed=false;
     
     // Fase 2 – tablas secundarias (500ms después)
@@ -1793,7 +1792,7 @@ async function initDB(){
       .subscribe();
   }catch(e){
     console.log('DB unavailable, using localStorage:',e);
-    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span>';document.getElementById('dbStatus').className='offline';_flushIcons();
+    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span>';document.getElementById('dbStatus').className='offline';if(typeof lucide!=="undefined")lucide.createIcons();
     renderAll();
     _dbFailed=true;
   }
@@ -1829,7 +1828,7 @@ function showLoginOverlay(){
 // ========== INIT ==========
 (async function(){
   var com=isCommunity();
-  _flushIcons();
+  if(typeof lucide!=="undefined")lucide.createIcons();
   await initDB();
   if(com){
     applyVisibility();
@@ -1855,7 +1854,7 @@ function showLoginOverlay(){
     }else if(pc){
       pc.innerHTML='<div style="text-align:center;padding:60px 20px;color:#555">'+ic('user-x',48)+'<br><br><span style="font-size:18px;font-weight:600">Perfil no encontrado</span></div>';
     }
-    _flushIcons();
+  if(typeof lucide!=='undefined')lucide.createIcons({attrs:{'stroke':'currentColor'}},container);
     hideLoading();
     return;
   }
