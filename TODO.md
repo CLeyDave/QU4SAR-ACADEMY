@@ -23,34 +23,34 @@
 ## Fase 1 — Perfil PRO (Sprint 1)
 
 ### 1.1 Historial de Rango Visual
-- [ ] Renderizar `rank_history` en el perfil del alumno
-- [ ] Timeline visual (gráfica de evolución de rango)
-- [ ] Mostrar rango actual + peak rank
+- [x] Renderizar `rank_history` en el perfil del alumno
+- [x] Timeline visual (línea temporal con dots)
+- [x] Mostrar rango actual + peak en timeline
 
 ### 1.2 Logros en Perfil
-- [ ] Renderizar `member_achievements` en perfil
-- [ ] Grid de logros con rarezas (Common, Rare, Epic, Legendary, Cosmic)
-- [ ] Animación hover con glow
-- [ ] Contador de logros desbloqueados
+- [x] Renderizar `member_achievements` en perfil
+- [x] Grid de logros con rarezas (Common, Rare, Epic, Legendary, Cosmic)
+- [x] Animación hover con glow
+- [x] Contador de logros desbloqueados
 
 ### 1.3 Sistema XP + Niveles
-- [ ] Crear sistema de cálculo de XP
-- [ ] Niveles con nombres QU4SAR (ej: Cosmic I-V)
-- [ ] Barra de progreso de XP en perfil
+- [x] Crear sistema de cálculo de XP (logros, tareas, evaluaciones, asistencia)
+- [x] Niveles con nombres QU4SAR (Cosmic I–V, Astral I–V, Nebula)
+- [x] Barra de progreso de XP en perfil
 
 ### 1.4 Badges Flotantes
-- [ ] Badges decorativos con glow
-- [ ] Posiciones flotantes alrededor del avatar
+- [x] Badges decorativos con glow
+- [x] Posiciones flotantes alrededor del avatar (TL, TR, BL, BR)
 
 ### 1.5 Bio / Estado Personal
-- [ ] Campo "bio" en formulario de edición
-- [ ] Sincronizar a Supabase
-- [ ] Mostrar en perfil
+- [x] Campo "estado" (bio_status) en formulario de edición
+- [x] Sincronizar a Supabase + localStorage
+- [x] Mostrar en perfil
 
 ### 1.6 Color Personalizado
-- [ ] Selector de color acento para el alumno
-- [ ] Aplicar a bordes/glows del perfil
-- [ ] Sincronizar a Supabase
+- [x] Selector de color acento en formulario de edición
+- [x] Aplicar a borde del avatar, glow, badges flotantes
+- [x] Sincronizar a Supabase + localStorage
 
 ---
 

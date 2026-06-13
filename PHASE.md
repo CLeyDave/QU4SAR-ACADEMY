@@ -22,12 +22,12 @@
 
 ## Fase Activa: 1 — Perfil PRO
 
-- 🔄 1.1 Historial de rango visual
-- ⬜ 1.2 Logros en perfil
-- ⬜ 1.3 Sistema XP + Niveles
-- ⬜ 1.4 Badges flotantes
-- ⬜ 1.5 Bio / estado personal
-- ⬜ 1.6 Color personalizado
+- ✅ 1.1 Historial de rango visual
+- ✅ 1.2 Logros en perfil
+- ✅ 1.3 Sistema XP + Niveles
+- ✅ 1.4 Badges flotantes
+- ✅ 1.5 Bio / estado personal
+- ✅ 1.6 Color personalizado
 
 ---
 
