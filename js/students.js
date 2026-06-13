@@ -1662,18 +1662,35 @@ async function initDB(){
     if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
     if(te.data&&te.data.length)DATA.team=te.data;
     if(sc.data&&sc.data.length)DATA.scrims=sc.data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-    if(mem.data&&mem.data.length){
-      // Preservar campos extra que no están en Supabase
+     if(mem.data&&mem.data.length){
+      // Preservar campos extra que no están en Supabase (copia profunda en memoria)
       var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
-      var extras={};(DATA.members||[]).forEach(function(m){if(m.name){
-        var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
-        if(Object.keys(e).length)extras[m.name]=e
-      }});
-      try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
+      var prev=JSON.parse(JSON.stringify(DATA.members||[]));
+      // Respaldar a localStorage también
+      var eo={};prev.forEach(function(m){if(m.name){var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});if(Object.keys(e).length)eo[m.name]=e}});
+      try{localStorage.setItem('qsr_member_extra',JSON.stringify(eo))}catch(___ee){}
+      // Sobrescribir con datos de Supabase (sin extras)
       DATA.members=mem.data;
-      // Restaurar campos extra desde localStorage
-      var saved={};try{var r=localStorage.getItem('qsr_member_extra');if(r)saved=JSON.parse(r)}catch(e){}
-      DATA.members.forEach(function(m){var ex=saved[m.name];if(ex)Object.keys(ex).forEach(function(k){m[k]=ex[k]})});
+      // Restaurar campos extra desde copia en memoria
+      var supabaseFields=['id','name','role','rank','group_id','coach','image','description'];
+      DATA.members.forEach(function(m){
+        var p=prev.find(function(x){return x.name===m.name});
+        if(!p)return;
+        // 1. Extras que Supabase no conoce
+        extrasKeys.forEach(function(k){if(p[k])m[k]=p[k]});
+        // 2. Campos de Supabase que podrían estar vacíos si falló el upsert
+        ['image','description'].forEach(function(k){if(p[k]&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=p[k]});
+        // 3. Cualquier otra propiedad que existiera en prev y no sea estándar de Supabase
+        Object.keys(p).forEach(function(k){
+          if(supabaseFields.indexOf(k)<0&&extrasKeys.indexOf(k)<0&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=p[k];
+        });
+      });
+      // Fallback extra desde qsr_member_extra
+      var saved={};try{var r=localStorage.getItem('qsr_member_extra');if(r)saved=JSON.parse(r)}catch(___ee){}
+      DATA.members.forEach(function(m){
+        var ex=saved[m.name];
+        if(ex)extrasKeys.forEach(function(k){if(ex[k]&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=ex[k]});
+      });
     }
     if(st.data&&st.data.length)DATA.stats=st.data;
     if(ne.data&&ne.data.length)DATA.news=ne.data;
@@ -1735,18 +1752,22 @@ async function initDB(){
           var{data}=await db.from(table).select('*');
           if(data!=null){
             // Preservar campos extra de members antes de sobrescribir
-            var extras={};
-            if(table==='members'){var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];(DATA.members||[]).forEach(function(m){if(m.name){
+            var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+            var prevMembers=JSON.parse(JSON.stringify(DATA.members||[]));
+            var extras={};prevMembers.forEach(function(m){if(m.name){
               var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
               if(Object.keys(e).length)extras[m.name]=e
-            }})}
+            }});
             if(table==='schedule')DATA.schedule=data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
             else if(table==='scrims')DATA.scrims=data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
             else if(table==='news')DATA.news=data.filter(function(n){return n.published});
             else DATA[table]=data||[];
             // Restaurar campos extra de members
             if(table==='members'&&Object.keys(extras).length){
-              DATA.members.forEach(function(m){var ex=extras[m.name];if(ex)Object.keys(ex).forEach(function(k){m[k]=ex[k]})});
+              DATA.members.forEach(function(m){
+                var ex=extras[m.name];
+                if(ex)extrasKeys.forEach(function(k){if(ex[k])m[k]=ex[k]});
+              });
               try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
             }
           }
