@@ -9,7 +9,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hid
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--neon);border-radius:3px}
 
-.glass-card{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:14px;transition:all 0.25s}
+.glass-card{will-change:transform,opacity;position:relative;background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;transition:all 0.25s}
 .glass-card::before,.has-glow::before{content:'';position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(135deg,var(--red-neon),var(--neon),var(--neon-light),var(--neon-deep));background-size:400% 400%;opacity:0;transition:opacity 0.4s;z-index:-1;pointer-events:none}
 .glass-card:hover::before,.has-glow:hover::before{opacity:.3;animation:glowFade 4s ease forwards,purpleShift 6s ease infinite}
 .glass-card:hover,.has-glow:hover{border-color:rgba(139,92,246,0.25)}

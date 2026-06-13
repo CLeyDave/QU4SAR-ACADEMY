@@ -1219,7 +1219,7 @@ function saveProfileEdit(){
   toast('Perfil actualizado','ok');
   if(db&&db.from){
     var m=DATA.members[idx];
-    db.from('members').upsert({id:m.id,name:m.name,role:m.role,rank:m.rank,group_id:m.group_id,coach:m.coach,image:m.image,description:m.description},{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
+    db.from('members').upsert({id:m.id,name:m.name,role:m.role,rank:m.rank,group_id:m.group_id,coach:m.coach,image:m.image,description:m.description,hs_percent:m.hs_percent,kd:m.kd,dpr:m.dpr,course:m.course,riot_id:m.riot_id,region:m.region,tracker_url:m.tracker_url,country:m.country,cover:m.cover,discord:m.discord,youtube:m.youtube,twitter:m.twitter,twitch:m.twitch,dpi:m.dpi,sens:m.sens,scoped_sens:m.scoped_sens,hz:m.hz,raw_input:m.raw_input},{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
   }
 }
 
@@ -1692,7 +1692,7 @@ async function initDB(){
     document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('dbStatus').className='online';if(typeof lucide!=="undefined")lucide.createIcons();
     _dbFailed=false;
     
-    // Fase 2 – tablas secundarias (500ms después)
+    // Fase 2a – tablas más usadas (500ms)
     setTimeout(function(){
       Promise.all([
         db.from('team').select('*'),
@@ -1701,6 +1701,20 @@ async function initDB(){
         db.from('news').select('*').eq('published',true).order('date',{ascending:false}),
         db.from('academy').select('*'),
         db.from('announcements').select('*'),
+      ]).then(function(r){
+        if(r[0].data&&r[0].data.length)DATA.team=r[0].data;
+        if(r[1].data&&r[1].data.length)DATA.scrims=r[1].data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
+        if(r[2].data&&r[2].data.length)DATA.stats=r[2].data;
+        if(r[3].data&&r[3].data.length)DATA.news=r[3].data;
+        if(r[4].data&&r[4].data.length)DATA.academy=r[4].data;
+        if(r[5].data&&r[5].data.length)DATA.announcements=r[5].data;
+        saveLocal(DATA);
+        renderAll();
+      }).catch(function(){});
+    },500);
+    // Fase 2b – tablas de dashboard/academia (2s después)
+    setTimeout(function(){
+      Promise.all([
         db.from('curriculum').select('*'),
         db.from('tasks').select('*'),
         db.from('substitutions').select('*'),
@@ -1716,31 +1730,14 @@ async function initDB(){
         db.from('rank_history').select('*'),
         db.from('applications').select('*'),
       ]).then(function(r){
-        var assign=function(i,k){var d=r[i];if(d.data&&d.data.length)DATA[k]=d.data};
-        assign(0,'team');
-        if(r[1].data&&r[1].data.length)DATA.scrims=r[1].data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-        assign(2,'stats');
-        if(r[3].data&&r[3].data.length)DATA.news=r[3].data;
-        assign(4,'academy');
-        assign(5,'announcements');
-        assign(6,'curriculum');
-        assign(7,'tasks');
-        assign(8,'substitutions');
-        assign(9,'evaluations');
-        assign(10,'coach_notes');
-        assign(11,'materials');
-        assign(12,'task_completions');
-        assign(13,'attendance');
-        assign(14,'quizzes');
-        assign(15,'quiz_responses');
-        assign(16,'achievements');
-        assign(17,'member_achievements');
-        assign(18,'rank_history');
-        assign(19,'applications');
+        var a=function(i,k){var d=r[i];if(d.data&&d.data.length)DATA[k]=d.data};
+        a(0,'curriculum');a(1,'tasks');a(2,'substitutions');a(3,'evaluations');
+        a(4,'coach_notes');a(5,'materials');a(6,'task_completions');a(7,'attendance');
+        a(8,'quizzes');a(9,'quiz_responses');a(10,'achievements');a(11,'member_achievements');
+        a(12,'rank_history');a(13,'applications');
         saveLocal(DATA);
-        renderAll();
       }).catch(function(){});
-    },500);
+    },2000);
     
     rtChannel=db.channel('public-changes')
       .on('postgres_changes',{event:'*',schema:'public'},function(payload){

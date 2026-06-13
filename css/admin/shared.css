@@ -14,7 +14,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#f0f0f0;overflow-x:
 @keyframes starDrift{0%{transform:translateY(0) translateX(0)}100%{transform:translateY(-2px) translateX(1px)}}
 @keyframes floatStar{0%{transform:translateY(100vh) translateX(0) scale(0);opacity:0}5%{opacity:var(--star-opacity,0.4)}30%{opacity:var(--star-opacity,0.4)}70%{opacity:var(--star-opacity,0.2)}100%{transform:translateY(-10vh) translateX(var(--drift,0px)) scale(1);opacity:0}}
 
-.glass-card{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:14px;transition:all 0.3s;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+.glass-card{will-change:transform,opacity;position:relative;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:14px;transition:all 0.3s;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
 .glass-card::before,.has-glow::before{content:'';position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(135deg,var(--red-neon),var(--neon),var(--neon-light),var(--neon-dark));background-size:400% 400%;opacity:0;transition:opacity 0.5s;z-index:-1;pointer-events:none}
 .glass-card:hover::before,.has-glow:hover::before{opacity:0.35;animation:glowFade 5s ease forwards,purpleShift 6s ease infinite}
 .glass-card:hover,.has-glow:hover{border-color:var(--border-light);box-shadow:0 8px 40px rgba(139,92,246,0.05),0 0 60px rgba(139,92,246,0.02)}
@@ -134,7 +134,7 @@ textarea.input-field{resize:vertical;min-height:80px}
 /* ADMIN LAYOUT */
 .admin{display:none;height:100vh;flex-direction:column;position:relative;z-index:1}
 .admin.active{display:flex}
-.admin-header{position:relative;z-index:101;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);flex-shrink:0;box-shadow:0 1px 30px rgba(0,0,0,0.5)}
+.admin-header{position:relative;z-index:101;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);flex-shrink:0;box-shadow:0 1px 30px rgba(0,0,0,0.5)}
 .admin-header .left{display:flex;align-items:center;gap:16px}
 .admin-header .left .back{color:#555;text-decoration:none;font-size:22px;padding:4px 8px;border-radius:6px;transition:all 0.2s}
 .admin-header .left .back:hover{color:#e0e0e0;background:rgba(255,255,255,0.04)}
@@ -144,7 +144,7 @@ textarea.input-field{resize:vertical;min-height:80px}
 #adminDbStatus.ok{color:rgba(167,139,250,0.5);background:rgba(139,92,246,0.06)}
 #adminDbStatus.err{color:rgba(167,139,250,0.5);background:rgba(139,92,246,0.06)}
 .admin-body{display:flex;flex-direction:column;flex:1;overflow:hidden;max-width:100%;padding-bottom:76px}
-.admin-sidebar{position:fixed;bottom:0;left:0;right:0;height:72px;z-index:100;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;overflow-x:auto;overflow-y:hidden;background:rgba(0,0,0,0.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:1px solid var(--border);flex-shrink:0}
+.admin-sidebar{position:fixed;bottom:0;left:0;right:0;height:72px;z-index:100;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;overflow-x:auto;overflow-y:hidden;background:rgba(0,0,0,0.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--border);flex-shrink:0}
 .admin-sidebar a,.admin-sidebar button{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 18px;border-radius:10px;font-size:11px;font-weight:600;background:none;border:none;color:#666;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;user-select:none;text-decoration:none;min-width:64px;white-space:nowrap;flex-shrink:0}
 .admin-sidebar a:active,.admin-sidebar button:active{transform:scale(0.95)}
 .admin-sidebar a:hover,.admin-sidebar button:hover{color:#ddd;background:rgba(255,255,255,0.03)}
@@ -184,7 +184,7 @@ textarea.input-field{resize:vertical;min-height:80px}
 .admin-actions .del:hover{background:rgba(244,63,94,0.1);color:var(--red-neon)}
 
 /* FLOATING PAGE SWITCHER */
-.admin-page-switcher{position:fixed;right:12px;bottom:90px;z-index:101;display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(0,0,0,0.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:12px}
+.admin-page-switcher{position:fixed;right:12px;bottom:90px;z-index:101;display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(0,0,0,0.85);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px}
 .admin-page-switcher a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:#444;text-decoration:none;transition:all 0.2s;position:relative}
 .admin-page-switcher a:hover{color:#ddd;background:rgba(255,255,255,0.03)}
 .admin-page-switcher a.active{color:var(--neon-light);background:rgba(139,92,246,0.08)}
@@ -290,7 +290,7 @@ textarea.input-field{resize:vertical;min-height:80px}
 
 @media(max-width:768px){
   #menuToggleAdmin{display:inline-flex!important}
-  .admin-sidebar{position:fixed;left:-240px;top:56px;bottom:0;width:240px;z-index:150;background:rgba(0,0,0,0.96);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-right:1px solid var(--border);transition:left 0.25s cubic-bezier(0.16,1,0.3,1);padding:8px 4px;overflow-y:auto;overflow-x:hidden;height:auto;flex-direction:column;gap:2px}
+  .admin-sidebar{position:fixed;left:-240px;top:56px;bottom:0;width:240px;z-index:150;background:rgba(0,0,0,0.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-right:1px solid var(--border);transition:left 0.25s cubic-bezier(0.16,1,0.3,1);padding:8px 4px;overflow-y:auto;overflow-x:hidden;height:auto;flex-direction:column;gap:2px}
   .admin-sidebar.mobile-open{left:0}
   .admin-sidebar a,.admin-sidebar button,.admin-sidebar .sidebar-group-link,.admin-sidebar .nav-link,.admin-sidebar .sidebar-logout{flex-direction:row;padding:10px 14px;font-size:13px;min-width:auto;width:100%;justify-content:flex-start;gap:10px;border-radius:8px}
   .admin-sidebar a .count,.admin-sidebar button .count{font-size:10px;padding:1px 6px;margin-left:auto}

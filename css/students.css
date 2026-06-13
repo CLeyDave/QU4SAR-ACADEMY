@@ -1,4 +1,4 @@
-.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;background:rgba(0,0,0,0.9);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;background:rgba(0,0,0,0.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .navbar-inner{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 28px 0 16px;gap:12px;min-width:0;position:relative}
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;user-select:none}
 .nav-logo-icon{width:46px;height:46px;object-fit:contain;border-radius:10px;transition:transform 0.3s}
@@ -18,7 +18,7 @@
 .nav-links a.nav-comunidad:hover{background:rgba(139,92,246,0.18);border-color:var(--neon);color:#fff}
 .page{display:none;min-height:100vh;height:auto;overflow-y:auto}
 .page:first-of-type{display:block}
-.section.page{padding-top:80px}
+.section.page{padding-top:80px;content-visibility:auto;contain-intrinsic-size:100vh;will-change:transform,opacity}
 .hero.page{padding-top:80px}
 .nav-toggle{display:none;background:none;border:none;color:#888;font-size:28px;cursor:pointer;padding:8px;border-radius:8px;transition:all 0.2s;line-height:1;flex-shrink:0}
 .nav-toggle:hover{color:#fff;background:rgba(255,255,255,0.04)}
@@ -168,7 +168,7 @@
 @media(min-width:769px){.nav-links{position:absolute;left:50%;transform:translateX(-50%)}}
 @media(max-width:768px){
   .nav-links{flex-direction:column;width:100%;display:none;gap:1px;padding:6px 10px;height:auto;justify-content:flex-start;overflow:visible}
-  .nav-links.open{display:flex;position:absolute;top:80px;left:0;right:0;background:rgba(0,0,0,0.96);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:100;max-height:calc(100vh - 80px);overflow-y:auto}
+  .nav-links.open{display:flex;position:absolute;top:80px;left:0;right:0;background:rgba(0,0,0,0.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;max-height:calc(100vh - 80px);overflow-y:auto}
   .nav-links a{font-size:14px;padding:10px 14px;text-align:left;width:100%;border-radius:6px;gap:8px}
   .nav-links a i{width:16px;height:16px}
   .nav-toggle{display:block}
@@ -211,7 +211,7 @@
 
 /* ===== ENHANCED OVERLAYS ===== */
 .login-overlay{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
-.detail-overlay{-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.detail-overlay{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .image-overlay{-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px)}
 .image-overlay img{border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,0.5)}
 
