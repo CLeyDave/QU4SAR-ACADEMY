@@ -1677,7 +1677,17 @@ async function initDB(){
         var ex=oldExtra[m.name];
         if(ex)extrasKeys.forEach(function(k){if(ex[k]&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=ex[k]});
       });
-      // 6. Guardar backup ACTUALIZADO para la próxima sesión
+      // 6. Backfill: persistir extras a Supabase (columnas nuevas)
+      if(db&&db.from)setTimeout(function(){
+        DATA.members.forEach(function(m){
+          if(!m.name||!m.id)return;
+          var up={id:m.id};
+          var hasExtra=false;
+          extrasKeys.forEach(function(k){if(m[k]){up[k]=m[k];hasExtra=true}});
+          if(hasExtra)db.from('members').upsert(up,{onConflict:'id'}).then(function(){}).catch(function(){});
+        });
+      },1000);
+      // 7. Guardar backup ACTUALIZADO para la próxima sesión
       var eo={};DATA.members.forEach(function(m){if(m.name){var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});if(Object.keys(e).length)eo[m.name]=e}});
       try{localStorage.setItem('qsr_member_extra',JSON.stringify(eo))}catch(___ee){}
     }
