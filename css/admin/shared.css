@@ -317,6 +317,50 @@ textarea.input-field{resize:vertical;min-height:80px}
 .profile-stat-cell .psc-val{font-family:var(--font-display);font-size:20px;font-weight:700;color:#f0f0f0;background:linear-gradient(135deg,#f0f0f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .profile-stat-cell .psc-lbl{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 
+/* ===== COMMAND CENTER (Fase 2) ===== */
+.cc-grid{display:grid;gap:12px;max-width:960px;margin:0 auto}
+.cc-header-card{display:grid;grid-template-columns:repeat(5,1fr);background:rgba(139,92,246,0.03);border-radius:12px;overflow:hidden}
+.cc-header-cell{text-align:center;padding:16px 6px;position:relative}
+.cc-header-cell .num{font-family:var(--font-display);font-size:22px;font-weight:700;color:#f0f0f0;background:linear-gradient(135deg,#f0f0f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cc-header-cell .lbl{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px}
+.cc-section-title{font-family:var(--font-display);font-size:13px;font-weight:600;color:#ccc;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cc-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cc-week-day{background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;min-height:80px}
+.cc-week-day.today{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15)}
+.cc-week-day .day-name{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:4px}
+.cc-week-day .day-num{font-size:13px;font-weight:600;color:#ccc;text-align:center;font-family:var(--font-display);margin-bottom:6px}
+.cc-week-day.today .day-num{color:var(--neon);text-shadow:0 0 12px rgba(139,92,246,0.3)}
+.cc-week-item{font-size:10px;padding:3px 6px;border-radius:4px;margin-bottom:3px;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-week-item.academia{background:rgba(59,130,246,0.15);color:#60a5fa}
+.cc-week-item.entrenamiento{background:rgba(139,92,246,0.15);color:#a78bfa}
+.cc-week-item.scrim{background:rgba(234,179,8,0.15);color:#fbbf24}
+.cc-week-item.premier{background:rgba(139,92,246,0.15);color:#c084fc}
+.cc-alert-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(244,63,94,0.12);color:#f43f5e;border:1px solid rgba(244,63,94,0.15)}
+.cc-alert-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(244,63,94,0.025);border-radius:8px;margin-bottom:4px;border-left:2px solid rgba(244,63,94,0.2)}
+.cc-alert-item .name{font-size:13px;font-weight:500;color:#e0e0e0}
+.cc-alert-item .task{font-size:12px;color:#888}
+.cc-alert-item .days{font-size:11px;color:#f43f5e;font-weight:600;white-space:nowrap}
+.cc-bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+.cc-bar{flex:1;border-radius:4px 4px 0 0;position:relative;min-width:16px;transition:height 0.5s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.cc-bar .bar-fill{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#a78bfa,#6d28d9);min-height:4px;transition:height 0.5s}
+.cc-bar .bar-lbl{font-size:9px;color:#555;text-align:center;margin-top:4px;white-space:nowrap}
+.cc-bar .bar-val{font-size:9px;color:#aaa;font-weight:600;margin-bottom:2px}
+.cc-student-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,0.015);border-radius:8px;margin-bottom:4px;transition:all 0.2s}
+.cc-student-row:hover{background:rgba(139,92,246,0.04)}
+.cc-student-row .pos{width:20px;text-align:center;font-size:12px;font-weight:700;color:#555;font-family:var(--font-display)}
+.cc-student-row .name{flex:1;font-size:13px;font-weight:500;color:#e0e0e0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-student-row .stat{font-size:12px;color:#888;text-align:center;min-width:40px}
+.cc-compare-table{width:100%;border-collapse:collapse;font-size:12px}
+.cc-compare-table th{font-family:var(--font-display);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#555;padding:8px 10px;text-align:left;border-bottom:1px solid rgba(139,92,246,0.06);position:sticky;top:0;background:rgba(0,0,0,0.95)}
+.cc-compare-table td{padding:10px;border-bottom:1px solid rgba(139,92,246,0.03);color:#bbb}
+.cc-compare-table tr:hover td{background:rgba(139,92,246,0.03)}
+.cc-compare-table .rank{font-weight:600;color:#ccc}
+.cc-nav-week{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cc-nav-week button{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.1);color:#888;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.2s}
+.cc-nav-week button:hover{background:rgba(139,92,246,0.12);color:#fff}
+.cc-week-range{font-size:12px;color:#aaa;font-family:var(--font-display);font-weight:500}
+
+@media(max-width:768px){.cc-week-grid{grid-template-columns:repeat(7,1fr);gap:3px}.cc-week-day{padding:4px;min-height:60px}.cc-week-day .day-name{font-size:8px}.cc-week-day .day-num{font-size:11px}.cc-week-item{font-size:8px;padding:2px 3px}#adminContent [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}
 @media(max-width:480px){
   #menuToggleAdmin{display:inline-flex!important}
   .admin-sidebar{width:100%;left:-100%;top:52px}

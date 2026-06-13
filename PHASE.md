@@ -20,7 +20,7 @@
 
 ---
 
-## Fase Activa: 1 — Perfil PRO
+## Fase Activa: 1 — Perfil PRO (COMPLETADO)
 
 - ✅ 1.1 Historial de rango visual
 - ✅ 1.2 Logros en perfil
@@ -31,11 +31,19 @@
 
 ---
 
+## Fase Activa: 2 — Command Center (Coach PRO)
+
+- 🔄 2.1 Vista semanal del coach con calendario
+- ⬜ 2.2 Gráficas de rendimiento (asistencia, stats, top alumnos)
+- ⬜ 2.3 Alertas de tareas vencidas
+- ⬜ 2.4 Comparativa de alumnos
+
+---
+
 ## Próximas Fases
 
 | Fase | Nombre | Estado |
 |---|---|---|
-| 2 | Command Center (Coach PRO) | ⬜ Pendiente |
 | 3 | Tracker Avanzado | ⬜ Pendiente |
 | 4 | Academia Premium | ⬜ Pendiente |
 | 5 | Comunidad | ⬜ Pendiente |

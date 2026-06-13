@@ -22,6 +22,26 @@ function timeAgo(dateStr){
   return new Date(dateStr).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
 }
 
+var _ccWeekOffset=0;
+var DAY_NAMES=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+var DAY_NAMES_SHORT=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function getWeekStart(offset){
+  var d=new Date();d.setDate(d.getDate()+d.getDay()* -1+offset*7);d.setHours(0,0,0,0);return d;
+}
+function formatDateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function getDaySchedule(gIds,dateKey){
+  return (DATA.schedule||[]).filter(function(s){
+    if(!s.day)return false;
+    var dayIdx={'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6}[s.day];
+    if(dayIdx===undefined)return false;
+    var d=new Date(dateKey);var dow=d.getDay();
+    if(dayIdx!==dow)return false;
+    if(s.group_id&&gIds.indexOf(s.group_id)<0)return false;
+    return true;
+  });
+}
+
 function renderCoachDashboard(coachName){
   var coach=(DATA.coaches||[]).find(function(c){return c.name===coachName||c.nickname===coachName});
   var gIds=(DATA.group_coaches||[]).filter(function(gc){return gc.coach_id===(coach?coach.id:'')}).map(function(gc){return gc.group_id});
@@ -31,131 +51,203 @@ function renderCoachDashboard(coachName){
   var memberCount=members.length;
   var tasks=filterByCurrentCoach(DATA.tasks||[]);
   var activeTasks=tasks.filter(function(t){return t.due_date&&new Date(t.due_date)>=new Date()}).length;
+  var overdueTasks=tasks.filter(function(t){return t.due_date&&new Date(t.due_date)<new Date()});
   var evals=filterByCurrentCoach(DATA.evaluations||[]);
   var scrims=filterByCurrentCoach(DATA.scrims||[]);
   var t=scrims.length,w=scrims.filter(function(s){return s.result==='Victoria'}).length,l=scrims.filter(function(s){return s.result==='Derrota'}).length,wr=t?Math.round(w/t*100):0;
-  var avatar=(coach?coach.avatar:'')||'';
+  var weekStart=getWeekStart(_ccWeekOffset);
+  var weekDays=[];
+  for(var i=0;i<7;i++){var d=new Date(weekStart);d.setDate(d.getDate()+i);weekDays.push(d)}
+  var today=new Date();today.setHours(0,0,0,0);
 
-  // Construir timeline de actividad
-  var timeline=[];
-  // Evaluaciones
-  evals.forEach(function(e){
-    timeline.push({type:'eval',date:e.date||e.created_at,member:e.member_name,
-      html:'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(139,92,246,0.03);border-radius:8px;transition:all 0.2s">'+
-        '<div style="width:30px;height:30px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('clipboard',14)+'</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">Evaluaste a <span style="color:var(--neon-light)">'+esc(e.member_name)+'</span></div><div style="font-size:11px;color:#666">'+timeAgo(e.date||e.created_at)+'</div></div>'+
-        '<div style="font-size:15px;font-weight:700;font-family:var(--font-display);color:#a78bfa">'+Math.round(((e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0))/4*10)/10+'</div>'+
-      '</div>'});
+  // === TASK ALERTS (2.3) ===
+  var overdueWithMembers=[];
+  overdueTasks.forEach(function(ot){
+    members.forEach(function(m){
+      var done=(DATA.task_completions||[]).some(function(tc){return tc.task_id===ot.id&&tc.member_name===m.name});
+      if(!done){
+        var daysOver=Math.floor((today-new Date(ot.due_date))/86400000);
+        overdueWithMembers.push({member:m.name,task:ot.title,daysOver:Math.max(1,daysOver),taskId:ot.id});
+      }
+    });
   });
-  // Tareas completadas
-  (DATA.task_completions||[]).forEach(function(tc){
-    if(!memberNames[tc.member_name])return;
-    var task=tasks.find(function(t){return t.id===tc.task_id});
-    timeline.push({type:'task',date:tc.date||tc.created_at,member:tc.member_name,
-      html:'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(59,130,246,0.03);border-radius:8px">'+
-        '<div style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('check-square',14)+'</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(tc.member_name)+' completó <span style="color:#60a5fa">'+(task?esc(task.title):'una tarea')+'</span></div><div style="font-size:11px;color:#666">'+timeAgo(tc.date||tc.created_at)+'</div></div>'+
-      '</div>'});
-  });
-  // Scrims
-  scrims.forEach(function(s){
-    var icon=s.result==='Victoria'?'trophy':'crosshair';
-    var color=s.result==='Victoria'?'#a78bfa':'#f43f5e';
-    timeline.push({type:'scrim',date:s.date,member:'',
-      html:'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(139,92,246,0.03);border-radius:8px">'+
-        '<div style="width:30px;height:30px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icon,14)+'</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">Scrim vs <span style="color:'+color+'">'+esc(s.opponent||'—')+'</span> '+(s.result?'('+esc(s.result)+')':'')+'</div><div style="font-size:11px;color:#666">'+timeAgo(s.date)+'</div></div>'+
-        (s.our!==undefined&&s.opponent_score!==undefined?'<div style="font-size:14px;font-weight:700;font-family:var(--font-display);color:'+color+'">'+s.our+'-'+s.opponent_score+'</div>':'')+
-      '</div>'});
-  });
-  // Asistencia reciente
+  overdueWithMembers.sort(function(a,b){return b.daysOver-a.daysOver});
+
+  // === ATTENDANCE CHART (2.2) ===
+  var attByMember={};
+  members.forEach(function(m){attByMember[m.name]={present:0,absent:0,total:0}});
   (DATA.attendance||[]).forEach(function(a){
     if(!memberNames[a.member_name])return;
-    timeline.push({type:'attendance',date:a.date,member:a.member_name,
-      html:'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba('+(a.status==='present'?'74,222,128':'244,63,94')+',0.03);border-radius:8px">'+
-        '<div style="width:30px;height:30px;border-radius:8px;background:rgba('+(a.status==='present'?'74,222,128':'244,63,94')+',0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(a.status==='present'?ic('check',14):ic('x',14))+'</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(a.member_name)+' '+(a.status==='present'?'asistió':'faltó')+' a clase</div><div style="font-size:11px;color:#666">'+timeAgo(a.date)+'</div></div>'+
-      '</div>'});
+    if(!attByMember[a.member_name])attByMember[a.member_name]={present:0,absent:0,total:0};
+    attByMember[a.member_name].total++;
+    if(a.status==='present')attByMember[a.member_name].present++;
+    else attByMember[a.member_name].absent++;
   });
-  html=
-    '<div class="profile-wrap" style="max-width:620px;margin:0 auto">'+
+  var attSorted=Object.keys(attByMember).map(function(n){return{name:n,rate:attByMember[n].total?Math.round(attByMember[n].present/attByMember[n].total*100):0}}).sort(function(a,b){return b.rate-a.rate});
+  var topStudents=attSorted.slice(0,5);
+
+  // === STUDENT COMPARISON (2.4) ===
+  var compareData=members.map(function(m){
+    var myEvals=evals.filter(function(e){return e.member_name===m.name});
+    var avgScore=myEvals.length?Math.round(myEvals.reduce(function(s,e){return s+(e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0)},0)/(myEvals.length*4)*10)/10:0;
+    var doneTasks=(DATA.task_completions||[]).filter(function(tc){return tc.member_name===m.name}).length;
+    var attInfo=attByMember[m.name]||{present:0,total:0};
+    var attRate=attInfo.total?Math.round(attInfo.present/attInfo.total*100):0;
+    var achCount=(DATA.member_achievements||[]).filter(function(ma){return ma.member_name===m.name}).length;
+    var xp=calcMemberXP?calcMemberXP(m):0;
+    return {name:m.name,avgScore:avgScore,tasksDone:doneTasks,attRate:attRate,achs:achCount,xp:xp,rank:m.rank||'—'};
+  });
+  compareData.sort(function(a,b){return b.xp-a.xp});
+
+  // === TIMELINE ===
+  var timeline=[];
+  evals.forEach(function(e){
+    timeline.push({type:'eval',date:e.date||e.created_at,
+      html:'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(139,92,246,0.03);border-radius:8px">'+
+        '<div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('clipboard',13)+'</div>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#e0e0e0">'+esc(e.member_name)+'</div><div style="font-size:11px;color:#666">'+timeAgo(e.date||e.created_at)+'</div></div>'+
+        '<div style="font-size:14px;font-weight:700;color:#a78bfa">'+Math.round(((e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0))/4*10)/10+'</div></div>'});
+  });
+  (DATA.task_completions||[]).forEach(function(tc){
+    if(!memberNames[tc.member_name])return;
+    var tk=tasks.find(function(t){return t.id===tc.task_id});
+    timeline.push({type:'task',date:tc.date||tc.created_at,
+      html:'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(59,130,246,0.03);border-radius:8px">'+
+        '<div style="width:28px;height:28px;border-radius:8px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('check-square',13)+'</div>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#e0e0e0">'+esc(tc.member_name)+' <span style="color:#60a5fa">'+(tk?esc(tk.title):'tarea')+'</span></div><div style="font-size:11px;color:#666">'+timeAgo(tc.date||tc.created_at)+'</div></div></div>'});
+  });
+  scrims.forEach(function(s){
+    var sc=s.result==='Victoria'?'#a78bfa':'#f43f5e';
+    timeline.push({type:'scrim',date:s.date,
+      html:'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(139,92,246,0.03);border-radius:8px">'+
+        '<div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('crosshair',13)+'</div>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#e0e0e0">vs '+esc(s.opponent||'—')+' <span style="color:'+sc+'">('+(s.result||'')+')</span></div><div style="font-size:11px;color:#666">'+timeAgo(s.date)+'</div></div>'+
+        (s.our!==undefined&&s.opponent_score!==undefined?'<div style="font-size:14px;font-weight:700;color:'+sc+'">'+s.our+'-'+s.opponent_score+'</div>':'')+'</div>'});
+  });
+  (DATA.attendance||[]).forEach(function(a){
+    if(!memberNames[a.member_name])return;
+    var p=a.status==='present';
+    timeline.push({type:'att',date:a.date,
+      html:'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba('+(p?'74,222,128':'244,63,94')+',0.03);border-radius:8px">'+
+        '<div style="width:28px;height:28px;border-radius:8px;background:rgba('+(p?'74,222,128':'244,63,94')+',0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(p?ic('check',13):ic('x',13))+'</div>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#e0e0e0">'+esc(a.member_name)+' '+(p?'asistió':'faltó')+'</div><div style="font-size:11px;color:#666">'+timeAgo(a.date)+'</div></div></div>'});
+  });
+  timeline.sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1});
+
+  // === BUILD WEEK CALENDAR ===
+  function weekCalHTML(){
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-nav-week"><button onclick="changeCoachWeek(-1)">'+ic('chevron-left',14)+'</button>'+
+      '<span class="cc-week-range">'+weekDays[0].toLocaleDateString('es-ES',{day:'numeric',month:'short'})+' — '+weekDays[6].toLocaleDateString('es-ES',{day:'numeric',month:'short'})+'</span>'+
+      '<button onclick="changeCoachWeek(1)">'+ic('chevron-right',14)+'</button>'+
+      '<button onclick="changeCoachWeek(0)" style="font-size:10px;padding:2px 8px;margin-left:4px">Hoy</button></div>'+
+      '<div class="cc-week-grid">';
+    weekDays.forEach(function(d){
+      var dk=formatDateKey(d);
+      var isToday=d.getTime()===today.getTime();
+      var dayItems=getDaySchedule(gIds,dk);
+      h+='<div class="cc-week-day'+(isToday?' today':'')+'">'+
+        '<div class="day-name">'+DAY_NAMES_SHORT[d.getDay()]+'</div>'+
+        '<div class="day-num">'+d.getDate()+'</div>';
+      dayItems.forEach(function(si){
+        var tc=si.type||'academia';
+        h+='<div class="cc-week-item '+tc+'" title="'+esc(si.title||'')+' '+(si.start||'')+'">'+esc((si.title||'').slice(0,14))+'</div>';
+      });
+      h+='</div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
+
+  // === BUILD TASK ALERTS (2.3) ===
+  function alertsHTML(){
+    if(!overdueWithMembers.length)return'';
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title">'+ic('alert-triangle',14)+' ALERTAS DE TAREAS <span class="cc-alert-badge" style="margin-left:6px">'+overdueWithMembers.length+'</span></div>';
+    overdueWithMembers.slice(0,8).forEach(function(a){
+      h+='<div class="cc-alert-item"><span class="name">'+esc(a.member)+'</span><span class="task">— '+esc(a.task)+'</span><span class="days" style="margin-left:auto">'+a.daysOver+'d atrasada</span></div>';
+    });
+    if(overdueWithMembers.length>8)h+='<div style="text-align:center;color:#555;font-size:11px;margin-top:6px">+ '+(overdueWithMembers.length-8)+' más</div>';
+    h+='</div>';
+    return h;
+  }
+
+  // === BUILD ATTENDANCE CHART (2.2) ===
+  function chartHTML(){
+    if(!topStudents.length)return'';
+    var maxRate=Math.max(100,topStudents[0]?topStudents[0].rate+20:100);
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title">'+ic('bar-chart-3',14)+' ASISTENCIA POR ALUMNO</div>'+
+      '<div class="cc-bar-chart">';
+    topStudents.forEach(function(s){
+      var pct=Math.round(s.rate/maxRate*100);
+      h+='<div class="cc-bar"><div class="bar-val">'+s.rate+'%</div><div class="bar-fill" style="height:'+pct+'%"></div><div class="bar-lbl">'+esc(s.name).slice(0,8)+'</div></div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
+
+  // === BUILD TOP STUDENTS ===
+  function topHTML(){
+    h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title">'+ic('zap',14)+' TOP ALUMNOS</div>';
+    compareData.slice(0,5).forEach(function(s,i){
+      h+='<div class="cc-student-row"><span class="pos">'+(i+1)+'</span><span class="name">'+esc(s.name)+'</span><span class="stat">'+s.xp+' XP</span><span class="stat" style="color:'+(s.attRate>=70?'#4ade80':'#f43f5e')+'">'+s.attRate+'%</span><span class="stat" style="color:#a78bfa">'+s.achs+' logros</span></div>';
+    });
+    h+='</div>';
+    return h;
+  }
+
+  // === BUILD COMPARISON TABLE (2.4) ===
+  function compareHTML(){
+    if(!compareData.length)return'';
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px;overflow-x:auto">'+
+      '<div class="cc-section-title">'+ic('users',14)+' COMPARATIVA DE ALUMNOS</div>'+
+      '<table class="cc-compare-table"><thead><tr><th>#</th><th>Nombre</th><th>Rango</th><th>XP</th><th>Evaluación</th><th>Tareas</th><th>Asistencia</th><th>Logros</th></tr></thead><tbody>';
+    compareData.forEach(function(s,i){
+      h+='<tr><td>'+(i+1)+'</td><td style="font-weight:500;color:#e0e0e0">'+esc(s.name)+'</td><td class="rank">'+esc(s.rank)+'</td><td>'+s.xp+'</td><td>'+(s.avgScore||'—')+'</td><td>'+s.tasksDone+'</td><td style="color:'+(s.attRate>=70?'#4ade80':'#f43f5e')+'">'+s.attRate+'%</td><td>'+s.achs+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    return h;
+  }
+
+  // === BUILD TIMELINE ===
+  function timelineHTML(){
+    if(!timeline.length)return'';
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title">'+ic('activity',14)+' ACTIVIDAD RECIENTE</div>'+
+      '<div style="max-height:320px;overflow-y:auto;overflow-x:hidden">';
+    timeline.slice(0,20).forEach(function(item){h+=item.html});
+    h+='</div></div>';
+    return h;
+  }
+
+  var html=
+    '<div class="cc-grid">'+
       '<!-- METRICAS -->'+
-      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:16px">'+
-        '<div style="display:grid;grid-template-columns:repeat(5,1fr);background:rgba(139,92,246,0.03)">'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+memberCount+'</div><div class="psc-lbl">MIEMBROS</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+groups.length+'</div><div class="psc-lbl">GRUPOS</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+activeTasks+'</div><div class="psc-lbl">TAREAS</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+evals.length+'</div><div class="psc-lbl">EVALS</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+wr+'%</div><div class="psc-lbl">WIN RATE</div></div>'+
-        '</div>'+
+      '<div class="cc-header-card">'+
+        '<div class="cc-header-cell"><div class="num">'+memberCount+'</div><div class="lbl">MIEMBROS</div></div>'+
+        '<div class="cc-header-cell"><div class="num">'+groups.length+'</div><div class="lbl">GRUPOS</div></div>'+
+        '<div class="cc-header-cell"><div class="num">'+activeTasks+'</div><div class="lbl">TAREAS</div></div>'+
+        '<div class="cc-header-cell"><div class="num">'+evals.length+'</div><div class="lbl">EVALS</div></div>'+
+        '<div class="cc-header-cell"><div class="num">'+wr+'%</div><div class="lbl">WIN RATE</div></div>'+
       '</div>'+
-      '<!-- EVALUACIONES -->'+
-      '<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
-        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('clipboard',12)+' EVALUACIONES</div>'+
-        (function(){
-          var es=evals.slice().sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,10);
-          if(!es.length)return'<div style="padding:14px 10px;color:#555;font-size:13px;text-align:center">Sin evaluaciones</div>';
-          return '<div style="display:flex;flex-direction:column;gap:5px">'+es.map(function(e){
-            var score=Math.round(((e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0))/4*10)/10;
-            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(139,92,246,0.03);border-radius:8px">'+
-              '<div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('clipboard',13)+'</div>'+
-              '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(e.member_name)+'</div><div style="font-size:11px;color:#666">'+timeAgo(e.date||e.created_at)+'</div></div>'+
-              '<div style="font-size:15px;font-weight:700;font-family:var(--font-display);color:#a78bfa">'+score+'</div>'+
-            '</div>';
-          }).join('')+'</div>';
-        })()+
-      '</div>'+
-      '<!-- TAREAS -->'+
-      '<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
-        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('check-square',12)+' TAREAS COMPLETADAS</div>'+
-        (function(){
-          var tcs=(DATA.task_completions||[]).filter(function(tc){return memberNames[tc.member_name]}).sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,10);
-          if(!tcs.length)return'<div style="padding:14px 10px;color:#555;font-size:13px;text-align:center">Sin tareas completadas</div>';
-          return '<div style="display:flex;flex-direction:column;gap:5px">'+tcs.map(function(tc){
-            var task=tasks.find(function(t){return t.id===tc.task_id});
-            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(59,130,246,0.03);border-radius:8px">'+
-              '<div style="width:28px;height:28px;border-radius:8px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('check-square',13)+'</div>'+
-              '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(tc.member_name)+' — <span style="color:#60a5fa">'+(task?esc(task.title):'tarea completada')+'</span></div><div style="font-size:11px;color:#666">'+timeAgo(tc.date||tc.created_at)+'</div></div>'+
-            '</div>';
-          }).join('')+'</div>';
-        })()+
-      '</div>'+
-      '<!-- SCRIMS -->'+
-      '<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
-        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('crosshair',12)+' SCRIMS</div>'+
-        (function(){
-          var ss=scrims.slice().sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,10);
-          if(!ss.length)return'<div style="padding:14px 10px;color:#555;font-size:13px;text-align:center">Sin scrims</div>';
-          return '<div style="display:flex;flex-direction:column;gap:5px">'+ss.map(function(s){
-            var icon=s.result==='Victoria'?'trophy':'crosshair';
-            var color=s.result==='Victoria'?'#a78bfa':'#f43f5e';
-            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(139,92,246,0.03);border-radius:8px">'+
-              '<div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icon,13)+'</div>'+
-              '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">vs <span style="color:'+color+'">'+esc(s.opponent||'—')+'</span> '+(s.result?'('+esc(s.result)+')':'')+'</div><div style="font-size:11px;color:#666">'+timeAgo(s.date)+'</div></div>'+
-              (s.our!==undefined&&s.opponent_score!==undefined?'<div style="font-size:14px;font-weight:700;font-family:var(--font-display);color:'+color+'">'+s.our+'-'+s.opponent_score+'</div>':'')+
-            '</div>';
-          }).join('')+'</div>';
-        })()+
-      '</div>'+
-      '<!-- ASISTENCIA -->'+
-      '<div class="glass-card" style="padding:16px 18px;margin-bottom:16px">'+
-        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('calendar',12)+' ASISTENCIA RECIENTE</div>'+
-        (function(){
-          var atts=(DATA.attendance||[]).filter(function(a){return memberNames[a.member_name]}).sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,10);
-          if(!atts.length)return'<div style="padding:14px 10px;color:#555;font-size:13px;text-align:center">Sin registros de asistencia</div>';
-          return '<div style="display:flex;flex-direction:column;gap:5px">'+atts.map(function(a){
-            var p=a.status==='present';
-            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba('+(p?'74,222,128':'244,63,94')+',0.03);border-radius:8px">'+
-              '<div style="width:28px;height:28px;border-radius:8px;background:rgba('+(p?'74,222,128':'244,63,94')+',0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(p?ic('check',13):ic('x',13))+'</div>'+
-              '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(a.member_name)+' '+(p?'asistió':'faltó')+'</div><div style="font-size:11px;color:#666">'+timeAgo(a.date)+'</div></div>'+
-            '</div>';
-          }).join('')+'</div>';
-        })()+
-      '</div>'+
+      '<!-- VISTA SEMANAL (2.1) -->'+weekCalHTML()+
+      '<!-- ALERTAS TAREAS (2.3) -->'+alertsHTML()+
+      '<!-- CHARTS ROW (2.2) -->'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+chartHTML()+topHTML()+'</div>'+
+      '<!-- COMPARATIVA (2.4) -->'+compareHTML()+
+      '<!-- TIMELINE -->'+timelineHTML()+
     '</div>';
 
   document.getElementById('adminContent').innerHTML=html;
   if(typeof lucide!=="undefined")lucide.createIcons();
+}
+
+function changeCoachWeek(dir){
+  _ccWeekOffset+=dir;
+  var coachName=currentUser&&currentUser.coachName;
+  if(coachName)renderCoachDashboard(coachName);
 }
 
 function coachEditProfile(coachId){
