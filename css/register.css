@@ -29,7 +29,7 @@
 .register-nav .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;user-select:none}
 .register-nav .nav-logo-icon{width:46px;height:46px;object-fit:contain;border-radius:10px;transition:transform 0.3s}
 .register-nav .nav-logo:hover .nav-logo-icon{transform:scale(1.08)}
-.register-nav .nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.register-nav .nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;color:#f0f0f0;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
 /* HERO */
 .register-hero{padding:120px 0 40px;text-align:center;position:relative}

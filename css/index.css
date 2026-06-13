@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @font-face{font-family:'VALORANT';src:url('../fonts/valorant.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0A0A0A;--neon:#8B5CF6;--neon-light:#A78BFA;--neon-dark:#7C3AED;--glass:rgba(26,26,26,0.85);--border:rgba(139,92,246,0.12);--font-display:'Orbitron','VALORANT',sans-serif;--font-body:'Inter','Orbitron',sans-serif;--font-mono:'JetBrains Mono','Fira Code',monospace}
+:root{--bg:#0A0A0A;--neon:#8B5CF6;--neon-light:#A78BFA;--neon-dark:#7C3AED;--neon-deep:#2D0A52;--red:#ef4444;--red-neon:#f43f5e;--glass:rgba(26,26,26,0.85);--border:rgba(139,92,246,0.12);--font-display:'Orbitron','VALORANT',sans-serif;--font-body:'Inter','Orbitron',sans-serif;--font-mono:'JetBrains Mono','Fira Code',monospace}
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hidden}
 .section,.hero{scroll-margin-top:85px}
@@ -11,7 +11,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hid
 ::-webkit-scrollbar-thumb{background:var(--neon);border-radius:4px}
 
 .glass-card{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:18px;transition:all 0.35s ease}
-.glass-card::before,.has-glow::before{content:'';position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(135deg,var(--red-neon),var(--neon),var(--neon-light),var(--neon));background-size:400% 400%;opacity:0;transition:opacity 0.4s;z-index:-1;pointer-events:none}
+.glass-card::before,.has-glow::before{content:'';position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(135deg,var(--red-neon),var(--neon),var(--neon-light),var(--neon-deep));background-size:400% 400%;opacity:0;transition:opacity 0.4s;z-index:-1;pointer-events:none}
 .glass-card:hover::before,.has-glow:hover::before{opacity:.3;animation:glowFade 4s ease forwards,purpleShift 6s ease infinite}
 .glass-card:hover,.has-glow:hover{border-color:rgba(139,92,246,0.35);box-shadow:0 8px 40px rgba(139,92,246,0.025)}
 .has-glow{position:relative}
@@ -19,7 +19,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hid
 .has-glow:has(.glass-card:hover,.has-glow:hover,button:hover,select:hover,input:hover,.actions:hover,.meta:hover)::before{opacity:0;animation:none}
 .glass-card:has(.glass-card:hover,.has-glow:hover,button:hover,select:hover,input:hover,.actions:hover,.meta:hover),
 .has-glow:has(.glass-card:hover,.has-glow:hover,button:hover,select:hover,input:hover,.actions:hover,.meta:hover){border-color:var(--border);box-shadow:none}
-.gradient-text{background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gradient-text{color:#f0f0f0;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .btn-primary{background:linear-gradient(135deg,var(--neon),var(--neon-dark));color:#fff;padding:16px 42px;border-radius:14px;font-weight:600;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-family:var(--font-body);transition:all 0.3s cubic-bezier(0.16,1,0.3,1);text-decoration:none;position:relative;overflow:hidden;background-size:200% 200%;background-position:0% 0%;letter-spacing:0.3px}
 .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.07) 50%,transparent 70%);background-size:200% 200%;background-position:0% 0%;transition:background-position 0.6s;pointer-events:none}
 .btn-primary:hover{background-position:100% 100%;box-shadow:0 0 50px rgba(139,92,246,0.14),0 4px 25px rgba(139,92,246,0.06),0 0 100px rgba(139,92,246,0.03);transform:translateY(-2px)}
@@ -63,7 +63,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hid
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;user-select:none}
 .nav-logo-icon{width:46px;height:46px;object-fit:contain;border-radius:10px;transition:transform 0.3s}
 .nav-logo:hover .nav-logo-icon{transform:scale(1.08)}
-.nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;color:#f0f0f0;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .nav-links{position:fixed;right:0;top:0;height:100vh;width:160px;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:80px 6px 20px;overflow-y:auto;background:transparent}
 .nav-links::-webkit-scrollbar{width:3px}
 .nav-links::-webkit-scrollbar-thumb{background:var(--neon);border-radius:2px}
@@ -276,7 +276,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;overflow-x:hid
 }
 @media(max-width:768px){
   .nav-links{position:static;flex-direction:column;width:100%;display:none;gap:2px;transform:none;padding:8px 12px;height:auto;justify-content:flex-start}
-  .nav-links.open{display:flex;position:absolute;top:80px;left:0;right:0;background:rgba(10,10,10,0.98);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:100;max-height:calc(100vh - 80px);overflow-y:auto}
+  .nav-links.open{display:flex;position:absolute;top:80px;left:0;right:0;background:rgba(10,10,10,0.98);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:100;max-height:calc(100vh - 80px);overflow-y:auto}
   .nav-links a{font-size:14px;padding:10px 16px;text-align:center;width:100%;border-radius:6px}
   .nav-toggle{display:block}
   .hero{padding:80px 16px 30px;height:auto;min-height:100vh}

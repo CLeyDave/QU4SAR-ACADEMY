@@ -6,7 +6,7 @@
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;user-select:none}
 .nav-logo-icon{width:46px;height:46px;object-fit:contain;border-radius:10px;transition:transform 0.3s}
 .nav-logo:hover .nav-logo-icon{transform:scale(1.08)}
-.nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo-text{font-family:var(--font-display);font-weight:700;font-size:22px;color:#f0f0f0;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C4B5FD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .nav-links{display:flex;flex-direction:row;position:static;height:auto;width:auto;gap:4px;padding:0;background:transparent;overflow:visible}
 .nav-links a{padding:6px 12px;border-radius:8px;font-size:13px;font-weight:500;color:#555;text-decoration:none;transition:all 0.25s;text-align:center;white-space:nowrap}
 .nav-links a:hover,.nav-links a.active{color:#fff;background:rgba(139,92,246,0.06)}
