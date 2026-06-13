@@ -1,4 +1,8 @@
-﻿// ========== SECTION VISIBILITY ==========
+﻿// ========== HENRIKDEV API KEY (opcional para stats automáticas) ==========
+// Obtén tu API key gratis en https://henrikdev.xyz/ y ponla abajo:
+var HENRIKDEV_KEY='HDEV-ddaa320a-26ce-4a96-bbdb-0d148ba20b44';
+
+// ========== SECTION VISIBILITY ==========
 function applyVisibility(){
   if(isCommunity()){
     ALL_SECTIONS.forEach(function(id){
@@ -470,6 +474,20 @@ function renderDashContent(){
     case'coach_notes':renderDashCoachNotes();break;
   }
 }
+function flagEmoji(code){
+  if(!code)return'';
+  var c=code.toUpperCase();
+  return String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-65,0x1F1E6+c.charCodeAt(1)-65)||'🏳️';
+}
+function rankDivision(r){
+  if(!r)return'';
+  var rank=r.toLowerCase();
+  var low=['hierro','iron','bronze','bronce','plata','silver','oro','gold'];
+  var high=['platino','platinum','diamante','diamond','ascendente','ascendant'];
+  for(var i=0;i<low.length;i++){if(rank.indexOf(low[i])>=0)return'<span class="badge" style="font-size:10px;padding:3px 10px;background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.25)">NOVA</span>'}
+  for(var i=0;i<high.length;i++){if(rank.indexOf(high[i])>=0)return'<span class="badge" style="font-size:10px;padding:3px 10px;background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.3)">QUASAR</span>'}
+  return'';
+}
 function renderProfile(){
   var u=getLogin();
   var container=document.getElementById('profileContent');
@@ -480,52 +498,606 @@ function renderProfile(){
   }
   var name=u.name||'';
   var member=(DATA.members||[]).find(function(m){return m.name===name});
-  var isCoach=member&&(DATA.coaches||[]).some(function(c){return c.name===member.name||c.name===member.nickname});
-  var hs=member?member.hs_percent||'—':'—';
-  var kd=member?member.kd||'—':'—';
-  var dpr=member?member.dpr||'—':'—';
-  var course=member?member.course||'—':'—';
-  var avatar=member?member.image||'':'';
-  var rank=member?member.rank||u.rank||'—':'—';
-  var role=member?member.role||'—':'—';
-  var desc=member?member.description||'':'';
-  var coachName=member?member.coach||'—':'—';
-  var groupId=member?member.group_id||'':'';
+  if(!member){container.innerHTML='<div style="text-align:center;padding:40px 20px;color:#666">No se encontraron datos de perfil</div>';return}
+  var isCoach=(DATA.coaches||[]).some(function(c){return c.nickname===member.name});
+  var hs=member.hs_percent||'—',kd=member.kd||'—',dpr=member.dpr||'—',course=member.course||'—';
+  var avatar=member.image||'',rank=member.rank||'—',role=member.role||'—',desc=member.description||'';
+  var coachName=member.coach||'—',riotId=member.riot_id||'',region=member.region||'latam',trackerUrl=member.tracker_url||'';
+  var country=member.country||'',discord=member.discord||'',youtube=member.youtube||'',twitter=member.twitter||'',twitch=member.twitch||'';
+  var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
+  var cover=member.cover||'';
 
+  var scrimsAll=filterByGroup(DATA.scrims||[]);
+  var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
+  var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
+  var myEvals=filterByCoach(DATA.evaluations||[]).filter(function(e){return e.member_name===name});
+  var recentEvals=myEvals.slice().sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,4);
+  var trackerData=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)trackerData=tp.data}}catch(e){}
+  if(trackerData&&trackerData.rank&&trackerData.rank!=='—')rank=trackerData.rank;
+  var sr=function(id,icon,url,label){return url?'<a href="'+esc(url)+'" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.06);color:#aaa;border:1px solid rgba(139,92,246,0.08);text-decoration:none;transition:all 0.2s" title="'+esc(label)+'">'+ic(icon,16)+'</a>':''};
+  var socialLinks=[sr('discord','message-circle',discord?'https://discord.com/users/'+discord:'',discord||''),sr('youtube','youtube',youtube,'YouTube'),sr('twitter','twitter',twitter,'X / Twitter'),sr('twitch','twitch',twitch,'Twitch')].filter(Boolean).join('');
+  var setHTML=dpi||sens||scopedSens||hz||rawInput?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+    '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">'+ic('settings',12)+' AJUSTES</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px">'+
+      (dpi?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(dpi)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">DPI</div></div>':'')+
+      (sens?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(sens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SENS</div></div>':'')+
+      (scopedSens?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(scopedSens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SCOPED</div></div>':'')+
+      (hz?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(hz)+'Hz</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">HZ</div></div>':'')+
+      (rawInput?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:'+(rawInput==='On'?'#4ade80':'#888')+'">'+esc(rawInput)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">RAW INPUT</div></div>':'')+
+    '</div></div>':'';
   container.innerHTML=
-    '<div class="profile-wrap" style="max-width:800px;margin:0 auto">'+
-      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:16px">'+
-        '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(45,10,82,0.4));padding:32px 28px 24px;text-align:center;position:relative">'+
-          '<div style="width:88px;height:88px;border-radius:50%;margin:0 auto 14px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid rgba(139,92,246,0.2)">'+
-            (avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',36))+
-          '</div>'+
-          '<div style="font-size:22px;font-weight:700;font-family:var(--font-display);margin-bottom:6px">'+esc(name)+'</div>'+
-          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">'+
-            (isCoach?'<span class="badge badge-green">Coach</span>':'<span class="badge badge-blue">Player</span>')+
-            '<span class="badge badge-gray">'+(member?'Miembro':'Alumno')+'</span>'+
-          '</div>'+
+    '<div class="profile-wrap" style="max-width:620px;margin:0 auto" id="profileWrap">'+
+      '<!-- === HEADER === -->'+
+      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+        '<div style="position:relative;height:140px;background:'+(cover?'url('+esc(cover)+') center/cover no-repeat':'linear-gradient(135deg,#2D0A52,#1a0533,rgba(139,92,246,0.12))')+';display:flex;align-items:flex-end;justify-content:center;padding-bottom:0">'+
+          '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1px;background:rgba(139,92,246,0.04)">'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+esc(hs)+'%</div><div class="psc-lbl">HS</div></div>'+
+        '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
+          '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+            (avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+          '</div>'+
+          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+            '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
+            (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
+          '</div>'+
+          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+            (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
+            '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
+            rankDivision(rank)+
+          '</div>'+
+          (socialLinks?'<div style="display:flex;gap:8px;justify-content:center;margin-top:12px">'+socialLinks+'</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<!-- === STATS + INFO === -->'+
+      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);background:rgba(139,92,246,0.03)">'+
           '<div class="profile-stat-cell"><div class="psc-val">'+esc(kd)+'</div><div class="psc-lbl">KD</div></div>'+
           '<div class="profile-stat-cell"><div class="psc-val">'+esc(dpr)+'</div><div class="psc-lbl">DPR</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+esc(rank)+'</div><div class="psc-lbl">Rango</div></div>'+
-          '<div class="profile-stat-cell"><div class="psc-val">'+esc(course)+'</div><div class="psc-lbl">Curso</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(hs)+'<span style="font-size:11px;color:#666">%</span></div><div class="psc-lbl">HS</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(course)+'</div><div class="psc-lbl">CURSO</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(rank)+'</div><div class="psc-lbl">RANK'+
+            (trackerData&&trackerData.rr!=='—'?'<br><span style="font-size:10px;color:#888;font-weight:400">'+esc(trackerData.rr)+' RR · '+esc(trackerData.elo)+' ELO</span>':'')+
+          '</div></div>'+
+        '</div>'+
+        (role||coachName&&coachName!=='—'?'<div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;border-top:1px solid rgba(139,92,246,0.04);font-size:12px;color:#888">'+
+          (role?role.split(',').map(function(r){return'<span class="badge badge-gray" style="font-size:10px;padding:3px 10px;background:rgba(139,92,246,0.06)">'+esc(r.trim())+'</span>'}).join(''):'')+
+          (coachName&&coachName!=='—'?'<span>'+ic('user-check',12)+' Coach: <span style="color:#c4b5fd">'+esc(coachName)+'</span></span>':'')+
+        '</div>':'')+
+      '</div>'+
+      '<!-- === BIO === -->'+
+      (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
+        '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+      '<!-- === AJUSTES === -->'+setHTML+
+      '<!-- === VALORANT === -->'+
+      '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'+
+          '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px">'+ic('external-link',12)+' VALORANT</div>'+
+          (riotId?'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#888">'+ic('gamepad-2',12)+'</span><span style="font-size:13px;color:#f0f0f0;font-weight:500">'+esc(riotId)+'</span></div>':'')+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">'+
+          (trackerUrl?'<a href="'+esc(trackerUrl)+'" target="_blank" class="btn-sm secondary" style="text-decoration:none;font-size:11px">'+ic('external-link',14)+' tracker.gg</a>':'')+
+          '<button class="btn-sm primary" onclick="refreshTrackerStats()" style="font-size:11px;padding:6px 14px">'+ic('refresh-cw',12)+' Sincronizar</button>'+
+          (!riotId?'<span style="font-size:11px;color:#666">'+ic('alert-circle',12)+' Configura tu Riot ID en Editar Perfil</span>':'')+
+        '</div>'+
+        '<div id="trackerStatsContainer"></div>'+
+      '</div>'+
+      '<!-- === SCRIMS === -->'+
+      '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">SCRIMS</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+st+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">TOTAL</div></div>'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#a78bfa">'+sw+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">VICTORIAS</div></div>'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#f43f5e">'+sl+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">DERROTAS</div></div>'+
+        '</div>'+
+        '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.03);overflow:hidden;display:flex">'+
+          '<div style="height:100%;background:linear-gradient(90deg,#a78bfa,#8b5cf6);width:'+swr+'%;transition:width 0.5s;border-radius:3px 0 0 3px"></div>'+
+          '<div style="height:100%;background:rgba(244,63,94,0.2);width:'+(100-swr)+'%;border-radius:0 3px 3px 0"></div>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;padding:0 4px"><span>WIN RATE '+swr+'%</span><span>'+(sw+sl)+' partidas</span></div>'+
+      '</div>'+
+      '<!-- === EVALUACIONES === -->'+
+      (recentEvals.length?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">EVALUACIONES RECIENTES</div>'+
+        recentEvals.map(function(e,i){
+          var score=Math.round(((e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0))/4*10)/10;
+          return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;'+(i<recentEvals.length-1?'border-bottom:1px solid rgba(139,92,246,0.04);':'')+'">'+
+            '<div style="width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic('clipboard',14)+'</div>'+
+            '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#e0e0e0">'+esc(e.member_name)+'</div><div style="font-size:11px;color:#666">'+(e.date?new Date(e.date).toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'')+'</div></div>'+
+            '<div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:#a78bfa">'+score+'</div>'+
+          '</div>';
+        }).join('')+
+      '</div>':'')+
+      '<!-- === BUTTONS === -->'+
+      '<div style="display:flex;gap:8px;margin-top:4px">'+
+        '<button class="btn-primary" onclick="editProfile()" style="flex:1;justify-content:center">'+ic('pencil',14)+' Editar Perfil</button>'+
+        '<button class="btn-secondary" onclick="shareProfile()" style="flex:0 0 auto;padding:10px 16px;justify-content:center" title="Compartir perfil">'+ic('share-2',14)+'</button>'+
+      '</div>'+
+    '</div>';
+  if(trackerData)renderTrackerStats(trackerData);
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function renderTrackerStats(data){
+  var c=document.getElementById('trackerStatsContainer');
+  if(!c)return;
+  if(!data||data.error){
+    c.innerHTML='<div style="color:#f43f5e;font-size:12px;margin-top:8px;display:flex;align-items:center;gap:6px">'+ic('alert-triangle',12)+' Error al sincronizar. Verifica tu Riot ID.</div>';
+    return;
+  }
+  c.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:rgba(74,222,128,0.06);border-radius:8px;font-size:12px;color:#4ade80">'+
+    '<span>'+ic('check-circle',14)+' Sincronizado</span>'+
+    (data.lastUpdated?'<span style="color:#888;font-size:11px">'+esc(data.lastUpdated)+'</span>':'')+
+  '</div>';
+}
+
+function shareProfile(){
+  var u=getLogin();
+  if(!u||!u.id)return;
+  var name=u.name||'';
+  var member=(DATA.members||[]).find(function(m){return m.name===name});
+  if(!member)return;
+  var isCoach=(DATA.coaches||[]).some(function(c){return c.nickname===member.name});
+  var hs=member.hs_percent||'—',kd=member.kd||'—',dpr=member.dpr||'—',course=member.course||'—';
+  var avatar=member.image||'',rank=member.rank||'—',role=member.role||'—',desc=member.description||'';
+  var coachName=member.coach||'—',riotId=member.riot_id||'',region=member.region||'latam',trackerUrl=member.tracker_url||'';
+  var country=member.country||'';
+  var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
+  var cover=member.cover||'';
+  var scrimsAll=filterByGroup(DATA.scrims||[]);
+  var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
+  var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
+  var trackerData=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)trackerData=tp.data}}catch(e){}
+  if(trackerData&&trackerData.rank&&trackerData.rank!=='—')rank=trackerData.rank;
+  var link=window.location.origin+window.location.pathname.replace(/\/+$/,'')+'?profile='+encodeURIComponent(name);
+  var setHTML=dpi||sens||scopedSens||hz||rawInput?'<div style="padding:16px 20px">'+
+    '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('settings',12)+' AJUSTES</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px">'+
+      (dpi?'<div style="text-align:center;padding:10px 4px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(dpi)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">DPI</div></div>':'')+
+      (sens?'<div style="text-align:center;padding:10px 4px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(sens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SENS</div></div>':'')+
+      (scopedSens?'<div style="text-align:center;padding:10px 4px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(scopedSens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SCOPED</div></div>':'')+
+      (hz?'<div style="text-align:center;padding:10px 4px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(hz)+'Hz</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">HZ</div></div>':'')+
+      (rawInput?'<div style="text-align:center;padding:10px 4px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:'+(rawInput==='On'?'#4ade80':'#888')+'">'+esc(rawInput)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">RAW INPUT</div></div>':'')+
+    '</div></div>':'';
+  var overlay=document.createElement('div');
+  overlay.id='shareOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;padding:0;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);overflow-y:auto;overflow-x:hidden';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove()};
+  var copiedHTML='<span id="shareCopiedMsg" style="display:none;font-size:12px;color:#4ade80;align-items:center;gap:6px">'+ic('check-circle',14)+' Enlace copiado</span>';
+  overlay.innerHTML=
+    '<div style="max-width:640px;margin:0 auto;padding:20px 16px 60px;width:100%" onclick="event.stopPropagation()">'+
+      '<div class="glass-card" style="padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:10">'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<span style="font-family:var(--font-display);font-size:14px;color:#e0e0e0">'+ic('share-2',16)+' Compartir Perfil</span>'+
+          copiedHTML+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+          '<button class="btn-sm primary" onclick="copyShareLink(\''+esc(link)+'\');var m=document.getElementById(\'shareCopiedMsg\');if(m){m.style.display=\'inline-flex\'}" style="font-size:11px;padding:6px 14px">'+ic('link',14)+' Copiar Enlace</button>'+
+          '<button class="btn-sm secondary" onclick="downloadProfilePNG()" style="font-size:11px;padding:6px 14px">'+ic('image',14)+' PNG</button>'+
+          '<button onclick="document.getElementById(\'shareOverlay\').remove()" style="background:none;border:none;color:#444;font-size:20px;cursor:pointer;padding:4px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center" title="Cerrar">'+ic('x',16)+'</button>'+
         '</div>'+
       '</div>'+
-      '<div class="glass-card" style="padding:20px 24px;margin-bottom:16px">'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Nombre</div><div style="color:#f0f0f0;font-weight:600">'+esc(name)+'</div></div>'+
-          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Rango</div><div style="color:var(--neon-light)">'+esc(rank)+'</div></div>'+
-          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Roles</div><div style="color:#f0f0f0">'+esc(role)+'</div></div>'+
-          '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Coach</div><div style="color:#f0f0f0">'+esc(coachName)+'</div></div>'+
-          (groupId?'<div style="grid-column:1/-1"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Grupo</div><div style="color:var(--neon-light);font-weight:600">'+esc(String(groupId).toUpperCase())+'</div></div>':'')+
+      '<div class="profile-wrap" id="profileWrap">'+
+        '<!-- HEADER -->'+
+        '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+          '<div style="position:relative;height:140px;background:'+(cover?'url('+esc(cover)+') center/cover no-repeat':'linear-gradient(135deg,#2D0A52,#1a0533,rgba(139,92,246,0.12))')+';display:flex;align-items:flex-end;justify-content:center;padding-bottom:0">'+
+            '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
+          '</div>'+
+          '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
+            '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+              (avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+            '</div>'+
+            '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+              '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
+              (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
+            '</div>'+
+            '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+              (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
+              '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
+              rankDivision(rank)+
+            '</div>'+
+          '</div>'+
         '</div>'+
-        (desc?'<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(139,92,246,0.06)"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px">Experiencia</div><div style="color:#bbb;font-size:14px;line-height:1.6;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+        '<!-- STATS -->'+
+        '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+          '<div style="display:grid;grid-template-columns:repeat(5,1fr);background:rgba(139,92,246,0.03)">'+
+            '<div class="profile-stat-cell"><div class="psc-val">'+esc(kd)+'</div><div class="psc-lbl">KD</div></div>'+
+            '<div class="profile-stat-cell"><div class="psc-val">'+esc(dpr)+'</div><div class="psc-lbl">DPR</div></div>'+
+            '<div class="profile-stat-cell"><div class="psc-val">'+esc(hs)+'<span style="font-size:11px;color:#666">%</span></div><div class="psc-lbl">HS</div></div>'+
+            '<div class="profile-stat-cell"><div class="psc-val">'+esc(course)+'</div><div class="psc-lbl">CURSO</div></div>'+
+            '<div class="profile-stat-cell"><div class="psc-val">'+esc(rank)+'</div><div class="psc-lbl">RANK'+
+              (trackerData&&trackerData.rr!=='—'?'<br><span style="font-size:10px;color:#888;font-weight:400">'+esc(trackerData.rr)+' RR · '+esc(trackerData.elo)+' ELO</span>':'')+
+            '</div></div>'+
+          '</div>'+
+          (role||coachName&&coachName!=='—'?'<div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;border-top:1px solid rgba(139,92,246,0.04);font-size:12px;color:#888">'+
+            (role?role.split(',').map(function(r){return'<span class="badge badge-gray" style="font-size:10px;padding:3px 10px;background:rgba(139,92,246,0.06)">'+esc(r.trim())+'</span>'}).join(''):'')+
+            (coachName&&coachName!=='—'?'<span>'+ic('user-check',12)+' Coach: <span style="color:#c4b5fd">'+esc(coachName)+'</span></span>':'')+
+          '</div>':'')+
+        '</div>'+
+        '<!-- BIO -->'+
+        (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+          '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
+          '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+        '<!-- AJUSTES -->'+setHTML+
+        '<!-- VALORANT -->'+
+        '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'+
+            '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px">'+ic('external-link',12)+' VALORANT</div>'+
+            (riotId?'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#888">'+ic('gamepad-2',12)+'</span><span style="font-size:13px;color:#f0f0f0;font-weight:500">'+esc(riotId)+'</span></div>':'')+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">'+
+            (trackerUrl?'<a href="'+esc(trackerUrl)+'" target="_blank" class="btn-sm secondary" style="text-decoration:none;font-size:11px">'+ic('external-link',14)+' tracker.gg</a>':'')+
+            (trackerData?'<span style="font-size:12px;color:#4ade80;display:flex;align-items:center;gap:6px">'+ic('check-circle',14)+' Sincronizado</span>':'')+
+            (!riotId?'<span style="font-size:11px;color:#666">'+ic('alert-circle',12)+' Sin Riot ID configurado</span>':'')+
+          '</div>'+
+          (trackerData&&trackerData.lastUpdated?'<div style="font-size:10px;color:#555;margin-top:8px">'+esc(trackerData.lastUpdated)+'</div>':'')+
+        '</div>'+
+        '<!-- SCRIMS -->'+
+        '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+          '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">SCRIMS</div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">'+
+            '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+st+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">TOTAL</div></div>'+
+            '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#a78bfa">'+sw+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">VICTORIAS</div></div>'+
+            '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#f43f5e">'+sl+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">DERROTAS</div></div>'+
+          '</div>'+
+          '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.03);overflow:hidden;display:flex">'+
+            '<div style="height:100%;background:linear-gradient(90deg,#a78bfa,#8b5cf6);width:'+swr+'%;transition:width 0.5s;border-radius:3px 0 0 3px"></div>'+
+            '<div style="height:100%;background:rgba(244,63,94,0.2);width:'+(100-swr)+'%;border-radius:0 3px 3px 0"></div>'+
+          '</div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;padding:0 4px"><span>WIN RATE '+swr+'%</span><span>'+(sw+sl)+' partidas</span></div>'+
+        '</div>'+
       '</div>'+
-      '<button class="btn-primary" onclick="editProfile()" style="width:100%;justify-content:center">'+ic('pencil',14)+' Editar Perfil</button>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function copyShareLink(link){
+  if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){toast('Enlace copiado','ok')}).catch(function(){})}
+  else{var ta=document.createElement('textarea');ta.value=link;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Enlace copiado','ok')}
+}
+
+function downloadProfilePNG(){
+  var wrap=document.getElementById('shareOverlay') ? document.querySelector('#shareOverlay #profileWrap') : document.getElementById('profileWrap');
+  if(!wrap){wrap=document.getElementById('profileWrap')}
+  if(!wrap){toast('No se encontró el perfil','err');return}
+  if(typeof html2canvas==='undefined'){toast('Error al generar imagen','err');return}
+  toast('Generando imagen...','ok');
+  // Clonar el wrap para no modificar el DOM visible
+  var clone=wrap.cloneNode(true);
+  clone.style.maxWidth='620px';
+  clone.style.margin='0 auto';
+  // Remover botones del clone
+  var btns=clone.querySelectorAll('button');
+  btns.forEach(function(b){b.remove()});
+  // Reemplazar gradient text (-webkit-text-fill-color: transparent) por colores sólidos (html2canvas no soporta)
+  var allEl=clone.querySelectorAll('[style*="-webkit-text-fill-color"]');
+  allEl.forEach(function(el){
+    var s=el.getAttribute('style')||'';
+    el.setAttribute('style',s.replace(/-webkit-text-fill-color\s*:\s*transparent/gi,'').replace(/-webkit-background-clip\s*:\s*text/gi,'').replace(/background-clip\s*:\s*text/gi,'').replace(/background\s*:\s*linear-gradient[^;]+/gi,'color:#f0f0f0'));
+    el.style.color='#f0f0f0';
+  });
+  // También fix .psc-val (gradient text via CSS class)
+  var pscEls=clone.querySelectorAll('.psc-val');
+  pscEls.forEach(function(el){el.style.background='none';el.style.color='#e0e0e0';el.style.webkitTextFillColor='#e0e0e0'});
+  // Contenedor exterior con padding + branding
+  var container=document.createElement('div');
+  container.style.cssText='width:660px;padding:30px;background:linear-gradient(135deg,#0a0a0f,#1a0533,#0d0d14);border-radius:20px;font-family:Inter,system-ui,sans-serif';
+  container.appendChild(clone);
+  // Footer branding
+  var ft=document.createElement('div');
+  ft.style.cssText='text-align:center;padding-top:24px;margin-top:24px;border-top:1px solid rgba(139,92,246,0.08);font-size:12px;color:#555;letter-spacing:1px;text-transform:uppercase';
+  ft.textContent='QU4SAR ACADEMY';
+  container.appendChild(ft);
+  document.body.appendChild(container);
+  // Forzar lucide icons en el clon
+  if(typeof lucide!=='undefined')lucide.createIcons({attrs:{'stroke':'currentColor'}},container);
+  setTimeout(function(){
+    html2canvas(container,{
+      backgroundColor:'#0a0a0f',
+      scale:3,
+      useCORS:true,
+      logging:false,
+      width:660,
+      windowWidth:660,
+      onclone:function(doc){doc.body.style.margin='0';doc.body.style.padding='0'}
+    }).then(function(canvas){
+      var link=document.createElement('a');
+      link.download='quasar_perfil.png';
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      document.body.removeChild(container);
+      toast('Imagen descargada','ok');
+    }).catch(function(e){
+      document.body.removeChild(container);
+      toast('Error al generar la imagen','err');
+      console.log('html2canvas error:',e);
+    });
+  },300);
+}
+
+function renderSharedProfile(member){
+  var c=document.getElementById('profileContent');
+  if(!c)return;
+  var name=member.name,rank=member.rank||'—',role=member.role||'',avatar=member.image||'',country=member.country||'',desc=member.description||'';
+  var coachName=member.coach||'—',riotId=member.riot_id||'',trackerUrl=member.tracker_url||'',cover=member.cover||'';
+  var hs=member.hs_percent||'—',kd=member.kd||'—',dpr=member.dpr||'—',course=member.course||'';
+  var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
+  var td=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)td=tp.data}}catch(e){}
+  if(td&&td.rank&&td.rank!=='—')rank=td.rank;
+  var isCoach=(DATA.coaches||[]).some(function(co){return co.nickname===name});
+  var scrimsAll=filterByGroup(DATA.scrims||[]);
+  var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
+  var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
+  var setHTML=dpi||sens||scopedSens||hz||rawInput?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+    '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">'+ic('settings',12)+' AJUSTES</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px">'+
+      (dpi?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(dpi)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">DPI</div></div>':'')+
+      (sens?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(sens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SENS</div></div>':'')+
+      (scopedSens?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(scopedSens)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">SCOPED</div></div>':'')+
+      (hz?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:#f0f0f0">'+esc(hz)+'Hz</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">HZ</div></div>':'')+
+      (rawInput?'<div style="text-align:center;padding:12px 6px;background:rgba(139,92,246,0.03);border-radius:8px"><div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:'+(rawInput==='On'?'#4ade80':'#888')+'">'+esc(rawInput)+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">RAW INPUT</div></div>':'')+
+    '</div></div>':'';
+  c.innerHTML=
+    '<div class="profile-wrap" style="max-width:620px;margin:0 auto" id="profileWrap">'+
+      '<!-- HEADER -->'+
+      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+        '<div style="position:relative;height:140px;background:'+(cover?'url('+esc(cover)+') center/cover no-repeat':'linear-gradient(135deg,#2D0A52,#1a0533,rgba(139,92,246,0.12))')+';display:flex;align-items:flex-end;justify-content:center;padding-bottom:0">'+
+          '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
+        '</div>'+
+        '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
+          '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+            (avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+          '</div>'+
+          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+            '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
+            (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
+          '</div>'+
+          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+            (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
+            '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
+            rankDivision(rank)+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<!-- STATS -->'+
+      '<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:20px">'+
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);background:rgba(139,92,246,0.03)">'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(kd)+'</div><div class="psc-lbl">KD</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(dpr)+'</div><div class="psc-lbl">DPR</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(hs)+'<span style="font-size:11px;color:#666">%</span></div><div class="psc-lbl">HS</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(course)+'</div><div class="psc-lbl">CURSO</div></div>'+
+          '<div class="profile-stat-cell"><div class="psc-val">'+esc(rank)+'</div><div class="psc-lbl">RANK'+
+            (td&&td.rr!=='—'?'<br><span style="font-size:10px;color:#888;font-weight:400">'+esc(td.rr)+' RR · '+esc(td.elo)+' ELO</span>':'')+
+          '</div></div>'+
+        '</div>'+
+        (role||coachName&&coachName!=='—'?'<div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;border-top:1px solid rgba(139,92,246,0.04);font-size:12px;color:#888">'+
+          (role?role.split(',').map(function(r){return'<span class="badge badge-gray" style="font-size:10px;padding:3px 10px;background:rgba(139,92,246,0.06)">'+esc(r.trim())+'</span>'}).join(''):'')+
+          (coachName&&coachName!=='—'?'<span>'+ic('user-check',12)+' Coach: <span style="color:#c4b5fd">'+esc(coachName)+'</span></span>':'')+
+        '</div>':'')+
+      '</div>'+
+      '<!-- BIO -->'+
+      (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
+        '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+      '<!-- AJUSTES -->'+setHTML+
+      '<!-- VALORANT -->'+
+      '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'+
+          '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px">'+ic('external-link',12)+' VALORANT</div>'+
+          (riotId?'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#888">'+ic('gamepad-2',12)+'</span><span style="font-size:13px;color:#f0f0f0;font-weight:500">'+esc(riotId)+'</span></div>':'')+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">'+
+          (trackerUrl?'<a href="'+esc(trackerUrl)+'" target="_blank" class="btn-sm secondary" style="text-decoration:none;font-size:11px">'+ic('external-link',14)+' tracker.gg</a>':'')+
+          (td?'<span style="font-size:12px;color:#4ade80;display:flex;align-items:center;gap:6px">'+ic('check-circle',14)+' Sincronizado</span>':'')+
+          (!riotId?'<span style="font-size:11px;color:#666">'+ic('alert-circle',12)+' Sin Riot ID configurado</span>':'')+
+        '</div>'+
+        (td&&td.lastUpdated?'<div style="font-size:10px;color:#555;margin-top:8px">'+esc(td.lastUpdated)+'</div>':'')+
+      '</div>'+
+      '<!-- SCRIMS -->'+
+      '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+        '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">SCRIMS</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+st+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">TOTAL</div></div>'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#a78bfa">'+sw+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">VICTORIAS</div></div>'+
+          '<div style="text-align:center;padding:14px 6px;background:rgba(139,92,246,0.04);border-radius:10px"><div style="font-size:26px;font-weight:800;font-family:var(--font-display);color:#f43f5e">'+sl+'</div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">DERROTAS</div></div>'+
+        '</div>'+
+        '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.03);overflow:hidden;display:flex">'+
+          '<div style="height:100%;background:linear-gradient(90deg,#a78bfa,#8b5cf6);width:'+swr+'%;transition:width 0.5s;border-radius:3px 0 0 3px"></div>'+
+          '<div style="height:100%;background:rgba(244,63,94,0.2);width:'+(100-swr)+'%;border-radius:0 3px 3px 0"></div>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;padding:0 4px"><span>WIN RATE '+swr+'%</span><span>'+(sw+sl)+' partidas</span></div>'+
+      '</div>'+
     '</div>';
   if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function refreshTrackerStats(){
+  var u=getLogin();
+  if(!u||!u.id)return;
+  var name=u.name||'';
+  var member=(DATA.members||[]).find(function(m){return m.name===name});
+  var riotId=member?member.riot_id||'':'';
+  var region=member?member.region||'latam':'latam';
+  var c=document.getElementById('trackerStatsContainer');
+  if(!c)return;
+  c.innerHTML='<div style="text-align:center;padding:10px;color:#666;font-size:12px">'+ic('loader',14)+' Sincronizando...</div>';
+  if(typeof lucide!=='undefined')lucide.createIcons();
+
+  if(!riotId||riotId.indexOf('#')<0){
+    c.innerHTML='<div style="color:#666;font-size:12px;margin-top:10px">'+ic('alert-circle',12)+' Configura tu Riot ID (Nombre#Tag) en Editar Perfil</div>';
+    return;
+  }
+
+  var parts=riotId.split('#');
+  var namePart=encodeURIComponent(parts[0]);
+  var tagPart=encodeURIComponent(parts[1]);
+
+  if(!HENRIKDEV_KEY){c.innerHTML='<div style="color:#666;font-size:12px;margin-top:10px">'+ic('external-link',12)+' <a href="https://tracker.gg/valorant/profile/riot/'+encodeURIComponent(riotId)+'/overview" target="_blank" style="color:var(--neon-light)">Ver stats en tracker.gg</a></div>';return}
+  var base='https://api.henrikdev.xyz/valorant';
+  var key='?api_key='+HENRIKDEV_KEY;
+
+  // Función helper para extraer stats de un array de partidas
+  function calcMatchStats(matchesArr,riotNamePart){
+    if(!matchesArr||!matchesArr.length)return null;
+    var tk=0,td=0,ths=0,tsh=0,tdmg=0,tr=0,mc=0;
+    matchesArr.forEach(function(m){
+      if(!m)return;
+      console.log('Match keys:',m?Object.keys(m):null);
+      // Calcular rondas totales de la partida (fallback si no hay por jugador)
+      var matchRounds=0;
+      if(m.teams){
+        var red=m.teams.red,blue=m.teams.blue;
+        if(red&&blue&&typeof red.rounds_won==='number'&&typeof blue.rounds_won==='number')matchRounds=red.rounds_won+blue.rounds_won;
+      }
+      if(!matchRounds&&typeof m.rounds_played==='number')matchRounds=m.rounds_played;
+      if(!matchRounds&&m.metadata&&typeof m.metadata.rounds_played==='number')matchRounds=m.metadata.rounds_played;
+      // Buscar jugadores en distintas ubicaciones posibles
+      var pl=null;
+      if(m.players)pl=m.players;
+      else if(m.all_players)pl={all_players:m.all_players};
+      else if(m.players_in_match)pl=m.players_in_match;
+      else if(m.player_stats)pl={all_players:m.player_stats};
+      // Si no hay players, intentar stats planas en la raiz
+      if(!pl&&(m.kills!==undefined||m.stats)){
+        pl={all_players:[m]};
+      }
+      if(!pl)return;
+      // Obtener array de jugadores
+      var arr=null;
+      if(Array.isArray(pl))arr=pl;
+      else if(pl.all_players&&Array.isArray(pl.all_players))arr=pl.all_players;
+      else if(pl.blue&&Array.isArray(pl.blue))arr=pl.blue;
+      else if(pl.red&&Array.isArray(pl.red))arr=pl.red;
+      else{
+        var keys=Object.keys(pl);
+        for(var i=0;i<keys.length;i++){
+          if(Array.isArray(pl[keys[i]])){arr=pl[keys[i]];break}
+        }
+      }
+      if(!arr)return;
+      // Encontrar el jugador que coincide
+      var p=arr.find(function(x){return x.name===riotNamePart||x.name_tag===riotNamePart||(x.name&&x.name.toLowerCase()===riotNamePart.toLowerCase())||(x.puuid&&x.puuid===riotNamePart)});
+      if(!p)p=arr[0];
+      if(!p)return;
+      var s=p.stats||p;
+      console.log('Player stats fields:',Object.keys(s));
+      tk+=(s.kills||0);
+      td+=(s.deaths||0);
+      var hs=s.headshots||0;
+      ths+=hs;
+      tsh+=(hs+(s.bodyshots||0)+(s.legshots||0));
+      tdmg+=(s.damage_made||s.damage||s.damage_dealt||s.damage_made_total||0);
+      var pr=s.rounds_played||s.rounds||s.round_count||(s.rounds_won+s.rounds_lost)||0;
+      tr+=(pr||matchRounds);
+      mc++;
+    });
+    if(!mc)return null;
+    return{
+      kd:td?Math.round(tk/td*100)/100:'—',
+      hs:tsh?Math.round(ths/tsh*100)+'%':'—',
+      dpr:tr?Math.round(tdmg/tr*10)/10:'—',
+      matchCount:mc
+    };
+  }
+
+  // Intentar v3 primero, luego v4 como fallback
+  function tryV3(){
+    return Promise.all([
+      fetch(base+'/v3/mmr/'+region+'/pc/'+namePart+'/'+tagPart+key).then(function(r){if(!r.ok)throw new Error('MMR v3: '+r.status);return r.json()}),
+      fetch(base+'/v3/matches/'+region+'/'+namePart+'/'+tagPart+key+'&size=10').then(function(r){if(!r.ok)return null;return r.json()})
+    ]).then(function(responses){
+      var mmr=responses[0];
+      var mt=responses[1];
+      console.log('[V3] matches raw:',mt);
+      if(!mmr||!mmr.data)throw new Error('No MMR data');
+      var cur=mmr.data.current||{};
+      var tier=cur.tier||{};
+      var res={
+        rank:tier.name||'—',rr:cur.rr||'—',elo:cur.elo||'—',
+        kd:'—',hs:'—',dpr:'—',lastUpdated:new Date().toLocaleDateString('es-ES')
+      };
+      // Extraer partidas de distintas estructuras posibles
+      var mArr=null;
+      if(mt&&mt.data){
+        if(Array.isArray(mt.data))mArr=mt.data;
+        else if(mt.data.matches&&Array.isArray(mt.data.matches))mArr=mt.data.matches;
+        else if(mt.data.hits&&Array.isArray(mt.data.hits))mArr=mt.data.hits;
+      }
+      var cs=calcMatchStats(mArr,parts[0]);
+      if(cs&&cs.matchCount>0){
+        res.kd=cs.kd;res.hs=cs.hs;res.dpr=cs.dpr;
+      }else{
+        console.log('[V3] No se pudieron extraer stats de partidas, respuesta:',mt);
+      }
+      return res;
+    });
+  }
+
+  function tryV4(){
+    return fetch(base+'/v4/matches/'+region+'/pc/'+namePart+'/'+tagPart+key+'&size=10').then(function(r){
+      if(!r.ok)throw new Error('V4: '+r.status);
+      return r.json();
+    }).then(function(mt){
+      console.log('[V4] matches raw:',mt);
+      var mArr=null;
+      if(mt&&mt.data){
+        if(Array.isArray(mt.data))mArr=mt.data;
+        else if(mt.data.matches&&Array.isArray(mt.data.matches))mArr=mt.data.matches;
+      }
+      var cs=calcMatchStats(mArr,parts[0]);
+      if(!cs||!cs.matchCount)throw new Error('No match stats');
+      return{
+        rank:'—',rr:'—',elo:'—',
+        kd:cs.kd,hs:cs.hs,dpr:cs.dpr,
+        lastUpdated:new Date().toLocaleDateString('es-ES')
+      };
+    });
+  }
+
+  tryV3().catch(function(){
+    console.log('[V3] failed, trying v4...');
+    return tryV4();
+  }).then(function(result){
+    localStorage.setItem('qsr_tracker_'+name,JSON.stringify({data:result}));
+    renderTrackerStats(result);
+    // Actualizar perfil del miembro
+    var member=(DATA.members||[]).find(function(m){return m.name===name});
+    if(member&&result.kd!=='—'){
+      member.kd=String(result.kd);
+      member.hs_percent=String(result.hs).replace('%','');
+      member.dpr=String(result.dpr);
+      saveLocal(DATA);
+      renderProfile();
+    }
+  }).catch(function(e){
+    console.log('HenrikDev sync error:',e);
+    c.innerHTML='<div style="color:#666;font-size:12px;margin-top:10px">'+ic('external-link',12)+' No se pudieron obtener stats automáticas. <a href="https://tracker.gg/valorant/profile/riot/'+encodeURIComponent(riotId)+'/overview" target="_blank" style="color:var(--neon-light)">Ver en tracker.gg</a></div>';
+  });
+}
+
+function closeProfileEdit(){
+  var el=document.getElementById('profileEditOverlay');
+  if(el){el.remove()}
+}
+
+function uploadStudentImage(input,statusId,targetId){
+  var status=document.getElementById(statusId);
+  var file=input.files[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')){status.innerHTML='<span style="color:#f43f5e;font-size:12px">Solo imágenes</span>';return}
+  if(!db||!db.storage){status.innerHTML='<span style="color:#f43f5e;font-size:12px">Storage no disponible</span>';return}
+  status.innerHTML='<span style="color:#888;font-size:12px">Subiendo...</span>';
+  var cleanName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  var path='images/'+Date.now()+'_'+cleanName;
+  db.storage.from('media-images').upload(path,file).then(function(res){
+    if(res.error)throw res.error;
+    var {data:{publicUrl}}=db.storage.from('media-images').getPublicUrl(path);
+    document.getElementById(targetId||'pe_image').value=publicUrl;
+    status.innerHTML='<span style="color:#a78bfa;font-size:12px">Subido</span>';
+  }).catch(function(err){
+    status.innerHTML='<span style="color:#f43f5e;font-size:12px">Error: '+(err.message||'')+'</span>';
+  });
 }
 
 function editProfile(){
@@ -534,34 +1106,73 @@ function editProfile(){
   var name=u.name||'';
   var member=(DATA.members||[]).find(function(m){return m.name===name});
   if(!member){toast('No se encontraron tus datos de miembro','err');return}
-  var f={image:member.image||'',description:member.description||'',hs_percent:member.hs_percent||'',kd:member.kd||'',dpr:member.dpr||'',course:member.course||''};
+  var f={image:member.image||'',description:member.description||'',hs_percent:member.hs_percent||'',kd:member.kd||'',dpr:member.dpr||'',course:member.course||'',riot_id:member.riot_id||'',region:member.region||'latam',tracker_url:member.tracker_url||'',country:member.country||'',discord:member.discord||'',youtube:member.youtube||'',twitter:member.twitter||'',twitch:member.twitch||'',cover:member.cover||'',dpi:member.dpi||'',sens:member.sens||'',scoped_sens:member.scoped_sens||'',hz:member.hz||'',raw_input:member.raw_input||''};
   var overlay=document.createElement('div');
   overlay.id='profileEditOverlay';
-  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;padding:20px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)';
+  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;padding:20px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);overflow-x:hidden';
   overlay.onclick=function(e){if(e.target===overlay)closeProfileEdit()};
   overlay.innerHTML=
-    '<div class="glass-card" style="width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:28px;animation:modalIn 0.25s cubic-bezier(0.16,1,0.3,1)">'+
+    '<div class="glass-card" style="width:100%;max-width:500px;max-height:88vh;overflow-y:auto;overflow-x:hidden;padding:28px;box-shadow:0 0 0 1px rgba(139,92,246,0.12),0 20px 80px rgba(0,0,0,0.5);animation:modalIn 0.25s cubic-bezier(0.16,1,0.3,1)">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'+
-        '<h3 style="font-family:var(--font-display);font-size:17px;color:#f0f0f0">Editar Perfil</h3>'+
+        '<h3 style="font-family:var(--font-display);font-size:17px;color:#f0f0f0">'+ic('user',18)+' Editar Perfil</h3>'+
         '<button onclick="closeProfileEdit()" style="background:none;border:none;color:#444;font-size:22px;cursor:pointer;padding:0 4px;line-height:1;border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center">'+ic('x',16)+'</button>'+
       '</div>'+
-      '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">URL de Avatar</label><input class="input-field" id="pe_image" value="'+esc(f.image)+'" placeholder="https://ejemplo.com/avatar.png"></div>'+
-      '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Descripción / Experiencia</label><textarea class="input-field" id="pe_description" rows="4" placeholder="Contá tu experiencia en VALORANT...">'+esc(f.description)+'</textarea></div>'+
+      '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Foto de perfil</label>'+
+        '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:4px">'+
+          '<label style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(139,92,246,0.06);color:var(--neon-light);border:1px dashed rgba(139,92,246,0.2);cursor:pointer;font-size:12px;position:relative">'+ic('upload',12)+' Subir imagen<input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0" onchange="uploadStudentImage(this,\'pe_avatar_status\',\'pe_image\')"></label>'+
+          '<span id="pe_avatar_status"></span>'+
+        '</div>'+
+        '<input class="input-field" id="pe_image" value="'+esc(f.image)+'" placeholder="o pega URL de avatar"></div>'+
+      '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Descripción / Experiencia</label><textarea class="input-field" id="pe_description" rows="3" placeholder="Cuenta tu experiencia en VALORANT...">'+esc(f.description)+'</textarea></div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">HS%</label><input class="input-field" id="pe_hs" value="'+esc(f.hs_percent)+'" placeholder="ej: 35"></div>'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">KD</label><input class="input-field" id="pe_kd" value="'+esc(f.kd)+'" placeholder="ej: 1.04"></div>'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">DPR</label><input class="input-field" id="pe_dpr" value="'+esc(f.dpr)+'" placeholder="ej: 35"></div>'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Curso</label><input class="input-field" id="pe_course" value="'+esc(f.course)+'" placeholder="ej: EN CURSO, FINAL"></div>'+
       '</div>'+
-      '<button class="btn-primary" onclick="saveProfileEdit()" style="width:100%;justify-content:center;margin-top:12px">'+ic('save',16)+' Guardar Cambios</button>'+
+      '<div style="border-top:1px solid rgba(139,92,246,0.06);padding-top:14px;margin-top:4px">'+
+        '<div style="font-size:11px;color:#666;margin-bottom:10px">'+ic('external-link',12)+' Conecta tu cuenta de VALORANT para stats automáticas</div>'+
+        '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Riot ID</label><input class="input-field" id="pe_riot_id" value="'+esc(f.riot_id)+'" placeholder="Nombre#Tag (ej: Shazam#NA1)"></div>'+
+        '<div class="grid-2">'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Región</label><select class="input-field" id="pe_region"><option value="latam" '+(f.region==='latam'?'selected':'')+'>LATAM</option><option value="na" '+(f.region==='na'?'selected':'')+'>NA</option><option value="eu" '+(f.region==='eu'?'selected':'')+'>EU</option><option value="br" '+(f.region==='br'?'selected':'')+'>BR</option><option value="ap" '+(f.region==='ap'?'selected':'')+'>AP</option></select></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Tracker.gg URL</label><input class="input-field" id="pe_tracker_url" value="'+esc(f.tracker_url)+'" placeholder="https://tracker.gg/..."></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="border-top:1px solid rgba(139,92,246,0.06);padding-top:14px;margin-top:4px">'+
+        '<div style="font-size:11px;color:#666;margin-bottom:10px">'+ic('globe',12)+' Información Personal</div>'+
+        '<div class="grid-2">'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">País</label><input class="input-field" id="pe_country" value="'+esc(f.country)+'" placeholder="AR, US, ES..." maxlength="2"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Cover (portada)</label>'+
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:4px">'+
+              '<label style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(139,92,246,0.06);color:var(--neon-light);border:1px dashed rgba(139,92,246,0.2);cursor:pointer;font-size:12px;position:relative">'+ic('upload',12)+' Subir imagen<input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0" onchange="uploadStudentImage(this,\'pe_cover_status\',\'pe_cover\')"></label>'+
+              '<span id="pe_cover_status"></span>'+
+            '</div>'+
+          '<input class="input-field" id="pe_cover" value="'+esc(f.cover)+'" placeholder="o pega URL de portada"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="border-top:1px solid rgba(139,92,246,0.06);padding-top:14px;margin-top:4px">'+
+        '<div style="font-size:11px;color:#666;margin-bottom:10px">'+ic('share-2',12)+' Redes Sociales</div>'+
+        '<div class="grid-2">'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Discord ID</label><input class="input-field" id="pe_discord" value="'+esc(f.discord)+'" placeholder="ID de usuario de Discord"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">YouTube (URL)</label><input class="input-field" id="pe_youtube" value="'+esc(f.youtube)+'" placeholder="https://youtube.com/@..."></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">X / Twitter (URL)</label><input class="input-field" id="pe_twitter" value="'+esc(f.twitter)+'" placeholder="https://x.com/..."></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Twitch (URL)</label><input class="input-field" id="pe_twitch" value="'+esc(f.twitch)+'" placeholder="https://twitch.tv/..."></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="border-top:1px solid rgba(139,92,246,0.06);padding-top:14px;margin-top:4px">'+
+        '<div style="font-size:11px;color:#666;margin-bottom:10px">'+ic('settings',12)+' Configuración de Juego</div>'+
+        '<div class="grid-2">'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">DPI</label><input class="input-field" id="pe_dpi" value="'+esc(f.dpi)+'" placeholder="ej: 800"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Sensibilidad</label><input class="input-field" id="pe_sens" value="'+esc(f.sens)+'" placeholder="ej: 0.35"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Sensibilidad Scoped</label><input class="input-field" id="pe_scoped_sens" value="'+esc(f.scoped_sens)+'" placeholder="ej: 1.0"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Hz del Monitor</label><input class="input-field" id="pe_hz" value="'+esc(f.hz)+'" placeholder="ej: 240"></div>'+
+          '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Raw Input</label><select class="input-field" id="pe_raw_input"><option value="" '+(f.raw_input===''?'selected':'')+'>—</option><option value="On" '+(f.raw_input==='On'?'selected':'')+'>On</option><option value="Off" '+(f.raw_input==='Off'?'selected':'')+'>Off</option></select></div>'+
+        '</div>'+
+      '</div>'+
+      '<button class="btn-primary" onclick="saveProfileEdit()" style="width:100%;justify-content:center;margin-top:14px">'+ic('save',16)+' Guardar Cambios</button>'+
     '</div>';
   document.body.appendChild(overlay);
   if(typeof lucide!=='undefined')lucide.createIcons();
-}
-
-function closeProfileEdit(){
-  var el=document.getElementById('profileEditOverlay');
-  if(el){el.remove()}
 }
 
 function saveProfileEdit(){
@@ -576,12 +1187,34 @@ function saveProfileEdit(){
   DATA.members[idx].kd=document.getElementById('pe_kd').value;
   DATA.members[idx].dpr=document.getElementById('pe_dpr').value;
   DATA.members[idx].course=document.getElementById('pe_course').value;
+  DATA.members[idx].riot_id=document.getElementById('pe_riot_id').value;
+  DATA.members[idx].region=document.getElementById('pe_region').value;
+  DATA.members[idx].tracker_url=document.getElementById('pe_tracker_url').value;
+  DATA.members[idx].country=document.getElementById('pe_country').value;
+  DATA.members[idx].cover=document.getElementById('pe_cover').value;
+  DATA.members[idx].discord=document.getElementById('pe_discord').value;
+  DATA.members[idx].youtube=document.getElementById('pe_youtube').value;
+  DATA.members[idx].twitter=document.getElementById('pe_twitter').value;
+  DATA.members[idx].twitch=document.getElementById('pe_twitch').value;
+  DATA.members[idx].dpi=document.getElementById('pe_dpi').value;
+  DATA.members[idx].sens=document.getElementById('pe_sens').value;
+  DATA.members[idx].scoped_sens=document.getElementById('pe_scoped_sens').value;
+  DATA.members[idx].hz=document.getElementById('pe_hz').value;
+  DATA.members[idx].raw_input=document.getElementById('pe_raw_input').value;
   saveLocal(DATA);
+  // Persistir campos extra por separado (no existen en Supabase)
+  var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+  var extras={};(DATA.members||[]).forEach(function(m){if(m.name){
+    var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
+    if(Object.keys(e).length)extras[m.name]=e
+  }});
+  try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
   closeProfileEdit();
   renderProfile();
   toast('Perfil actualizado','ok');
   if(db&&db.from){
-    db.from('members').upsert(DATA.members[idx],{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
+    var m=DATA.members[idx];
+    db.from('members').upsert({id:m.id,name:m.name,role:m.role,rank:m.rank,group_id:m.group_id,coach:m.coach,image:m.image,description:m.description},{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
   }
 }
 
@@ -720,7 +1353,7 @@ function showNotesOverlay(){
   var notes=filterByCoach(DATA.coach_notes||[]).filter(function(n){return n.member_name===name}).sort(function(a,b){return a.created_at<b.created_at?1:-1});
   var h='<h3>'+ic('message-square',18)+' Todas las Notas del Coach</h3>';
   if(!notes.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('inbox',40)+'<br>Sin notas aún</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   notes.forEach(function(n){
     h+='<div class="has-glow" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 16px;border-left:3px solid var(--neon)">'+
       '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#888;font-size:12px">'+(n.created_at?new Date(n.created_at).toLocaleDateString('es-ES'):'')+'</span><span class="badge badge-purple">'+esc(n.category||'general')+'</span></div>'+
@@ -734,7 +1367,7 @@ function showEvalsOverlay(){
   var evals=(DATA.evaluations||[]).filter(function(e){return e.member_name===name}).sort(function(a,b){return a.date<b.date?1:-1});
   var h='<h3>'+ic('bar-chart-3',18)+' Todas las Evaluaciones</h3>';
   if(!evals.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('clipboard',40)+'<br>Sin evaluaciones aún</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   evals.forEach(function(e){
     h+='<div class="has-glow" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 16px;border-left:3px solid var(--neon)">'+
       '<div style="color:#888;font-size:12px;margin-bottom:6px">'+(e.date?new Date(e.date).toLocaleDateString('es-ES'):'')+'</div>'+
@@ -766,7 +1399,7 @@ function showRankOverlay(){
   var ranks=(DATA.rank_history||[]).filter(function(r){return r.member_name===name}).sort(function(a,b){return a.date<b.date?1:-1});
   var h='<h3>'+ic('trending-up',18)+' Historial Completo de Rango</h3>';
   if(!ranks.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('activity',40)+'<br>Sin historial de rango</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:6px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:6px">';
   ranks.forEach(function(r,i){
     h+='<div class="has-glow" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px">'+
       (i?ic('arrow-right',12)+' ':'')+'<span class="badge badge-purple">'+esc(r.rank)+'</span>'+
@@ -781,7 +1414,7 @@ function showAchsOverlay(){
   var earned=myAchs.map(function(ma){return(DATA.achievements||[]).find(function(a){return a.id===ma.achievement_id})}).filter(function(a){return a});
   var h='<h3>'+ic('award',18)+' Todos los Logros Obtenidos</h3>';
   if(!earned.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('star',40)+'<br>Aún no tienes logros</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   earned.forEach(function(a){
     h+='<div class="has-glow" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--neon)">'+
       ic(a.icon||'trophy',24)+'<div><strong style="font-size:14px">'+esc(a.name)+'</strong>'+(a.description?'<div style="color:#888;font-size:12px;margin-top:2px">'+esc(a.description)+'</div>':'')+'</div></div>';
@@ -1029,7 +1662,19 @@ async function initDB(){
     if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
     if(te.data&&te.data.length)DATA.team=te.data;
     if(sc.data&&sc.data.length)DATA.scrims=sc.data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-    if(mem.data&&mem.data.length)DATA.members=mem.data;
+    if(mem.data&&mem.data.length){
+      // Preservar campos extra que no están en Supabase
+      var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+      var extras={};(DATA.members||[]).forEach(function(m){if(m.name){
+        var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
+        if(Object.keys(e).length)extras[m.name]=e
+      }});
+      try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
+      DATA.members=mem.data;
+      // Restaurar campos extra desde localStorage
+      var saved={};try{var r=localStorage.getItem('qsr_member_extra');if(r)saved=JSON.parse(r)}catch(e){}
+      DATA.members.forEach(function(m){var ex=saved[m.name];if(ex)Object.keys(ex).forEach(function(k){m[k]=ex[k]})});
+    }
     if(st.data&&st.data.length)DATA.stats=st.data;
     if(ne.data&&ne.data.length)DATA.news=ne.data;
     if(co.data&&co.data.length)DATA.coaches=co.data;
@@ -1086,13 +1731,24 @@ async function initDB(){
           var{data}=await db.from(table).select('*');
           if(table==='content'&&data){var o={};data.forEach(function(c){o[c.key]=c.value});if(!DATA.content||!DATA.content.home)DATA.content={home:{}};DATA.content.home=Object.assign({},DATA.content.home,o);renderAll()}
           if(table==='sections'&&data){var v={};data.forEach(function(s){v[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(v));applyVisibility()}
-        }else if(['schedule','team','scrims','members','stats','news','academy','announcements','curriculum','tasks','substitutions','coaches','evaluations','coach_notes','materials','task_completions','attendance','achievements','member_achievements','quizzes','quiz_responses','rank_history','groups','group_coaches','applications'].includes(table)){
+         }else if(['schedule','team','scrims','members','stats','news','academy','announcements','curriculum','tasks','substitutions','coaches','evaluations','coach_notes','materials','task_completions','attendance','achievements','member_achievements','quizzes','quiz_responses','rank_history','groups','group_coaches','applications'].includes(table)){
           var{data}=await db.from(table).select('*');
           if(data!=null){
+            // Preservar campos extra de members antes de sobrescribir
+            var extras={};
+            if(table==='members'){var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];(DATA.members||[]).forEach(function(m){if(m.name){
+              var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
+              if(Object.keys(e).length)extras[m.name]=e
+            }})}
             if(table==='schedule')DATA.schedule=data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
             else if(table==='scrims')DATA.scrims=data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
             else if(table==='news')DATA.news=data.filter(function(n){return n.published});
             else DATA[table]=data||[];
+            // Restaurar campos extra de members
+            if(table==='members'&&Object.keys(extras).length){
+              DATA.members.forEach(function(m){var ex=extras[m.name];if(ex)Object.keys(ex).forEach(function(k){m[k]=ex[k]})});
+              try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
+            }
           }
           saveLocal(DATA);
           reRenderTable(table);
@@ -1144,6 +1800,26 @@ function showLoginOverlay(){
     initParticles();
     initRipple();
     showSection('team');
+    hideLoading();
+    return;
+  }
+  // Check if viewing a shared profile via ?profile= param
+  var sp=new URLSearchParams(window.location.search).get('profile');
+  if(sp){
+    var navEl=document.getElementById('navLinks');if(navEl)navEl.style.display='none';
+    var togg=document.getElementById('navToggle');if(togg)togg.style.display='none';
+    var logo=document.querySelector('.nav-logo');if(logo)logo.style.display='none';
+    document.querySelectorAll('.section.page').forEach(function(s){s.style.display='none'});
+    var sec=document.getElementById('section-profile');
+    if(sec)sec.style.display='block';
+    var spMember=(DATA.members||[]).find(function(m){return m.name===sp||m.riot_id===sp});
+    var pc=document.getElementById('profileContent');
+    if(spMember&&pc){
+      renderSharedProfile(spMember);
+    }else if(pc){
+      pc.innerHTML='<div style="text-align:center;padding:60px 20px;color:#555">'+ic('user-x',48)+'<br><br><span style="font-size:18px;font-weight:600">Perfil no encontrado</span></div>';
+    }
+    if(typeof lucide!=='undefined')lucide.createIcons();
     hideLoading();
     return;
   }

@@ -56,7 +56,7 @@ async function showTaskCompletions(taskId){
   if(gid)members=members.filter(function(m){return (m.group_id&&m.group_id.trim()===gid)||(!m.group_id&&getGroupFromRank(m.rank)===gid)});
   var tcs=DATA.task_completions||[];
   var html='<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+ic('check-circle',18)+' Completados: '+esc(task.title)+'</h3>'+
-    '<div style="margin-top:16px;display:grid;gap:6px;max-height:400px;overflow-y:auto">';
+    '<div style="margin-top:16px;display:grid;gap:6px;max-height:400px;overflow-y:auto;overflow-x:hidden">';
   if(!members.length){
     html+='<div style="text-align:center;padding:24px;color:#555">No hay miembros registrados</div>';
   }else{

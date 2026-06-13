@@ -112,7 +112,7 @@ function saveQuickCoach(){
 function showCoachNotes(name){
   var notes=(DATA.coach_notes||[]).filter(function(n){return n.member_name===name});
   var h='<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+ic('sticky-note',16)+' Notas: '+esc(name)+'</h3>'+
-    '<div style="margin-bottom:14px;max-height:300px;overflow-y:auto;display:grid;gap:8px">';
+    '<div style="margin-bottom:14px;max-height:300px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   if(!notes.length)h+='<div style="color:#555;padding:12px">Sin notas aún</div>';
   notes.forEach(function(n){
     h+='<div class="has-glow" style="padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--neon)">'+

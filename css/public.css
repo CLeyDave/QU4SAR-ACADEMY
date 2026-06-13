@@ -88,3 +88,36 @@
   .nav-actions .btn-sm{font-size:11px;padding:5px 8px}
   .section{padding:40px 0}
 }
+
+/* ===== OVERLAYS ===== */
+.login-overlay{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.detail-overlay{-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.image-overlay{-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px)}
+.image-overlay img{border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,0.5)}
+.detail-card{padding:36px;box-shadow:0 0 0 1px rgba(139,92,246,0.04),0 20px 80px rgba(0,0,0,0.4);border:1px solid rgba(139,92,246,0.1)}
+.detail-card::before{display:none}
+
+/* ===== TABLES ===== */
+table{width:100%;border-collapse:collapse;font-family:var(--font-body)}
+th{font-family:var(--font-display);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:12px 16px;color:#666;border-bottom:1px solid var(--border);text-align:left}
+td{padding:12px 16px;border-bottom:1px solid rgba(139,92,246,0.025);color:#bbb;font-size:13px}
+tr:hover td{background:rgba(139,92,246,0.015)}
+
+/* ===== TOAST ===== */
+.toast{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-weight:600;letter-spacing:0.2px}
+.toast.ok{background:rgba(139,92,246,0.14);color:#c4b5fd;border-color:rgba(139,92,246,0.22);box-shadow:0 4px 30px rgba(139,92,246,0.08)}
+.toast.err{background:rgba(244,63,94,0.14);color:#fb7185;border-color:rgba(244,63,94,0.22);box-shadow:0 4px 30px rgba(244,63,94,0.08)}
+.toast.info{background:rgba(59,130,246,0.14);color:#93c5fd;border-color:rgba(59,130,246,0.22);box-shadow:0 4px 30px rgba(59,130,246,0.08)}
+
+/* ===== UTILITIES ===== */
+.flex{display:flex}.flex-center{display:flex;align-items:center;justify-content:center}.flex-between{display:flex;align-items:center;justify-content:space-between}
+.gap-4{gap:4px}.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}.gap-16{gap:16px}
+.text-center{text-align:center}.text-right{text-align:right}
+.w-full{width:100%}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:#777;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px}
+.field .hint{font-size:11px;color:#555;margin-top:2px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}

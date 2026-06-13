@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="stylesheet" href="../css/base.css?v=4">
   <link rel="stylesheet" href="../css/students.css?v=4">
 </head>
@@ -121,7 +122,7 @@
   <div class="section-bg"></div>
   <div class="container">
     <h2 class="section-title"><span class="gradient-text">Quizzes</span></h2>
-    <p class="section-subtitle">Poné a prueba tus conocimientos</p>
+    <p class="section-subtitle">Pon a prueba tus conocimientos</p>
     <div id="quizzesContent"></div>
   </div>
 </section>
@@ -158,7 +159,7 @@
   <div class="glass-card" style="padding:32px 40px;max-width:400px;width:90%;text-align:center">
     <img src="../QU4SAR.ico" alt="QU4SAR" style="width:72px;margin-bottom:16px">
     <h2 style="margin:0 0 4px;font-size:22px"><span class="gradient-text">QU4SAR</span></h2>
-    <p style="color:#888;font-size:13px;margin-bottom:20px">Ingres&aacute; tu nombre de VALORANT</p>
+    <p style="color:#888;font-size:13px;margin-bottom:20px">Ingresa tu nombre de VALORANT</p>
     <input class="input-field" id="loginInput" placeholder="ej: Jugador#NA1" style="width:100%;margin-bottom:12px;text-align:center" onkeydown="if(event.key==='Enter')handleLogin()">
     <div id="loginMsg" style="font-size:13px;margin-bottom:12px;min-height:20px"></div>
     <button class="btn-primary btn-full" onclick="handleLogin()" id="loginBtn">Iniciar Sesi&oacute;n</button>

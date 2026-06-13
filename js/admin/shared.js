@@ -192,7 +192,7 @@ async function doLogin(){
       // Primera vez: signUp creó el auth user, intentar login de nuevo
       var retry=await db.auth.signInWithPassword({email,password:pass});
       if(retry.error){
-        e.innerHTML='Cuenta creada. Revis&aacute; tu correo para confirmar y luego inici&aacute; sesi&oacute;n.';e.style.display='block';
+        e.innerHTML='Cuenta creada. Revisa tu correo para confirmar y luego inicia sesi&oacute;n.';e.style.display='block';
         btn.disabled=false;btn.innerHTML='<i data-lucide="shield" style="width:18px;height:18px"></i> Ingresar';
         return;
       }
@@ -682,11 +682,14 @@ function switchAdminSection(groupId,sectionId){
     var lnk=nav.querySelector('.nav-link[data-section="'+sectionId+'"]');
     if(lnk)lnk.classList.add('active');
   }
+  var t0=Date.now();
   showLoading();
   requestAnimationFrame(function(){
     var fn=window['renderSection_'+sectionId];
     if(typeof fn==='function'){fn();if(typeof lucide!=='undefined')lucide.createIcons();updateCounts()}
-    requestAnimationFrame(function(){hideLoading()});
+    var elapsed=Date.now()-t0;
+    var delay=Math.max(0,300-elapsed);
+    setTimeout(function(){hideLoading()},delay);
   });
 }
 

@@ -150,7 +150,7 @@ function showNotesOverlay(){
   var notes=filterByCoach(DATA.coach_notes||[]).filter(function(n){return n.member_name===name}).sort(function(a,b){return a.created_at<b.created_at?1:-1});
   var h='<h3>'+ic('message-square',18)+' Todas las Notas del Coach</h3>';
   if(!notes.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('inbox',40)+'<br>Sin notas aún</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   notes.forEach(function(n){
     h+='<div class="has-glow" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 16px;border-left:3px solid var(--neon)">'+
       '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#888;font-size:12px">'+(n.created_at?new Date(n.created_at).toLocaleDateString('es-ES'):'')+'</span><span class="badge badge-purple">'+esc(n.category||'general')+'</span></div>'+
@@ -163,7 +163,7 @@ function showEvalsOverlay(){
   var evals=(DATA.evaluations||[]).filter(function(e){return e.member_name===name}).sort(function(a,b){return a.date<b.date?1:-1});
   var h='<h3>'+ic('bar-chart-3',18)+' Todas las Evaluaciones</h3>';
   if(!evals.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('clipboard',40)+'<br>Sin evaluaciones aún</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   evals.forEach(function(e){
     h+='<div class="has-glow" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 16px;border-left:3px solid var(--neon)">'+
       '<div style="color:#888;font-size:12px;margin-bottom:6px">'+(e.date?new Date(e.date).toLocaleDateString('es-ES'):'')+'</div>'+
@@ -193,7 +193,7 @@ function showRankOverlay(){
   var ranks=(DATA.rank_history||[]).filter(function(r){return r.member_name===name}).sort(function(a,b){return a.date<b.date?1:-1});
   var h='<h3>'+ic('trending-up',18)+' Historial Completo de Rango</h3>';
   if(!ranks.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('activity',40)+'<br>Sin historial de rango</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:6px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:6px">';
   ranks.forEach(function(r,i){
     h+='<div class="has-glow" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px">'+
       (i?'<span style="color:#555">→</span>':'')+'<span class="badge badge-purple">'+esc(r.rank)+'</span>'+
@@ -207,7 +207,7 @@ function showAchsOverlay(){
   var earned=myAchs.map(function(ma){return(DATA.achievements||[]).find(function(a){return a.id===ma.achievement_id})}).filter(function(a){return a});
   var h='<h3>'+ic('award',18)+' Todos los Logros Obtenidos</h3>';
   if(!earned.length){h+='<div style="padding:20px;text-align:center;color:#888">'+ic('star',40)+'<br>Aún no tienes logros</div>';showDetail(h);return}
-  h+='<div style="max-height:400px;overflow-y:auto;display:grid;gap:8px">';
+  h+='<div style="max-height:400px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   earned.forEach(function(a){
     h+='<div class="has-glow" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--neon)">'+
       ic(a.icon||'trophy',24)+'<div><strong style="font-size:14px">'+esc(a.name)+'</strong>'+(a.description?'<div style="color:#888;font-size:12px;margin-top:2px">'+esc(a.description)+'</div>':'')+'</div></div>';

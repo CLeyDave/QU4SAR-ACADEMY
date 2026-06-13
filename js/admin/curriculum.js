@@ -40,5 +40,5 @@ function delCurriculum(id){if(!confirmDel())return;DATA.curriculum=DATA.curricul
 function viewCurriculum(id){
   var c=(DATA.curriculum||[]).find(function(x){return x.id===id});
   if(!c)return;
-  openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+esc(c.title)+'</h3><div style="color:#888;font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:70vh;overflow-y:auto;padding-right:8px">'+(c.topics||[]).map(function(t){return esc(t)}).join('<br>')+'</div>');
+  openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+esc(c.title)+'</h3><div style="color:#888;font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:70vh;overflow-y:auto;overflow-x:hidden;padding-right:8px">'+(c.topics||[]).map(function(t){return esc(t)}).join('<br>')+'</div>');
 }

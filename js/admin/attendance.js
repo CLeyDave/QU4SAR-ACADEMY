@@ -96,8 +96,8 @@ function markAtt(name,status,btn){
 function saveAllAttendance(){
   var date=document.getElementById('attDate').value;
   var sid=document.getElementById('attClassSelect').value;
-  if(!sid){toast('Seleccioná un horario primero','error');return}
-  if(!(DATA.schedule||[]).some(function(s){return s.id===sid})){toast('El horario seleccionado ya no existe, recargá la página','error');return}
+  if(!sid){toast('Selecciona un horario primero','error');return}
+  if(!(DATA.schedule||[]).some(function(s){return s.id===sid})){toast('El horario seleccionado ya no existe, recarga la página','error');return}
   var names=Object.keys(_attPending);
   if(!names.length){toast('Selecciona estado para al menos un miembro','error');return}
   var records=names.filter(function(n){return _attPending[n]}).map(function(n){return{schedule_id:sid,member_name:n,date:date,status:_attPending[n],marked_by:'coach'}});
