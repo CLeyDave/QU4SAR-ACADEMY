@@ -25,7 +25,7 @@ function defaultData(){return{
   }}
 }}
 function getData(){try{var r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r)}catch(e){}var d=defaultData();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){};return d}
-function saveLocal(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}}
+var _savePending=false;function saveLocal(d){if(_savePending)return;_savePending=true;requestAnimationFrame(function(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}_savePending=false})}
 var DATA=getData();if(!DATA.content)DATA.content={home:{}};if(!DATA.content.home)DATA.content.home={};if(!DATA.coaches)DATA.coaches=[];if(!DATA.task_completions)DATA.task_completions=[];
 if(!DATA.content.home.terms_title||!DATA.content.home.terms_content){
   var def=defaultData();
@@ -54,7 +54,8 @@ function initRipple(){
   });
 }
 function initParticles(){
-  var c=40,cols=['#8B5CF6','#A78BFA','#6D28D9','#ffffff','#c4b5fd','#f43f5e'];
+  if(window.innerWidth<768)return;
+  var c=15,cols=['#8B5CF6','#A78BFA','#6D28D9','#ffffff','#c4b5fd','#f43f5e'];
   for(var i=0;i<c;i++){
     var p=document.createElement('div');
     p.className='particle';
@@ -93,7 +94,8 @@ function groupName(id){var g=(DATA.groups||[]).find(function(g){return g.id===id
 
 // ========== SECTION VISIBILITY ==========
 var ALL_SECTIONS=['schedule','dashboard','team','members','scrims','stats','academy','news','announcements','substitutions','register'];
-function getVis(){try{var r=localStorage.getItem('qsr_sections');if(r)return JSON.parse(r)}catch(e){}var d={};ALL_SECTIONS.forEach(function(s){d[s]=true});return d}
+var _visCache=null;function getVis(){if(_visCache)return _visCache;try{var r=localStorage.getItem('qsr_sections');if(r){_visCache=JSON.parse(r);return _visCache}}catch(e){}var d={};ALL_SECTIONS.forEach(function(s){d[s]=true});_visCache=d;return d}
+function clearVisCache(){_visCache=null}
 function isVisible(id){var v=getVis();return v[id]!==false}
 
 // ========== LOGIN SYSTEM ==========

@@ -76,11 +76,14 @@ function initScrollReveal(){
     document.querySelectorAll('.section,.hero').forEach(function(el){el.classList.add('reveal');obs.observe(el)});
   }else{document.querySelectorAll('.section,.hero').forEach(function(el){el.classList.add('visible')})}
 }
+var _publicNavScrollFn=null;
 function initNavbarScroll(){
   var nav=document.getElementById('navbar');
   if(!nav)return;
-  nav.classList.toggle('scrolled',window.scrollY>50);
-  window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>50)});
+  if(_publicNavScrollFn)window.removeEventListener('scroll',_publicNavScrollFn);
+  _publicNavScrollFn=function(){nav.classList.toggle('scrolled',window.scrollY>50)};
+  window.addEventListener('scroll',_publicNavScrollFn,{passive:true});
+  _publicNavScrollFn();
 }
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function renderPublicSections(){

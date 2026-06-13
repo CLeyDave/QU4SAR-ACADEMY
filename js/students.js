@@ -1,9 +1,11 @@
 ﻿// ========== HENRIKDEV API KEY (opcional para stats automáticas) ==========
 // Obtén tu API key gratis en https://henrikdev.xyz/ y ponla abajo:
 var HENRIKDEV_KEY='HDEV-ddaa320a-26ce-4a96-bbdb-0d148ba20b44';
+var _trackerCache={};
 
 // ========== SECTION VISIBILITY ==========
 function applyVisibility(){
+  clearVisCache();
   if(isCommunity()){
     ALL_SECTIONS.forEach(function(id){
       var el=document.getElementById('section-'+id);
@@ -48,11 +50,14 @@ function initScrollReveal(){
 }
 
 // ========== NAVBAR SCROLL ==========
+var _navbarScrollFn=null;
 function initNavbarScroll(){
   var nav=document.getElementById('navbar');
   if(!nav)return;
-  nav.classList.toggle('scrolled',window.scrollY>50);
-  window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>50)});
+  if(_navbarScrollFn)window.removeEventListener('scroll',_navbarScrollFn);
+  _navbarScrollFn=function(){nav.classList.toggle('scrolled',window.scrollY>50)};
+  window.addEventListener('scroll',_navbarScrollFn,{passive:true});
+  _navbarScrollFn();
 }
 
 // ========== NAV ==========
@@ -512,7 +517,7 @@ function renderProfile(){
   var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
   var myEvals=filterByCoach(DATA.evaluations||[]).filter(function(e){return e.member_name===name});
   var recentEvals=myEvals.slice().sort(function(a,b){return(a.date||'')<(b.date||'')?1:-1}).slice(0,4);
-  var trackerData=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)trackerData=tp.data}}catch(e){}
+  var trackerData=_trackerCache[name];if(!trackerData){try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data){trackerData=tp.data;_trackerCache[name]=trackerData}}}catch(e){}}
   if(trackerData&&trackerData.rank&&trackerData.rank!=='—')rank=trackerData.rank;
   var sr=function(id,icon,url,label){return url?'<a href="'+esc(url)+'" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.06);color:#aaa;border:1px solid rgba(139,92,246,0.08);text-decoration:none;transition:all 0.2s" title="'+esc(label)+'">'+ic(icon,16)+'</a>':''};
   var socialLinks=[sr('discord','message-circle',discord?'https://discord.com/users/'+discord:'',discord||''),sr('youtube','youtube',youtube,'YouTube'),sr('twitter','twitter',twitter,'X / Twitter'),sr('twitch','twitch',twitch,'Twitch')].filter(Boolean).join('');
@@ -647,7 +652,7 @@ function shareProfile(){
   var scrimsAll=filterByGroup(DATA.scrims||[]);
   var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
   var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
-  var trackerData=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)trackerData=tp.data}}catch(e){}
+  var trackerData=_trackerCache[name];if(!trackerData){try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data){trackerData=tp.data;_trackerCache[name]=trackerData}}}catch(e){}}
   if(trackerData&&trackerData.rank&&trackerData.rank!=='—')rank=trackerData.rank;
   var link=window.location.origin+window.location.pathname.replace(/\/+$/,'')+'?profile='+encodeURIComponent(name);
   var setHTML=dpi||sens||scopedSens||hz||rawInput?'<div style="padding:16px 20px">'+
@@ -823,7 +828,7 @@ function renderSharedProfile(member){
   var coachName=member.coach||'—',riotId=member.riot_id||'',trackerUrl=member.tracker_url||'',cover=member.cover||'';
   var hs=member.hs_percent||'—',kd=member.kd||'—',dpr=member.dpr||'—',course=member.course||'';
   var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
-  var td=null;try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data)td=tp.data}}catch(e){}
+  var td=_trackerCache[name];if(!td){try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data){td=tp.data;_trackerCache[name]=td}}}catch(e){}}
   if(td&&td.rank&&td.rank!=='—')rank=td.rank;
   var isCoach=(DATA.coaches||[]).some(function(co){return co.nickname===name});
   var scrimsAll=filterByGroup(DATA.scrims||[]);
@@ -1059,7 +1064,7 @@ function refreshTrackerStats(){
     console.log('[V3] failed, trying v4...');
     return tryV4();
   }).then(function(result){
-    localStorage.setItem('qsr_tracker_'+name,JSON.stringify({data:result}));
+    _trackerCache[name]=result;localStorage.setItem('qsr_tracker_'+name,JSON.stringify({data:result}));
     renderTrackerStats(result);
     // Actualizar perfil del miembro
     var member=(DATA.members||[]).find(function(m){return m.name===name});
@@ -1511,9 +1516,11 @@ function submitDashQuiz(id){
   if(!quiz)return;
   var qs=quiz.questions||[];
   var correct=0,total=qs.length;
+  var _answers=[];
   qs.forEach(function(q,i){
-    var selected=document.querySelector('input[name="dquiz_'+i+'"]:checked');
-    var ans=selected?parseInt(selected.value):-1;
+    var selInput=document.querySelector('input[name="dquiz_'+i+'"]:checked');
+    var ans=selInput?parseInt(selInput.value):-1;
+    _answers[i]=ans;
     var expDiv=document.getElementById('dqexp_'+i);
     if(ans===q.correct){
       correct++;
@@ -1526,7 +1533,7 @@ function submitDashQuiz(id){
   var u=getLogin();
   var member=u?u.name:'Anónimo';
   var existing=DATA.quiz_responses.findIndex(function(r){return r.quiz_id===id&&r.member_name===member});
-  var resp={quiz_id:id,member_name:member,score:score,answers:qs.map(function(q,i){var sel=document.querySelector('input[name="dquiz_'+i+'"]:checked');return sel?parseInt(sel.value):-1}),completed_at:new Date().toISOString()};
+  var resp={quiz_id:id,member_name:member,score:score,answers:_answers,completed_at:new Date().toISOString()};
   if(existing>=0){DATA.quiz_responses[existing]={...DATA.quiz_responses[existing],...resp}}else{resp.id=uid();DATA.quiz_responses.push(resp)}
   saveLocal(DATA);
   var qc=document.getElementById('quizzesContent')||document.getElementById('dashContent');
@@ -1630,7 +1637,7 @@ async function initDB(){
     var {error}=await db.from('schedule').select('id',{count:'exact',head:true});
     if(error)throw error;
     
-    var [sch,te,sc,mem,st,ne,ac,co,con,sec,ann,cur,tas,sub,ev,cn,mat,tc,att,ach,ma,rh,gr,gco,apl]=await Promise.all([
+    var [sch,te,sc,mem,st,ne,ac,co,con,sec,ann,cur,tas,sub,ev,cn,mat,tc,att,gr,gco,apl]=await Promise.all([
       db.from('schedule').select('*'),
       db.from('team').select('*'),
       db.from('scrims').select('*').order('date',{ascending:false}),
@@ -1650,15 +1657,19 @@ async function initDB(){
       db.from('materials').select('*'),
       db.from('task_completions').select('*'),
       db.from('attendance').select('*'),
-      db.from('achievements').select('*'),
-      db.from('member_achievements').select('*'),
-      db.from('rank_history').select('*'),
       db.from('groups').select('*'),
       db.from('group_coaches').select('*'),
       db.from('applications').select('*'),
     ]);
     var qz={data:[]};try{var r=await db.from('quizzes').select('*');if(r)qz=r}catch(e){}
     var qr={data:[]};try{var r=await db.from('quiz_responses').select('*');if(r)qr=r}catch(e){}
+    // Carga diferida: tablas pesadas que no se necesitan en el render inicial
+    var ach={data:[]},ma={data:[]},rh={data:[]};
+    setTimeout(function(){
+      db.from('achievements').select('*').then(function(r){if(r.data&&r.data.length){DATA.achievements=r.data;saveLocal(DATA);reRenderTable('achievements')}}).catch(function(){});
+      db.from('member_achievements').select('*').then(function(r){if(r.data&&r.data.length){DATA.member_achievements=r.data;saveLocal(DATA);reRenderTable('member_achievements')}}).catch(function(){});
+      db.from('rank_history').select('*').then(function(r){if(r.data&&r.data.length){DATA.rank_history=r.data;saveLocal(DATA)}}).catch(function(){});
+    },500);
     if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
     if(te.data&&te.data.length)DATA.team=te.data;
     if(sc.data&&sc.data.length)DATA.scrims=sc.data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
@@ -1742,38 +1753,51 @@ async function initDB(){
     _dbFailed=false;
     
     rtChannel=db.channel('public-changes')
-      .on('postgres_changes',{event:'*',schema:'public'},async function(payload){
-        var table=payload.table;
+      .on('postgres_changes',{event:'*',schema:'public'},function(payload){
+        var table=payload.table,ev=payload.eventType;
         if(table==='content'||table==='sections'){
-          var{data}=await db.from(table).select('*');
-          if(table==='content'&&data){var o={};data.forEach(function(c){o[c.key]=c.value});if(!DATA.content||!DATA.content.home)DATA.content={home:{}};DATA.content.home=Object.assign({},DATA.content.home,o);renderAll()}
-          if(table==='sections'&&data){var v={};data.forEach(function(s){v[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(v));applyVisibility()}
-         }else if(['schedule','team','scrims','members','stats','news','academy','announcements','curriculum','tasks','substitutions','coaches','evaluations','coach_notes','materials','task_completions','attendance','attendance_confirmations','achievements','member_achievements','quizzes','quiz_responses','rank_history','groups','group_coaches','applications'].includes(table)){
-          var{data}=await db.from(table).select('*');
-          if(data!=null){
-            // Preservar campos extra de members antes de sobrescribir
-            var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
-            var prevMembers=JSON.parse(JSON.stringify(DATA.members||[]));
-            var extras={};prevMembers.forEach(function(m){if(m.name){
-              var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
-              if(Object.keys(e).length)extras[m.name]=e
-            }});
-            if(table==='schedule')DATA.schedule=data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
-            else if(table==='scrims')DATA.scrims=data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-            else if(table==='news')DATA.news=data.filter(function(n){return n.published});
-            else DATA[table]=data||[];
-            // Restaurar campos extra de members
-            if(table==='members'&&Object.keys(extras).length){
-              DATA.members.forEach(function(m){
-                var ex=extras[m.name];
-                if(ex)extrasKeys.forEach(function(k){if(ex[k])m[k]=ex[k]});
-              });
-              try{localStorage.setItem('qsr_member_extra',JSON.stringify(extras))}catch(e){}
-            }
-          }
-          saveLocal(DATA);
-          reRenderTable(table);
+          db.from(table).select('*').then(function(r){
+            var data=r.data;
+            if(table==='content'&&data){var o={};data.forEach(function(c){o[c.key]=c.value});if(!DATA.content||!DATA.content.home)DATA.content={home:{}};DATA.content.home=Object.assign({},DATA.content.home,o);renderAll()}
+            if(table==='sections'&&data){var v={};data.forEach(function(s){v[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(v));applyVisibility()}
+          }).catch(function(){});
+          return;
         }
+        var tableList=['schedule','team','scrims','members','stats','news','academy','announcements','curriculum','tasks','substitutions','coaches','evaluations','coach_notes','materials','task_completions','attendance','attendance_confirmations','achievements','member_achievements','quizzes','quiz_responses','rank_history','groups','group_coaches','applications'];
+        if(!tableList.includes(table))return;
+        // Usar payload.new en lugar de re-fetch completo
+        if(ev==='DELETE'){
+          var oldId=payload.old&&payload.old.id;
+          if(oldId&&Array.isArray(DATA[table]))DATA[table]=DATA[table].filter(function(r){return r.id!==oldId});
+        }else if(ev==='INSERT'||ev==='UPDATE'){
+          var rec=payload.new;
+          if(!rec)return;
+          if(table==='schedule'){
+            var st=String(rec.start_time||rec.start||'').slice(0,5),et=String(rec.end_time||rec.end||'').slice(0,5);
+            rec={id:rec.id,title:rec.title,day:rec.day,start:st,end:et,type:rec.type,coach:rec.coach||'',group_id:rec.group_id||''};
+          }else if(table==='scrims'){
+            rec={id:rec.id,opponent:rec.opponent,opponent_logo:rec.opponent_logo||'',our:rec.our_score,opponent_score:rec.opponent_score,result:rec.result,date:rec.date,coach:rec.coach||'',group_id:rec.group_id||''};
+          }else if(table==='news'){if(!rec.published){DATA.news=(DATA.news||[]).filter(function(n){return n.id!==rec.id});saveLocal(DATA);reRenderTable('news');return}}
+          // Preservar campos extra de members
+          if(table==='members'){
+            var _e=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+            if(ev==='UPDATE'){
+              var oldM=(DATA.members||[]).find(function(m){return m.id===rec.id});
+              if(oldM){_e.forEach(function(k){if(rec[k]===undefined||rec[k]===null)rec[k]=oldM[k]});var idx2=DATA.members.indexOf(oldM);DATA.members[idx2]=rec}
+              else DATA.members=DATA.members.concat([rec]);
+            }else{
+              DATA.members=DATA.members.concat([rec]);
+            }
+          }else if(ev==='UPDATE'&&Array.isArray(DATA[table])){
+            var idx=DATA[table].findIndex(function(r){return r.id===rec.id});
+            if(idx>=0)DATA[table][idx]=rec;
+            else DATA[table].push(rec);
+          }else if(ev==='INSERT'&&Array.isArray(DATA[table])){
+            DATA[table].push(rec);
+          }
+        }
+        saveLocal(DATA);
+        reRenderTable(table);
       })
       .subscribe();
   }catch(e){

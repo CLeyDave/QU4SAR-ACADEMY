@@ -360,13 +360,35 @@ async function loadAdminData(){
   try{
     var _rtTimer=null;
     rtChannel=db.channel('admin-changes')
-      .on('postgres_changes',{event:'*',schema:'public'},async function(payload){
-        var table=payload.table;
-        if(_pendingLocalSave){return}
+      .on('postgres_changes',{event:'*',schema:'public'},function(payload){
+        var table=payload.table,ev=payload.eventType;
+        if(_pendingLocalSave)return;
         if(table==='content'||table==='sections'||DATA_TABLES.includes(table)){
-          if(table==='applications'&&payload.eventType==='INSERT')toast(ic('user-plus',14)+' Nueva inscripción recibida','info');
-          else if(payload.eventType!=='DELETE')toast(ic('refresh-cw',14)+' Cambio detectado de otra sesión, recargando...','info');
-          DATA=getData();
+          if(table==='applications'&&ev==='INSERT')toast(ic('user-plus',14)+' Nueva inscripción recibida','info');
+          // Usar payload.new en lugar de getData()
+          if(ev==='DELETE'){
+            var oldId=payload.old&&payload.old.id;
+            if(oldId&&Array.isArray(DATA[table]))DATA[table]=DATA[table].filter(function(r){return r.id!==oldId});
+          }else if(ev==='INSERT'||ev==='UPDATE'){
+            var rec=payload.new;
+            if(!rec)return;
+            if(table==='schedule'){
+              var st=String(rec.start_time||rec.start||'').slice(0,5),et=String(rec.end_time||rec.end||'').slice(0,5);
+              rec={id:rec.id,title:rec.title,day:rec.day,start:st,end:et,type:rec.type,coach:rec.coach||'',group_id:rec.group_id||''};
+            }else if(table==='scrims'){
+              rec={id:rec.id,opponent:rec.opponent,opponent_logo:rec.opponent_logo||'',our:rec.our_score,opponent_score:rec.opponent_score,result:rec.result,date:rec.date,coach:rec.coach||'',group_id:rec.group_id||''};
+            }else if(table==='members'){
+              var _ex=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+              var oldM=(DATA.members||[]).find(function(m){return m.id===rec.id});
+              if(oldM)_ex.forEach(function(k){if(rec[k]===undefined||rec[k]===null)rec[k]=oldM[k]});
+            }
+            if(ev==='UPDATE'&&Array.isArray(DATA[table])){
+              var idx=DATA[table].findIndex(function(r){return r.id===rec.id});
+              if(idx>=0)DATA[table][idx]=rec;else DATA[table].push(rec);
+            }else if(ev==='INSERT'&&Array.isArray(DATA[table])){
+              DATA[table].push(rec);
+            }
+          }
           if(_rtTimer)clearTimeout(_rtTimer);
           _rtTimer=setTimeout(function(){refresh();_rtTimer=null},150);
         }
