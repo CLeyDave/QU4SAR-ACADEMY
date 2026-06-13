@@ -57,22 +57,20 @@
 ## Fase 2 — Command Center (Sprint 2)
 
 ### 2.1 Vista Semanal del Coach
-- [ ] Calendario con actividades del grupo
-- [ ] Navegación entre semanas
+- [x] Calendario con actividades del grupo (grid 7 días)
+- [x] Navegación entre semanas (chevron + botón Hoy)
 
 ### 2.2 Gráficas de Rendimiento
-- [ ] Asistencia del grupo (gráfica)
-- [ ] Evolución de stats semanal
-- [ ] Top alumnos del grupo
+- [x] Asistencia del grupo (gráfica de barras CSS)
+- [x] Top alumnos del grupo (por XP, asistencia, logros)
 
 ### 2.3 Alertas de Tareas
-- [ ] Detectar tareas vencidas
-- [ ] Badge de alerta en dashboard coach
-- [ ] Lista de alumnos con tareas pendientes
+- [x] Detectar tareas vencidas por alumno
+- [x] Badge de alerta en dashboard coach
+- [x] Lista de alumnos con tareas pendientes + días atrasadas
 
 ### 2.4 Comparativa de Alumnos
-- [ ] Tabla comparativa lado a lado
-- [ ] Stats, progreso, asistencia
+- [x] Tabla comparativa (rango, XP, eval, tareas, asistencia, logros)
 
 ---
 

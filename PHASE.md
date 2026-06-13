@@ -33,10 +33,10 @@
 
 ## Fase Activa: 2 — Command Center (Coach PRO)
 
-- 🔄 2.1 Vista semanal del coach con calendario
-- ⬜ 2.2 Gráficas de rendimiento (asistencia, stats, top alumnos)
-- ⬜ 2.3 Alertas de tareas vencidas
-- ⬜ 2.4 Comparativa de alumnos
+- ✅ 2.1 Vista semanal del coach con calendario
+- ✅ 2.2 Gráficas de rendimiento (asistencia, stats, top alumnos)
+- ✅ 2.3 Alertas de tareas vencidas
+- ✅ 2.4 Comparativa de alumnos
 
 ---
 
