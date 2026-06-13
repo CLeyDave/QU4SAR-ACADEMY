@@ -1709,51 +1709,58 @@ async function initDB(){
     _dbFailed=false;
     
     // Fase 2a – tablas más usadas (500ms)
-    setTimeout(function(){
-      Promise.all([
-        db.from('team').select('*'),
-        db.from('scrims').select('*').order('date',{ascending:false}),
-        db.from('stats').select('*'),
-        db.from('news').select('*').eq('published',true).order('date',{ascending:false}),
-        db.from('academy').select('*'),
-        db.from('announcements').select('*'),
-      ]).then(function(r){
-        if(r[0].data&&r[0].data.length)DATA.team=r[0].data;
-        if(r[1].data&&r[1].data.length)DATA.scrims=r[1].data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-        if(r[2].data&&r[2].data.length)DATA.stats=r[2].data;
-        if(r[3].data&&r[3].data.length)DATA.news=r[3].data;
-        if(r[4].data&&r[4].data.length)DATA.academy=r[4].data;
-        if(r[5].data&&r[5].data.length)DATA.announcements=r[5].data;
-        saveLocal(DATA);
-        renderAll();
-      }).catch(function(){});
-    },500);
+    await new Promise(function(res2a){
+      setTimeout(function(){
+        Promise.all([
+          db.from('team').select('*'),
+          db.from('scrims').select('*').order('date',{ascending:false}),
+          db.from('stats').select('*'),
+          db.from('news').select('*').eq('published',true).order('date',{ascending:false}),
+          db.from('academy').select('*'),
+          db.from('announcements').select('*'),
+        ]).then(function(r){
+          if(r[0].data&&r[0].data.length)DATA.team=r[0].data;
+          if(r[1].data&&r[1].data.length)DATA.scrims=r[1].data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
+          if(r[2].data&&r[2].data.length)DATA.stats=r[2].data;
+          if(r[3].data&&r[3].data.length)DATA.news=r[3].data;
+          if(r[4].data&&r[4].data.length)DATA.academy=r[4].data;
+          if(r[5].data&&r[5].data.length)DATA.announcements=r[5].data;
+          saveLocal(DATA);
+          renderAll();
+          res2a();
+        }).catch(function(){res2a()});
+      },500);
+    });
     // Fase 2b – tablas de dashboard/academia (2s después)
-    setTimeout(function(){
-      Promise.all([
-        db.from('curriculum').select('*'),
-        db.from('tasks').select('*'),
-        db.from('substitutions').select('*'),
-        db.from('evaluations').select('*'),
-        db.from('coach_notes').select('*'),
-        db.from('materials').select('*'),
-        db.from('task_completions').select('*'),
-        db.from('attendance').select('*'),
-        db.from('quizzes').select('*'),
-        db.from('quiz_responses').select('*'),
-        db.from('achievements').select('*'),
-        db.from('member_achievements').select('*'),
-        db.from('rank_history').select('*'),
-        db.from('applications').select('*'),
-      ]).then(function(r){
-        var a=function(i,k){var d=r[i];if(d.data&&d.data.length)DATA[k]=d.data};
-        a(0,'curriculum');a(1,'tasks');a(2,'substitutions');a(3,'evaluations');
-        a(4,'coach_notes');a(5,'materials');a(6,'task_completions');a(7,'attendance');
-        a(8,'quizzes');a(9,'quiz_responses');a(10,'achievements');a(11,'member_achievements');
-        a(12,'rank_history');a(13,'applications');
-        saveLocal(DATA);
-      }).catch(function(){});
-    },2000);
+    await new Promise(function(res2b){
+      setTimeout(function(){
+        Promise.all([
+          db.from('curriculum').select('*'),
+          db.from('tasks').select('*'),
+          db.from('substitutions').select('*'),
+          db.from('evaluations').select('*'),
+          db.from('coach_notes').select('*'),
+          db.from('materials').select('*'),
+          db.from('task_completions').select('*'),
+          db.from('attendance').select('*'),
+          db.from('quizzes').select('*'),
+          db.from('quiz_responses').select('*'),
+          db.from('achievements').select('*'),
+          db.from('member_achievements').select('*'),
+          db.from('rank_history').select('*'),
+          db.from('applications').select('*'),
+        ]).then(function(r){
+          var a=function(i,k){var d=r[i];if(d.data&&d.data.length)DATA[k]=d.data};
+          a(0,'curriculum');a(1,'tasks');a(2,'substitutions');a(3,'evaluations');
+          a(4,'coach_notes');a(5,'materials');a(6,'task_completions');a(7,'attendance');
+          a(8,'quizzes');a(9,'quiz_responses');a(10,'achievements');a(11,'member_achievements');
+          a(12,'rank_history');a(13,'applications');
+          saveLocal(DATA);
+          renderAll();
+          res2b();
+        }).catch(function(){res2b()});
+      },2000);
+    });
     
     rtChannel=db.channel('public-changes')
       .on('postgres_changes',{event:'*',schema:'public'},function(payload){
