@@ -81,7 +81,7 @@ function renderAttMemberList(){
   });
   h+='</div>';
   container.innerHTML=h;
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function markAtt(name,status,btn){

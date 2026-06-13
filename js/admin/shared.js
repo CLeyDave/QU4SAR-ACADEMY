@@ -1,7 +1,7 @@
 // ========== ADMIN SHARED ==========
 // Loaded after shared.js on all admin/*.html pages
 
-if(typeof lucide!=='undefined')lucide.createIcons();
+_flushIcons();
 
 var currentUser=null;
 var rtChannel=null;
@@ -325,7 +325,7 @@ async function loadAdminData(){
     
     localStorage.setItem(SK,JSON.stringify(DATA));
     if(sec.data){var v={};sec.data.forEach(function(s){v[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(v))}
-  }catch(ee){console.log('loadAdminData failed:',ee);hideLoading();DATA=getData();var ds=document.getElementById('adminDbStatus');if(ds){ds.innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>desconectado</span>';ds.className='err';if(typeof lucide!=='undefined')lucide.createIcons()}}
+  }catch(ee){console.log('loadAdminData failed:',ee);hideLoading();DATA=getData();var ds=document.getElementById('adminDbStatus');if(ds){ds.innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>desconectado</span>';ds.className='err';_flushIcons()}}
   saveUserCache(currentUser);
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('adminPanel').classList.add('active');
@@ -353,7 +353,7 @@ async function loadAdminData(){
   renderAdminShell(pageName.charAt(0).toUpperCase()+pageName.slice(1),pm.group,pm.section);
   refresh();
   var ds=document.getElementById('adminDbStatus');
-  if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='ok';if(typeof lucide!=='undefined')lucide.createIcons()}
+  if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='ok';_flushIcons()}
   hideLoading();
   toast('Bienvenido, '+currentUser.email,'ok');
   await syncToDB();
@@ -439,7 +439,7 @@ async function checkSession(){
             if(coachMatch)currentUser.coachName=coachMatch.name;
           }
           var ds=document.getElementById('adminDbStatus');
-          if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='ok';if(typeof lucide!=='undefined')lucide.createIcons()}
+          if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='ok';_flushIcons()}
           updateCounts();
           return;
         }
@@ -498,7 +498,7 @@ function openModal(html){
   document.getElementById('modalBox').innerHTML=html;
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   setTimeout(function(){
     var box=document.getElementById('modalBox');
     if(box){
@@ -579,7 +579,7 @@ function uploadFile(input,statusId,urlFieldId){
   else if(file.type!=='application/pdf'){status.innerHTML=uploadStatusHTML('Solo se permiten archivos PDF','err');return}
   if(!db||!db.storage){status.innerHTML=uploadStatusHTML('Storage no disponible','err');return}
   status.innerHTML=uploadStatusHTML('Subiendo... '+ic('loader',14));
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   var ext=file.name.split('.').pop().toLowerCase();
   var folder=file.type.startsWith('image/')?'images':'documents';
   var path=folder+'/'+Date.now()+'_'+file.name;
@@ -708,7 +708,7 @@ function switchAdminSection(groupId,sectionId){
   showLoading();
   requestAnimationFrame(function(){
     var fn=window['renderSection_'+sectionId];
-    if(typeof fn==='function'){fn();if(typeof lucide!=='undefined')lucide.createIcons();updateCounts()}
+    if(typeof fn==='function'){fn();_flushIcons();updateCounts()}
     var elapsed=Date.now()-t0;
     var delay=Math.max(0,300-elapsed);
     setTimeout(function(){hideLoading()},delay);
@@ -793,7 +793,7 @@ function renderAdminShell(title,activeGroup,activeSection){
     adminItems.forEach(function(el){el.style.display='none'});
   }
   updateCounts();
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   // Page switcher
   var sw=document.querySelector('.admin-page-switcher');
   if(!sw){
@@ -808,7 +808,7 @@ function renderAdminShell(title,activeGroup,activeSection){
     var isActive=p.id===curPage;
     return '<a href="'+p.href+'" data-label="'+p.label+'" class="'+(isActive?'active':'')+'">'+ic(p.icon,16)+'</a>';
   }).join('');
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function updateCounts(){
@@ -843,7 +843,7 @@ function refresh(){
     var sec=activeLink.getAttribute('data-section');
     if(sec){
       var fn=window['renderSection_'+sec];
-      if(typeof fn==='function'){fn();if(typeof lucide!=='undefined')lucide.createIcons();updateCounts()}
+      if(typeof fn==='function'){fn();_flushIcons();updateCounts()}
     }
   }
 }

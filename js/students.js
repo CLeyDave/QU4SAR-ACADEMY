@@ -94,7 +94,7 @@ function renderSection(n){try{switch(n){
   case'register':break;
   case'announcements':renderAnnouncements();break;
   case'substitutions':renderSubstitutions();break;
-}renderFooter()}catch(e){}if(typeof lucide!=='undefined')lucide.createIcons()}
+}renderFooter()}catch(e){}_flushIcons()}
 
 // ========== LOGIN ==========
 function handleLogin(){
@@ -232,7 +232,7 @@ function renderSchedule(){
   }
   html+='</div>';
   container.innerHTML=weekHTML+html;
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 // ========== RENDER ACADEMY ==========
@@ -396,7 +396,7 @@ function renderAnnouncements(){
   var items=DATA.announcements||[];
   items=filterByCoach(filterByGroup(items));
   var container=document.getElementById('announcementsList');
-  if(!items.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#555">'+ic('megaphone',48)+'<br>No hay anuncios aún</div>';if(typeof lucide!=='undefined')lucide.createIcons();return}
+  if(!items.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#555">'+ic('megaphone',48)+'<br>No hay anuncios aún</div>';_flushIcons();return}
   container.innerHTML=items.sort(function(a,b){return a.pinned?b.pinned?0:-1:1}).map(function(a,i){
     return '<div class="glass-card" style="padding:20px;cursor:pointer;'+(a.pinned?'border:1px solid var(--neon);':'')+'" onclick="showAnnouncementDetail('+i+')">'+
       (a.image_url?'<img src="'+esc(a.image_url)+'" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px;cursor:pointer" onclick="event.stopPropagation();showImageOverlay(this.src,this.alt)">':'')+
@@ -620,7 +620,7 @@ function renderProfile(){
       '</div>'+
     '</div>';
   if(trackerData)renderTrackerStats(trackerData);
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function renderTrackerStats(data){
@@ -754,7 +754,7 @@ function shareProfile(){
       '</div>'+
     '</div>';
   document.body.appendChild(overlay);
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function copyShareLink(link){
@@ -796,7 +796,7 @@ function downloadProfilePNG(){
   container.appendChild(ft);
   document.body.appendChild(container);
   // Forzar lucide icons en el clon
-  if(typeof lucide!=='undefined')lucide.createIcons({attrs:{'stroke':'currentColor'}},container);
+  _flushIcons();
   setTimeout(function(){
     html2canvas(container,{
       backgroundColor:'#0a0a0f',
@@ -914,7 +914,7 @@ function renderSharedProfile(member){
         '<div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px;padding:0 4px"><span>WIN RATE '+swr+'%</span><span>'+(sw+sl)+' partidas</span></div>'+
       '</div>'+
     '</div>';
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function refreshTrackerStats(){
@@ -927,7 +927,7 @@ function refreshTrackerStats(){
   var c=document.getElementById('trackerStatsContainer');
   if(!c)return;
   c.innerHTML='<div style="text-align:center;padding:10px;color:#666;font-size:12px">'+ic('loader',14)+' Sincronizando...</div>';
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 
   if(!riotId||riotId.indexOf('#')<0){
     c.innerHTML='<div style="color:#666;font-size:12px;margin-top:10px">'+ic('alert-circle',12)+' Configura tu Riot ID (Nombre#Tag) en Editar Perfil</div>';
@@ -1177,7 +1177,7 @@ function editProfile(){
       '<button class="btn-primary" onclick="saveProfileEdit()" style="width:100%;justify-content:center;margin-top:14px">'+ic('save',16)+' Guardar Cambios</button>'+
     '</div>';
   document.body.appendChild(overlay);
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function saveProfileEdit(){
@@ -1508,7 +1508,7 @@ function startDashQuiz(id){
   html+='<button class="btn-primary" onclick="submitDashQuiz(\''+id+'\')" style="width:100%;justify-content:center"><i data-lucide="check" style="width:16px;height:16px"></i> Enviar Respuestas</button></div>';
   var container=document.getElementById('quizzesContent')||document.getElementById('dashContent');
   if(container)container.innerHTML=html;
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 
 function submitDashQuiz(id){
@@ -1605,6 +1605,7 @@ function toggleTaskCompletion(taskId){
 }
 
 // ========== INIT HELPERS ==========
+var _iconsPending=false;function _flushIcons(){if(_iconsPending)return;_iconsPending=true;requestAnimationFrame(function(){_flushIcons();_iconsPending=false})}
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 
 function renderAll(){
@@ -1613,12 +1614,12 @@ function renderAll(){
   Object.keys(sectionFns).forEach(function(id){
     if(document.getElementById('section-'+id))safeRender(sectionFns[id],id);
   });
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 
 function reRenderTable(table){
-  if(table==='content'||table==='home'){renderFooter();if(typeof lucide!=='undefined')lucide.createIcons();return}
+  if(table==='content'||table==='home'){renderFooter();_flushIcons();return}
   if(table==='schedule'&&document.getElementById('scheduleBubbles'))renderSchedule();
   else if(table==='team'&&document.getElementById('teamContainer'))renderTeam();
   else if(table==='scrims'&&document.getElementById('scrimStats'))renderScrims();
@@ -1628,7 +1629,7 @@ function reRenderTable(table){
   else if(table==='announcements'&&document.getElementById('announcementsList'))renderAnnouncements();
   else if(table==='substitutions'&&document.getElementById('substitutionsList'))renderSubstitutions();
   else if(document.getElementById('dashContent'))renderDashboard();
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   document.querySelectorAll('.scrim-list,.team-grid,.member-grid,.news-grid,.stats-grid,.cards-grid,.schedule-grid,.group-cards').forEach(animateGrid);
 }
 async function initDB(){
@@ -1637,96 +1638,44 @@ async function initDB(){
     var {error}=await db.from('schedule').select('id',{count:'exact',head:true});
     if(error)throw error;
     
-    var [sch,te,sc,mem,st,ne,ac,co,con,sec,ann,cur,tas,sub,ev,cn,mat,tc,att,gr,gco,apl]=await Promise.all([
-      db.from('schedule').select('*'),
-      db.from('team').select('*'),
-      db.from('scrims').select('*').order('date',{ascending:false}),
+    // Fase 1 – tablas críticas para el render inicial
+    var [mem,con,sec,sch,co,gr,gco]=await Promise.all([
       db.from('members').select('*'),
-      db.from('stats').select('*'),
-      db.from('news').select('*').eq('published',true).order('date',{ascending:false}),
-      db.from('academy').select('*'),
-      db.from('coaches').select('*'),
       db.from('content').select('*'),
       db.from('sections').select('*'),
-      db.from('announcements').select('*'),
-      db.from('curriculum').select('*'),
-      db.from('tasks').select('*'),
-      db.from('substitutions').select('*'),
-      db.from('evaluations').select('*'),
-      db.from('coach_notes').select('*'),
-      db.from('materials').select('*'),
-      db.from('task_completions').select('*'),
-      db.from('attendance').select('*'),
+      db.from('schedule').select('*'),
+      db.from('coaches').select('*'),
       db.from('groups').select('*'),
       db.from('group_coaches').select('*'),
-      db.from('applications').select('*'),
     ]);
-    var qz={data:[]};try{var r=await db.from('quizzes').select('*');if(r)qz=r}catch(e){}
-    var qr={data:[]};try{var r=await db.from('quiz_responses').select('*');if(r)qr=r}catch(e){}
-    // Carga diferida: tablas pesadas que no se necesitan en el render inicial
-    var ach={data:[]},ma={data:[]},rh={data:[]};
-    setTimeout(function(){
-      db.from('achievements').select('*').then(function(r){if(r.data&&r.data.length){DATA.achievements=r.data;saveLocal(DATA);reRenderTable('achievements')}}).catch(function(){});
-      db.from('member_achievements').select('*').then(function(r){if(r.data&&r.data.length){DATA.member_achievements=r.data;saveLocal(DATA);reRenderTable('member_achievements')}}).catch(function(){});
-      db.from('rank_history').select('*').then(function(r){if(r.data&&r.data.length){DATA.rank_history=r.data;saveLocal(DATA)}}).catch(function(){});
-    },500);
-    if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var st=String(x.start_time||x.start||'').slice(0,5),et=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:st,end:et,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
-    if(te.data&&te.data.length)DATA.team=te.data;
-    if(sc.data&&sc.data.length)DATA.scrims=sc.data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
-     if(mem.data&&mem.data.length){
-      // Preservar campos extra que no están en Supabase (copia profunda en memoria)
+    if(con.data){var _co={};con.data.forEach(function(c){_co[c.key]=c.value});if(!DATA.content||!DATA.content.home)DATA.content={home:{}};DATA.content.home=Object.assign({},DATA.content.home,_co)}
+    if(sec.data){var _sv={};sec.data.forEach(function(s){_sv[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(_sv))}
+    if(co.data&&co.data.length)DATA.coaches=co.data;
+    if(gr.data&&gr.data.length)DATA.groups=gr.data;
+    if(gco.data&&gco.data.length)DATA.group_coaches=gco.data;
+    if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var sst=String(x.start_time||x.start||'').slice(0,5),set=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:sst,end:set,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
+    if(mem.data&&mem.data.length){
       var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
       var prev=JSON.parse(JSON.stringify(DATA.members||[]));
-      // Respaldar a localStorage también
       var eo={};prev.forEach(function(m){if(m.name){var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});if(Object.keys(e).length)eo[m.name]=e}});
       try{localStorage.setItem('qsr_member_extra',JSON.stringify(eo))}catch(___ee){}
-      // Sobrescribir con datos de Supabase (sin extras)
       DATA.members=mem.data;
-      // Restaurar campos extra desde copia en memoria
       var supabaseFields=['id','name','role','rank','group_id','coach','image','description'];
       DATA.members.forEach(function(m){
         var p=prev.find(function(x){return x.name===m.name});
         if(!p)return;
-        // 1. Extras que Supabase no conoce
         extrasKeys.forEach(function(k){if(p[k])m[k]=p[k]});
-        // 2. Campos de Supabase que podrían estar vacíos si falló el upsert
         ['image','description'].forEach(function(k){if(p[k]&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=p[k]});
-        // 3. Cualquier otra propiedad que existiera en prev y no sea estándar de Supabase
         Object.keys(p).forEach(function(k){
           if(supabaseFields.indexOf(k)<0&&extrasKeys.indexOf(k)<0&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=p[k];
         });
       });
-      // Fallback extra desde qsr_member_extra
       var saved={};try{var r=localStorage.getItem('qsr_member_extra');if(r)saved=JSON.parse(r)}catch(___ee){}
       DATA.members.forEach(function(m){
         var ex=saved[m.name];
         if(ex)extrasKeys.forEach(function(k){if(ex[k]&&(m[k]===undefined||m[k]===null||m[k]===''))m[k]=ex[k]});
       });
     }
-    if(st.data&&st.data.length)DATA.stats=st.data;
-    if(ne.data&&ne.data.length)DATA.news=ne.data;
-    if(co.data&&co.data.length)DATA.coaches=co.data;
-    if(ac.data&&ac.data.length)DATA.academy=ac.data;
-    if(con.data){var o={};con.data.forEach(function(c){o[c.key]=c.value});if(!DATA.content||!DATA.content.home)DATA.content={home:{}};DATA.content.home=Object.assign({},DATA.content.home,o)}
-    if(sec.data){var v={};sec.data.forEach(function(s){v[s.id]=s.visible});localStorage.setItem('qsr_sections',JSON.stringify(v))}
-    if(ann.data&&ann.data.length)DATA.announcements=ann.data;
-    if(cur.data&&cur.data.length)DATA.curriculum=cur.data;
-    if(tas.data&&tas.data.length)DATA.tasks=tas.data;
-    if(sub.data&&sub.data.length)DATA.substitutions=sub.data;
-    if(ev.data&&ev.data.length)DATA.evaluations=ev.data;
-    if(cn.data&&cn.data.length)DATA.coach_notes=cn.data;
-    if(mat.data&&mat.data.length)DATA.materials=mat.data;
-    if(tc.data&&tc.data.length)DATA.task_completions=tc.data;
-    if(att.data&&att.data.length)DATA.attendance=att.data;
-    if(ach.data&&ach.data.length)DATA.achievements=ach.data;
-    if(ma.data&&ma.data.length)DATA.member_achievements=ma.data;
-    if(qz.data&&qz.data.length)DATA.quizzes=qz.data;
-    if(qr.data&&qr.data.length)DATA.quiz_responses=qr.data;
-    if(rh&&rh.data&&rh.data.length)DATA.rank_history=rh.data;
-    if(gr&&gr.data&&gr.data.length)DATA.groups=gr.data;
-    if(gco&&gco.data&&gco.data.length)DATA.group_coaches=gco.data;
-    if(apl&&apl.data&&apl.data.length)DATA.applications=apl.data;
-    
     if((!sch.data||!sch.data.length)&&DATA.schedule.length&&!localStorage.getItem('qsr_sched_migrated')){
       DATA.schedule=DATA.schedule.map(function(s){s.day=(s.day+6)%7;return s});
       localStorage.setItem('qsr_sched_migrated','1');
@@ -1734,23 +1683,65 @@ async function initDB(){
     (DATA.schedule||[]).forEach(function(s){
       if(s.coach&&!s.group_id){
         var c=(DATA.coaches||[]).find(function(c){return c.name===s.coach});
-        if(c){
-          var gs=(DATA.group_coaches||[]).filter(function(g){return g.coach_id===c.id});
-          if(gs.length===1)s.group_id=gs[0].group_id;
-        }
+        if(c){var gs=(DATA.group_coaches||[]).filter(function(g){return g.coach_id===c.id});if(gs.length===1)s.group_id=gs[0].group_id}
       }
     });
     DATA.schedule.forEach(function(s){if(!s.week_start)s.week_start=getCurrentWeekStart()});
-    
-    try{
-      var pending;try{pending=JSON.parse(localStorage.getItem('qsr_pending_apps')||'[]')}catch(e){pending=[]}
-      if(pending.length){pending.forEach(function(app){db.from('applications').insert(app).then(function(){}).catch(function(){})});localStorage.removeItem('qsr_pending_apps')}
-    }catch(e){}
     saveLocal(DATA);
     renderAll();
     applyVisibility();
-    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('dbStatus').className='online';if(typeof lucide!=='undefined')lucide.createIcons();
+    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';document.getElementById('dbStatus').className='online';_flushIcons();
     _dbFailed=false;
+    
+    // Fase 2 – tablas secundarias (500ms después)
+    setTimeout(function(){
+      Promise.all([
+        db.from('team').select('*'),
+        db.from('scrims').select('*').order('date',{ascending:false}),
+        db.from('stats').select('*'),
+        db.from('news').select('*').eq('published',true).order('date',{ascending:false}),
+        db.from('academy').select('*'),
+        db.from('announcements').select('*'),
+        db.from('curriculum').select('*'),
+        db.from('tasks').select('*'),
+        db.from('substitutions').select('*'),
+        db.from('evaluations').select('*'),
+        db.from('coach_notes').select('*'),
+        db.from('materials').select('*'),
+        db.from('task_completions').select('*'),
+        db.from('attendance').select('*'),
+        db.from('quizzes').select('*'),
+        db.from('quiz_responses').select('*'),
+        db.from('achievements').select('*'),
+        db.from('member_achievements').select('*'),
+        db.from('rank_history').select('*'),
+        db.from('applications').select('*'),
+      ]).then(function(r){
+        var assign=function(i,k){var d=r[i];if(d.data&&d.data.length)DATA[k]=d.data};
+        assign(0,'team');
+        if(r[1].data&&r[1].data.length)DATA.scrims=r[1].data.map(function(x){return{id:x.id,opponent:x.opponent,opponent_logo:x.opponent_logo||'',our:x.our_score,opponent_score:x.opponent_score,result:x.result,date:x.date,coach:x.coach||'',group_id:x.group_id||''}});
+        assign(2,'stats');
+        if(r[3].data&&r[3].data.length)DATA.news=r[3].data;
+        assign(4,'academy');
+        assign(5,'announcements');
+        assign(6,'curriculum');
+        assign(7,'tasks');
+        assign(8,'substitutions');
+        assign(9,'evaluations');
+        assign(10,'coach_notes');
+        assign(11,'materials');
+        assign(12,'task_completions');
+        assign(13,'attendance');
+        assign(14,'quizzes');
+        assign(15,'quiz_responses');
+        assign(16,'achievements');
+        assign(17,'member_achievements');
+        assign(18,'rank_history');
+        assign(19,'applications');
+        saveLocal(DATA);
+        renderAll();
+      }).catch(function(){});
+    },500);
     
     rtChannel=db.channel('public-changes')
       .on('postgres_changes',{event:'*',schema:'public'},function(payload){
@@ -1802,7 +1793,7 @@ async function initDB(){
       .subscribe();
   }catch(e){
     console.log('DB unavailable, using localStorage:',e);
-    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span>';document.getElementById('dbStatus').className='offline';if(typeof lucide!=='undefined')lucide.createIcons();
+    document.getElementById('dbStatus').innerHTML='<i data-lucide="wifi-off" style="width:12px;height:12px;vertical-align:middle"></i> <span>sin conexi&oacute;n</span>';document.getElementById('dbStatus').className='offline';_flushIcons();
     renderAll();
     _dbFailed=true;
   }
@@ -1838,7 +1829,7 @@ function showLoginOverlay(){
 // ========== INIT ==========
 (async function(){
   var com=isCommunity();
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
   await initDB();
   if(com){
     applyVisibility();
@@ -1864,7 +1855,7 @@ function showLoginOverlay(){
     }else if(pc){
       pc.innerHTML='<div style="text-align:center;padding:60px 20px;color:#555">'+ic('user-x',48)+'<br><br><span style="font-size:18px;font-weight:600">Perfil no encontrado</span></div>';
     }
-    if(typeof lucide!=='undefined')lucide.createIcons();
+    _flushIcons();
     hideLoading();
     return;
   }

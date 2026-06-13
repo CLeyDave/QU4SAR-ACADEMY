@@ -6,6 +6,9 @@ var db=null; var rtChannel=null; var _dbFailed=false;
 // ========== TOAST ==========
 function toast(m,t){var el=document.getElementById('toast');if(!el)return;el.innerHTML=m;el.className='toast show '+(t||'ok');setTimeout(function(){el.classList.remove('show')},2800)}
 
+// ========== ICON BATCH (reduce lucide.createIcons calls) ==========
+var _iconsPending=false;function _flushIcons(){if(_iconsPending)return;_iconsPending=true;requestAnimationFrame(function(){if(typeof lucide!=='undefined')lucide.createIcons();_iconsPending=false})}
+
 // ========== LOADING OVERLAY ==========
 function showLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.remove('hidden')}
 function hideLoading(){var el=document.getElementById('loadingOverlay');if(el)el.classList.add('hidden')}
@@ -211,7 +214,7 @@ function showDetail(html){
   dc.innerHTML='<button class="close-btn" onclick="closeDetail()">'+ic('x',18)+'</button>'+html;
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow='hidden';
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  _flushIcons();
 }
 function closeDetail(){
   var ov=document.getElementById('detailOverlay');
