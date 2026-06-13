@@ -493,6 +493,92 @@ function rankDivision(r){
   for(var i=0;i<high.length;i++){if(rank.indexOf(high[i])>=0)return'<span class="badge" style="font-size:10px;padding:3px 10px;background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.3)">QUASAR</span>'}
   return'';
 }
+// ========== XP + LEVEL SYSTEM ==========
+var LEVEL_NAMES=['Cosmic I','Cosmic II','Cosmic III','Cosmic IV','Cosmic V','Astral I','Astral II','Astral III','Astral IV','Astral V','Nebula'];
+var LEVEL_XP=[0,500,1200,2200,3500,5200,7400,10200,13800,18500,25000];
+function calcLevel(xp){
+  for(var i=LEVEL_XP.length-1;i>=0;i--)if(xp>=LEVEL_XP[i])return i+1;
+  return 1;
+}
+function calcMemberXP(member){
+  if(!member||!member.name)return 0;
+  var name=member.name;
+  var xp=0;
+  // Logros: 150 XP cada uno
+  var myAchs=(DATA.member_achievements||[]).filter(function(ma){return ma.member_name===name});
+  xp+=myAchs.length*150;
+  // Tareas completadas: 75 XP cada una
+  var doneTasks=(DATA.task_completions||[]).filter(function(tc){return tc.member_name===name});
+  xp+=doneTasks.length*75;
+  // Evaluaciones: hasta 100 XP según promedio
+  var myEvals=(DATA.evaluations||[]).filter(function(e){return e.member_name===name});
+  if(myEvals.length){
+    var avg=(myEvals.reduce(function(s,e){return s+(e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0)},0)/(myEvals.length*4))*10;
+    xp+=Math.round(avg);
+  }
+  // Asistencia: 25 XP por clase
+  var att=(DATA.attendance||[]).filter(function(a){return a.member_name===name&&a.status==='present'});
+  xp+=att.length*25;
+  return Math.round(xp);
+}
+function levelBarHTML(xp,level){
+  var maxXp=LEVEL_XP[Math.min(level,LEVEL_XP.length-1)]||500;
+  var nextXp=LEVEL_XP[Math.min(level,LEVEL_XP.length-1)]||500;
+  var pct=Math.min(100,Math.round((xp/(nextXp||1))*100));
+  return '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+    '<div style="font-size:11px;font-weight:700;font-family:var(--font-display);color:#a78bfa;white-space:nowrap">'+LEVEL_NAMES[Math.min(level-1,LEVEL_NAMES.length-1)]+'</div>'+
+    '<div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.04);overflow:hidden">'+
+      '<div style="height:100%;width:'+pct+'%;border-radius:3px;background:linear-gradient(90deg,#8B5CF6,#A78BFA,#C084FC);transition:width 0.6s"></div>'+
+    '</div>'+
+    '<div style="font-size:10px;color:#666;white-space:nowrap">'+xp+'/'+nextXp+' XP</div>'+
+  '</div>';
+}
+
+// ========== RANK HISTORY (1.1) ==========
+function rankTimelineHTML(name){
+  var ranks=(DATA.rank_history||[]).filter(function(r){return r.member_name===name}).sort(function(a,b){return a.date<b.date?1:-1});
+  if(!ranks.length)return '';
+  var h='<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+    '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px">'+ic('trending-up',12)+' HISTORIAL DE RANGO</div>'+
+    '<div class="rank-timeline">';
+  ranks.slice(0,10).forEach(function(r,i){
+    var isFirst=i===0;
+    h+='<div class="rank-timeline-item '+(isFirst?'current':'')+'">'+
+      '<div class="rank-timeline-dot"></div>'+
+      '<div class="rank-timeline-content">'+
+        '<span class="badge badge-purple">'+esc(r.rank)+'</span>'+
+        '<span style="color:#888;font-size:11px;margin-left:8px">'+(r.date?new Date(r.date).toLocaleDateString('es-ES'):'')+'</span>'+
+      '</div></div>';
+  });
+  if(ranks.length>10)h+='<div style="text-align:center;color:#555;font-size:11px;margin-top:6px">+ '+(ranks.length-10)+' registros más</div>';
+  h+='</div></div>';
+  return h;
+}
+
+// ========== ACHIEVEMENTS IN PROFILE (1.2) ==========
+var RARITY_COLORS={common:'#888',rare:'#3b82f6',epic:'#8b5cf6',legendary:'#f59e0b',cosmic:'#c084fc'};
+var RARITY_GLOWS={common:'rgba(136,136,136,0.15)',rare:'rgba(59,130,246,0.2)',epic:'rgba(139,92,246,0.25)',legendary:'rgba(245,158,11,0.25)',cosmic:'rgba(192,132,252,0.35)'};
+function achievementsGridHTML(name){
+  var myAchs=(DATA.member_achievements||[]).filter(function(ma){return ma.member_name===name});
+  var earned=myAchs.map(function(ma){return(DATA.achievements||[]).find(function(a){return a.id===ma.achievement_id})}).filter(function(a){return a});
+  if(!earned.length)return '';
+  var h='<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
+    '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">'+ic('award',12)+' LOGROS ('+earned.length+')</div>'+
+    '<div class="achievements-grid">';
+  earned.forEach(function(a){
+    var rarity=a.rarity||'common';
+    var color=RARITY_COLORS[rarity]||'#888';
+    var glow=RARITY_GLOWS[rarity]||'rgba(139,92,246,0.15)';
+    h+='<div class="achievement-badge" style="--ach-color:'+color+';--ach-glow:'+glow+'" title="'+esc(a.description||'')+'">'+
+      ic(a.icon||'trophy',22)+
+      '<div class="ach-name">'+esc(a.name)+'</div>'+
+      '<div class="ach-rarity" style="color:'+color+'">'+esc(rarity)+'</div>'+
+    '</div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+
 function renderProfile(){
   var u=getLogin();
   var container=document.getElementById('profileContent');
@@ -511,6 +597,9 @@ function renderProfile(){
   var country=member.country||'',discord=member.discord||'',youtube=member.youtube||'',twitter=member.twitter||'',twitch=member.twitch||'';
   var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
   var cover=member.cover||'';
+  var memberXp=calcMemberXP(member);var memberLevel=calcLevel(memberXp);var lvlName=LEVEL_NAMES[Math.min(memberLevel-1,LEVEL_NAMES.length-1)];
+  var bioStatus=member.bio_status||'';
+  var accentColor=member.color||'';
 
   var scrimsAll=filterByGroup(DATA.scrims||[]);
   var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
@@ -538,19 +627,27 @@ function renderProfile(){
           '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
         '</div>'+
         '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
-          '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+          '<div class="profile-avatar-wrap" style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1);position:relative">'+
             (avatar?'<img loading="lazy" src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+            '<div class="float-badge float-badge-tl"><i data-lucide="zap" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-tr"><i data-lucide="award" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-bl"><i data-lucide="trending-up" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-br"><i data-lucide="shield" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
           '</div>'+
-          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+          (accentColor?'<style>.profile-avatar-wrap{border-color:'+accentColor+'!important;box-shadow:0 0 30px '+accentColor+'33!important}.profile-avatar-wrap .float-badge{background:'+accentColor+'!important;box-shadow:0 0 10px '+accentColor+'66!important}</style>':'')+
+          levelBarHTML(memberXp,memberLevel)+
+          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px">'+
             '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
             (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
           '</div>'+
-          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+          (bioStatus?'<div style="font-size:12px;color:#888;margin-top:2px">'+esc(bioStatus)+'</div>':'')+
+          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px">'+
             (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
             '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
             rankDivision(rank)+
           '</div>'+
           (socialLinks?'<div style="display:flex;gap:8px;justify-content:center;margin-top:12px">'+socialLinks+'</div>':'')+
+          (lvlName&&memberLevel?'<div style="font-size:10px;color:#555;text-align:center;margin-top:6px">NIVEL <span style="color:#a78bfa;font-weight:700">'+memberLevel+'</span> · '+esc(lvlName)+'</div>':'')+
         '</div>'+
       '</div>'+
       '<!-- === STATS + INFO === -->'+
@@ -573,6 +670,8 @@ function renderProfile(){
       (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
         '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
         '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+      '<!-- === RANK TIMELINE (1.1) === -->'+rankTimelineHTML(name)+
+      '<!-- === ACHIEVEMENTS (1.2) === -->'+achievementsGridHTML(name)+
       '<!-- === AJUSTES === -->'+setHTML+
       '<!-- === VALORANT === -->'+
       '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
@@ -649,6 +748,9 @@ function shareProfile(){
   var country=member.country||'';
   var dpi=member.dpi||'',sens=member.sens||'',scopedSens=member.scoped_sens||'',hz=member.hz||'',rawInput=member.raw_input||'';
   var cover=member.cover||'';
+  var memberXp=calcMemberXP(member);var memberLevel=calcLevel(memberXp);var lvlName=LEVEL_NAMES[Math.min(memberLevel-1,LEVEL_NAMES.length-1)];
+  var bioStatus=member.bio_status||'';
+  var accentColor=member.color||'';
   var scrimsAll=filterByGroup(DATA.scrims||[]);
   var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
   var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
@@ -689,18 +791,26 @@ function shareProfile(){
             '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
           '</div>'+
           '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
-            '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+            '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1);position:relative">'+
               (avatar?'<img loading="lazy" src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+              '<div class="float-badge float-badge-tl"><i data-lucide="zap" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+              '<div class="float-badge float-badge-tr"><i data-lucide="award" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+              '<div class="float-badge float-badge-bl"><i data-lucide="trending-up" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+              '<div class="float-badge float-badge-br"><i data-lucide="shield" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
             '</div>'+
-            '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+            (accentColor?'<style>.profile-avatar-wrap{border-color:'+accentColor+'!important;box-shadow:0 0 30px '+accentColor+'33!important}.profile-avatar-wrap .float-badge{background:'+accentColor+'!important;box-shadow:0 0 10px '+accentColor+'66!important}</style>':'')+
+            levelBarHTML(memberXp,memberLevel)+
+            '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px">'+
               '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
               (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
             '</div>'+
-            '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+            (bioStatus?'<div style="font-size:12px;color:#888;margin-top:2px">'+esc(bioStatus)+'</div>':'')+
+            '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px">'+
               (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
               '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
               rankDivision(rank)+
             '</div>'+
+            (lvlName&&memberLevel?'<div style="font-size:10px;color:#555;text-align:center;margin-top:6px">NIVEL <span style="color:#a78bfa;font-weight:700">'+memberLevel+'</span> · '+esc(lvlName)+'</div>':'')+
           '</div>'+
         '</div>'+
         '<!-- STATS -->'+
@@ -723,6 +833,8 @@ function shareProfile(){
         (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
           '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
           '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+        '<!-- RANK TIMELINE -->'+rankTimelineHTML(name)+
+        '<!-- ACHIEVEMENTS -->'+achievementsGridHTML(name)+
         '<!-- AJUSTES -->'+setHTML+
         '<!-- VALORANT -->'+
         '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
@@ -831,6 +943,9 @@ function renderSharedProfile(member){
   var td=_trackerCache[name];if(!td){try{var tc=localStorage.getItem('qsr_tracker_'+name);if(tc){var tp=JSON.parse(tc);if(tp&&tp.data){td=tp.data;_trackerCache[name]=td}}}catch(e){}}
   if(td&&td.rank&&td.rank!=='—')rank=td.rank;
   var isCoach=(DATA.coaches||[]).some(function(co){return co.nickname===name});
+  var memberXp=calcMemberXP(member);var memberLevel=calcLevel(memberXp);var lvlName=LEVEL_NAMES[Math.min(memberLevel-1,LEVEL_NAMES.length-1)];
+  var bioStatus=member.bio_status||'';
+  var accentColor=member.color||'';
   var scrimsAll=filterByGroup(DATA.scrims||[]);
   var myScrims=scrimsAll.filter(function(s){return s.coach===coachName||!s.coach});
   var st=myScrims.length,sw=myScrims.filter(function(s){return s.result==='Victoria'}).length,sl=myScrims.filter(function(s){return s.result==='Derrota'}).length,swr=st?Math.round(sw/st*100):0;
@@ -851,18 +966,26 @@ function renderSharedProfile(member){
           '<div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.6) 0%,transparent 50%,rgba(0,0,0,0.2) 100%)"></div>'+
         '</div>'+
         '<div style="text-align:center;padding:0 20px 20px;margin-top:-40px;position:relative;z-index:1">'+
-          '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1)">'+
+          '<div style="width:80px;height:80px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(45,10,82,0.6));display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);box-shadow:0 0 30px rgba(139,92,246,0.1);position:relative">'+
             (avatar?'<img loading="lazy" src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover">':ic('user',34))+
+            '<div class="float-badge float-badge-tl"><i data-lucide="zap" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-tr"><i data-lucide="award" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-bl"><i data-lucide="trending-up" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
+            '<div class="float-badge float-badge-br"><i data-lucide="shield" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i></div>'+
           '</div>'+
-          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">'+
+          (accentColor?'<style>.profile-avatar-wrap{border-color:'+accentColor+'!important;box-shadow:0 0 30px '+accentColor+'33!important}.profile-avatar-wrap .float-badge{background:'+accentColor+'!important;box-shadow:0 0 10px '+accentColor+'66!important}</style>':'')+
+          levelBarHTML(memberXp,memberLevel)+
+          '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px">'+
             '<span style="font-size:22px;font-weight:800;font-family:var(--font-display);background:linear-gradient(135deg,#f0f0f0,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">'+esc(name)+'</span>'+
             (country?'<span style="font-size:22px;line-height:1">'+flagEmoji(country)+'</span>':'')+
           '</div>'+
-          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px">'+
+          (bioStatus?'<div style="font-size:12px;color:#888;margin-top:2px">'+esc(bioStatus)+'</div>':'')+
+          '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px">'+
             (isCoach?'<span class="badge badge-green" style="font-size:10px;padding:3px 12px;background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.25)">COACH</span>':'<span class="badge badge-blue" style="font-size:10px;padding:3px 12px;background:rgba(59,130,246,0.12)">PLAYER</span>')+
             '<span class="badge badge-gray" style="font-size:10px;padding:3px 12px">MIEMBRO</span>'+
             rankDivision(rank)+
           '</div>'+
+          (lvlName&&memberLevel?'<div style="font-size:10px;color:#555;text-align:center;margin-top:6px">NIVEL <span style="color:#a78bfa;font-weight:700">'+memberLevel+'</span> · '+esc(lvlName)+'</div>':'')+
         '</div>'+
       '</div>'+
       '<!-- STATS -->'+
@@ -885,6 +1008,8 @@ function renderSharedProfile(member){
       (desc?'<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
         '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">'+ic('file-text',12)+' BIO</div>'+
         '<div style="color:#bbb;font-size:13px;line-height:1.7;white-space:pre-wrap">'+esc(desc)+'</div></div>':'')+
+      '<!-- RANK TIMELINE -->'+rankTimelineHTML(name)+
+      '<!-- ACHIEVEMENTS -->'+achievementsGridHTML(name)+
       '<!-- AJUSTES -->'+setHTML+
       '<!-- VALORANT -->'+
       '<div class="glass-card" style="padding:20px 24px;margin-bottom:20px">'+
@@ -1129,6 +1254,10 @@ function editProfile(){
         '</div>'+
         '<input class="input-field" id="pe_image" value="'+esc(f.image)+'" placeholder="o pega URL de avatar"></div>'+
       '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Descripción / Experiencia</label><textarea class="input-field" id="pe_description" rows="3" placeholder="Cuenta tu experiencia en VALORANT...">'+esc(f.description)+'</textarea></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
+        '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Estado</label><input class="input-field" id="pe_bio_status" value="'+esc(f.bio_status||'')+'" placeholder="ej: En entrenamiento"></div>'+
+        '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">Color acento</label><input class="input-field" id="pe_color" value="'+esc(f.color||'')+'" placeholder="ej: #8B5CF6" style="'+(f.color?'border-color:'+f.color:'')+'"></div>'+
+      '</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">HS%</label><input class="input-field" id="pe_hs" value="'+esc(f.hs_percent)+'" placeholder="ej: 35"></div>'+
         '<div class="field"><label style="display:block;font-size:12px;color:#777;margin-bottom:3px">KD</label><input class="input-field" id="pe_kd" value="'+esc(f.kd)+'" placeholder="ej: 1.04"></div>'+
@@ -1206,9 +1335,11 @@ function saveProfileEdit(){
   DATA.members[idx].scoped_sens=document.getElementById('pe_scoped_sens').value;
   DATA.members[idx].hz=document.getElementById('pe_hz').value;
   DATA.members[idx].raw_input=document.getElementById('pe_raw_input').value;
+  DATA.members[idx].bio_status=document.getElementById('pe_bio_status').value;
+  DATA.members[idx].color=document.getElementById('pe_color').value;
   saveLocal(DATA);
-  // Persistir campos extra por separado (no existen en Supabase)
-  var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+  // Persistir campos extra por separado
+  var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input','bio_status','color'];
   var extras={};(DATA.members||[]).forEach(function(m){if(m.name){
     var e={};extrasKeys.forEach(function(k){if(m[k])e[k]=m[k]});
     if(Object.keys(e).length)extras[m.name]=e
@@ -1219,7 +1350,7 @@ function saveProfileEdit(){
   toast('Perfil actualizado','ok');
   if(db&&db.from){
     var m=DATA.members[idx];
-    db.from('members').upsert({id:m.id,name:m.name,role:m.role,rank:m.rank,group_id:m.group_id,coach:m.coach,image:m.image,description:m.description,hs_percent:m.hs_percent,kd:m.kd,dpr:m.dpr,course:m.course,riot_id:m.riot_id,region:m.region,tracker_url:m.tracker_url,country:m.country,cover:m.cover,discord:m.discord,youtube:m.youtube,twitter:m.twitter,twitch:m.twitch,dpi:m.dpi,sens:m.sens,scoped_sens:m.scoped_sens,hz:m.hz,raw_input:m.raw_input},{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
+    db.from('members').upsert({id:m.id,name:m.name,role:m.role,rank:m.rank,group_id:m.group_id,coach:m.coach,image:m.image,description:m.description,hs_percent:m.hs_percent,kd:m.kd,dpr:m.dpr,course:m.course,riot_id:m.riot_id,region:m.region,tracker_url:m.tracker_url,country:m.country,cover:m.cover,discord:m.discord,youtube:m.youtube,twitter:m.twitter,twitch:m.twitch,dpi:m.dpi,sens:m.sens,scoped_sens:m.scoped_sens,hz:m.hz,raw_input:m.raw_input,bio_status:m.bio_status,color:m.color},{onConflict:'id'}).then(function(){}).catch(function(e){console.log('Error syncing profile:',e)});
   }
 }
 
@@ -1654,7 +1785,7 @@ async function initDB(){
     if(gco.data&&gco.data.length)DATA.group_coaches=gco.data;
     if(sch.data&&sch.data.length)DATA.schedule=sch.data.map(function(x){var sst=String(x.start_time||x.start||'').slice(0,5),set=String(x.end_time||x.end||'').slice(0,5);return{id:x.id,title:x.title,day:x.day,start:sst,end:set,type:x.type,coach:x.coach||'',group_id:x.group_id||''}});
     if(mem.data&&mem.data.length){
-      var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+      var extrasKeys=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input','bio_status','color'];
       // 1. Respaldar qsr_member_extra ANTES de tocar DATA.members
       var oldExtra={};try{var r=localStorage.getItem('qsr_member_extra');if(r)oldExtra=JSON.parse(r)}catch(___ee){}
       // 2. Deep copy de DATA.members actual (tiene extras de sesiones anteriores)
@@ -1790,7 +1921,7 @@ async function initDB(){
           }else if(table==='news'){if(!rec.published){DATA.news=(DATA.news||[]).filter(function(n){return n.id!==rec.id});saveLocal(DATA);reRenderTable('news');return}}
           // Preservar campos extra de members
           if(table==='members'){
-            var _e=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input'];
+            var _e=['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input','bio_status','color'];
             if(ev==='UPDATE'){
               var oldM=(DATA.members||[]).find(function(m){return m.id===rec.id});
               if(oldM){_e.forEach(function(k){if(rec[k]===undefined||rec[k]===null)rec[k]=oldM[k]});var idx2=DATA.members.indexOf(oldM);DATA.members[idx2]=rec}

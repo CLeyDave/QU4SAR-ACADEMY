@@ -243,3 +243,35 @@
 .text-center{text-align:center}.text-right{text-align:right}
 .w-full{width:100%}
 .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== PHASE 1 — PERFIL PRO ===== */
+
+/* Floating badges around avatar */
+.profile-avatar-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.float-badge{position:absolute;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#A78BFA);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;box-shadow:0 0 12px rgba(139,92,246,0.4);z-index:2;animation:badgeFloat 3s ease-in-out infinite;pointer-events:none}
+.float-badge-tl{top:-6px;left:-6px;animation-delay:0s}
+.float-badge-tr{top:-6px;right:-6px;animation-delay:0.75s}
+.float-badge-bl{bottom:-6px;left:-6px;animation-delay:1.5s}
+.float-badge-br{bottom:-6px;right:-6px;animation-delay:2.25s}
+@keyframes badgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* Rank timeline */
+.rank-timeline{display:flex;flex-direction:column;gap:0;padding-left:20px;position:relative}
+.rank-timeline::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon),rgba(139,92,246,0.05));border-radius:1px}
+.rank-timeline-item{display:flex;align-items:center;gap:14px;padding:6px 0;position:relative}
+.rank-timeline-item.current .rank-timeline-dot{background:var(--neon);box-shadow:0 0 12px rgba(139,92,246,0.5)}
+.rank-timeline-item.current .rank-timeline-content .badge{border-color:var(--neon)}
+.rank-timeline-dot{width:10px;height:10px;border-radius:50%;background:rgba(139,92,246,0.2);border:2px solid rgba(139,92,246,0.3);flex-shrink:0;margin-left:-23px;transition:all 0.3s;z-index:1}
+.rank-timeline-content{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Achievement grid */
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.achievement-badge{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 8px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);transition:all 0.3s;cursor:default;position:relative;overflow:hidden}
+.achievement-badge::before{content:'';position:absolute;inset:0;border-radius:12px;opacity:0;transition:opacity 0.3s;background:radial-gradient(circle at center,var(--ach-glow),transparent 70%)}
+.achievement-badge:hover{transform:translateY(-3px);border-color:var(--ach-color)}
+.achievement-badge:hover::before{opacity:1}
+.achievement-badge i{display:block;margin:0 auto 6px;color:var(--ach-color);filter:drop-shadow(0 0 6px var(--ach-color))}
+.achievement-badge .ach-name{font-size:11px;font-weight:600;color:#ddd;line-height:1.3;margin-bottom:2px}
+.achievement-badge .ach-rarity{font-size:9px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+@media(max-width:480px){.achievements-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:360px){.achievements-grid{grid-template-columns:repeat(2,1fr)}}

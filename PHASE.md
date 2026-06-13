@@ -20,9 +20,9 @@
 
 ---
 
-## Siguiente: Fase 1 — Perfil PRO
+## Fase Activa: 1 — Perfil PRO
 
-- ⬜ 1.1 Historial de rango visual
+- 🔄 1.1 Historial de rango visual
 - ⬜ 1.2 Logros en perfil
 - ⬜ 1.3 Sistema XP + Niveles
 - ⬜ 1.4 Badges flotantes
