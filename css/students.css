@@ -210,9 +210,9 @@
 @keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== ENHANCED OVERLAYS ===== */
-.login-overlay{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
-.detail-overlay{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.image-overlay{-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px)}
+.login-overlay{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(16px)}
+.detail-overlay{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(10px)}
+.image-overlay{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(28px)}
 .image-overlay img{border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,0.5)}
 
 /* ===== TOAST ===== */
