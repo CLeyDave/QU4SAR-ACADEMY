@@ -343,11 +343,12 @@ function coachEditProfile(coachId){
 function getMonthRankReq(month){
   if(month<=2)return{name:'Rookie',minRank:'Hierro',minVal:1};
   if(month<=4)return{name:'Trainee',minRank:'Bronce',minVal:2};
-  if(month<=6)return{name:'Amateur',minRank:'Plata',minVal:3};
-  if(month<=8)return{name:'Competitor',minRank:'Oro',minVal:4};
-  if(month<=10)return{name:'Elite',minRank:'Platino',minVal:5};
-  if(month<=12)return{name:'Semi-Pro',minRank:'Diamante',minVal:6};
-  return{name:'Pro',minRank:'Ascendente',minVal:7};
+  if(month<=5)return{name:'Amateur',minRank:'Plata',minVal:3};
+  if(month<=7)return{name:'Competitor',minRank:'Oro',minVal:4};
+  if(month<=9)return{name:'Elite',minRank:'Platino',minVal:5};
+  if(month<=11)return{name:'Semi-Pro',minRank:'Diamante',minVal:6};
+  if(month<=12)return{name:'Pro',minRank:'Ascendente',minVal:7};
+  return{name:'Pro',minRank:'Inmortal',minVal:8};
 }
 
 function passStudentMonth(name){

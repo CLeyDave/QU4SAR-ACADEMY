@@ -417,7 +417,7 @@ async function loadAdminData(){
             }else if(table==='scrims'){
               rec={id:rec.id,opponent:rec.opponent,opponent_logo:rec.opponent_logo||'',our:rec.our_score,opponent_score:rec.opponent_score,result:rec.result,date:rec.date,coach:rec.coach||'',group_id:rec.group_id||''};
             }else if(table==='members'){
-              var _ex=(window.EXTRAS_KEYS||['hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input','bio_status','color']);
+              var _ex=(window.EXTRAS_KEYS||['image','hs_percent','kd','dpr','course','riot_id','region','tracker_url','country','cover','discord','youtube','twitter','twitch','dpi','sens','scoped_sens','hz','raw_input','bio_status','color']);
               var oldM=(DATA.members||[]).find(function(m){return m.id===rec.id});
               if(oldM)_ex.forEach(function(k){if(rec[k]===undefined||rec[k]===null)rec[k]=oldM[k]});
             }

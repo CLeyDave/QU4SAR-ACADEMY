@@ -171,8 +171,9 @@ function renderSection_team() {
       (s === 'Titular' ? ic('star', 20) : s === 'Suplente' ? ic('clipboard-list', 20) : ic('search', 20)) +
       ' ' + s + ' <span style="font-weight:400;font-size:13px;color:#666">(' + g[s].length + ')</span></div><div class="team-grid">';
     g[s].forEach(function(m) {
+      var memberImage = (DATA.members || []).find(function(x) { return x.name === m.name; });
       h += '<div class="glass-card member-card" onclick="showMemberDetail(\'' + esc(m.name) + '\')" style="cursor:pointer"><div class="member-icon">' +
-        (roleIcons[m.role] ? ic(roleIcons[m.role], 28) : ic('gamepad-2', 28)) + '</div>' +
+        (memberImage && memberImage.image ? '<img src="' + esc(memberImage.image) + '" class="member-photo">' : ic(roleIcons[m.role] || 'gamepad-2', 28)) + '</div>' +
         '<h3>' + fmtName(m.name) + '</h3>' +
         (m.role ? '<div class="member-role">' + esc(m.role) + '</div>' : '') +
         (m.rank ? '<div class="member-rank">' + esc(m.rank) + '</div>' : '') +
@@ -195,7 +196,7 @@ function renderSection_members() {
   if (!members.length) { grid.innerHTML = '<div style="text-align:center;padding:40px;color:#555">' + ic('users', 48) + '<br>No hay miembros registrados</div>'; return; }
   grid.innerHTML = members.map(function(m) {
     return '<div class="glass-card member-card" onclick="showMemberDetail(\'' + esc(m.name) + '\')" style="cursor:pointer">' +
-      '<div class="member-icon">' + ic('user', 28) + '</div>' +
+      '<div class="member-icon">' + (m.image ? '<img src="' + esc(m.image) + '" class="member-photo">' : ic('user', 28)) + '</div>' +
       '<h3>' + fmtName(m.name) + '</h3>' +
       (m.role ? '<div class="member-role">' + esc(m.role) + '</div>' : '') +
       (m.rank ? '<div class="member-rank">' + esc(m.rank) + '</div>' : '') +
@@ -213,7 +214,7 @@ function filterMembers(q) {
   var filtered = ql ? members.filter(function(m) { return m.name && m.name.toLowerCase().indexOf(ql) >= 0; }) : members;
   grid.innerHTML = filtered.map(function(m) {
     return '<div class="glass-card member-card" onclick="showMemberDetail(\'' + esc(m.name) + '\')" style="cursor:pointer">' +
-      '<div class="member-icon">' + ic('user', 28) + '</div>' +
+      '<div class="member-icon">' + (m.image ? '<img src="' + esc(m.image) + '" class="member-photo">' : ic('user', 28)) + '</div>' +
       '<h3>' + fmtName(m.name) + '</h3>' +
       (m.role ? '<div class="member-role">' + esc(m.role) + '</div>' : '') +
       (m.rank ? '<div class="member-rank">' + esc(m.rank) + '</div>' : '') +
@@ -327,10 +328,10 @@ function renderSection_scrims() {
   listEl.innerHTML = scrims.slice().reverse().map(function(s) {
     var cls = s.result === 'Victoria' ? 'badge-green' : s.result === 'Derrota' ? 'badge-gray' : 'badge-yellow';
     return '<div class="glass-card scrim-item"><div class="scrim-left">' +
-      '<div class="scrim-badge" style="background:' + (s.result === 'Victoria' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)') + '">' + (s.opponent ? esc(s.opponent).charAt(0).toUpperCase() : '?') + '</div>' +
+      '<div class="scrim-badge" style="background:' + (s.result === 'Victoria' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)') + (s.opponent_logo ? ';padding:0;overflow:hidden' : '') + '">' + (s.opponent_logo ? '<img src="' + esc(s.opponent_logo) + '" style="width:100%;height:100%;object-fit:contain;border-radius:10px">' : (s.opponent ? esc(s.opponent).charAt(0).toUpperCase() : '?')) + '</div>' +
       '<div><strong>' + esc(s.opponent || 'Desconocido') + '</strong><br>' +
       '<span style="font-size:12px;color:#666">' + fmtDate(s.date) + (s.coach ? ' · ' + esc(s.coach) : '') + '</span></div></div>' +
-      '<div style="text-align:right"><div style="font-size:18px;font-weight:700;color:' + (s.result === 'Victoria' ? '#10b981' : '#ef4444') + '">' + esc(s.our_score || '-') + ' - ' + esc(s.opponent_score || '-') + '</div>' +
+      '<div style="text-align:right"><div style="font-size:18px;font-weight:700;color:' + (s.result === 'Victoria' ? '#10b981' : '#ef4444') + '">' + esc((typeof s.our === 'number' ? s.our : '-')) + ' - ' + esc(typeof s.opponent_score === 'number' ? s.opponent_score : '-') + '</div>' +
       '<span class="badge ' + cls + '">' + esc(s.result) + '</span></div></div>';
   }).join('');
   if (typeof lucide !== "undefined") renderIcons();
@@ -701,6 +702,7 @@ function renderSection_schedule() {
   var cw = getCurrentWeekStart();
   var items = (DATA.schedule || []).filter(function(s) {
     if (s.week_start && s.week_start !== cw) return false;
+    if (!s.coach) return true; // sin coach → general, lo ven todos
     if (gid && s.group_id && s.group_id !== gid) return false;
     return true;
   });
@@ -1378,7 +1380,7 @@ function renderSection_profile() {
       var cls = s.result === 'Victoria' ? 'qsr-scrim-won' : s.result === 'Derrota' ? 'qsr-scrim-lost' : 'qsr-scrim-draw';
       rightHtml += '<div class="qsr-scrim-row ' + cls + '">' +
         '<span class="qsr-scrim-opp">' + esc(s.opponent || '—') + '</span>' +
-        '<span class="qsr-scrim-score">' + esc(s.our_score || '-') + ' - ' + esc(s.opponent_score || '-') + '</span>' +
+        '<span class="qsr-scrim-score">' + esc((typeof s.our === 'number' ? s.our : '-')) + ' - ' + esc(typeof s.opponent_score === 'number' ? s.opponent_score : '-') + '</span>' +
         '<span class="qsr-scrim-result">' + esc(s.result) + '</span>' +
         '</div>';
     });
@@ -2096,6 +2098,7 @@ function fallbackCopy(text) {
         db.from('coaches').select('*'),
         db.from('groups').select('*'),
         db.from('group_coaches').select('*'),
+        db.from('scrims').select('*').order('date',{ascending:false}),
       ]);
       if(f[0].data&&f[0].data.length){
         var localMembers=(DATA.members||[]).reduce(function(acc,m){acc[m.name]=m;return acc},{});
@@ -2109,6 +2112,19 @@ function fallbackCopy(text) {
       if(f[2].data)DATA.coaches=f[2].data;
       if(f[3].data)DATA.groups=f[3].data;
       if(f[4].data)DATA.group_coaches=f[4].data;
+      if(f[5].data&&f[5].data.length){
+        var localScrims=(DATA.scrims||[]).reduce(function(acc,s){acc[s.id]=s;return acc},{});
+        DATA.scrims=f[5].data.map(function(x){
+          var loc=localScrims[x.id]||{};
+          return{
+            id:x.id,opponent:x.opponent||loc.opponent||'',opponent_logo:x.opponent_logo||loc.opponent_logo||'',
+            our:typeof x.our_score==='number'?x.our_score:(typeof loc.our==='number'?loc.our:0),
+            opponent_score:typeof x.opponent_score==='number'?x.opponent_score:(typeof loc.opponent_score==='number'?loc.opponent_score:0),
+            result:x.result||loc.result||'Pendiente',date:x.date||loc.date||'',
+            coach:x.coach||loc.coach||'',group_id:x.group_id||loc.group_id||''
+          };
+        });
+      }
       saveLocal(DATA);
       // Realtime subscription
       if(!rtChannel){try{

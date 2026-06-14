@@ -45,7 +45,8 @@ function renderTeam(){
     if(!g[s].length)return;
     h+='<div class="team-group"><div class="team-group-title">'+(s==='Titular'?ic('star',20)+'<span style="margin-right:6px"></span>':s==='Suplente'?ic('clipboard-list',20)+'<span style="margin-right:6px"></span>':ic('search',20)+'<span style="margin-right:6px"></span>')+' '+s+' <span style="font-weight:400;font-size:13px;color:#666">('+g[s].length+')</span></div><div class="team-grid">';
     g[s].forEach(function(m){
-      h+='<div class="glass-card member-card"><div class="member-icon">'+(roleIcons[m.role]?ic(roleIcons[m.role],28):ic('gamepad-2',28))+'</div>'+
+      var member=(DATA.members||[]).find(function(x){return x.name===m.name});
+      h+='<div class="glass-card member-card"><div class="member-icon">'+(member&&member.image?'<img src="'+esc(member.image)+'" class="member-photo">':ic(roleIcons[m.role]||'gamepad-2',28))+'</div>'+
         '<h3>'+fmtName(m.name)+'</h3>'+
         (m.role?'<div class="member-role">'+esc(m.role)+'</div>':'')+
         (m.rank?'<div class="member-rank">'+esc(m.rank)+'</div>':'')+
