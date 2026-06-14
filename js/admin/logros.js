@@ -19,7 +19,7 @@ function renderSection_achievements(){
           (a.type?'<span>'+ic('tag',11)+' '+esc(a.type)+'</span>':'')+
           '<span>'+ic('award',11)+' '+count+' miembro'+(count!==1?'s':'')+'</span>'+
         '</div></div>'+
-        '<div class="has-glow admin-actions" style="display:flex;gap:4px;flex-shrink:0">'+
+        '<div class=" admin-actions" style="display:flex;gap:4px;flex-shrink:0">'+
           '<button onclick="logroForm(\''+a.id+'\')">'+ic('pencil',13)+'</button>'+
           '<button onclick="assignLogroForm(\''+a.id+'\')" title="Asignar a miembro">'+ic('user-plus',13)+'</button>'+
           '<button class="del" onclick="delLogro(\''+a.id+'\')">'+ic('trash-2',13)+'</button>'+
@@ -42,11 +42,11 @@ function renderSection_achievements(){
 
 function logroForm(id){
   var item=id?(DATA.achievements||[]).find(function(a){return a.id===id}):null;
-  var f=item||{title:'',description:'',icon:'🏆',type:''};
+  var f=item||{title:'',description:'',icon:'ðŸ†',type:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Logro</h3>'+
     '<div class="field"><label>Título</label><input class="input-field" id="lf_title" value="'+esc(f.title)+'"></div>'+
     '<div class="field"><label>Descripción</label><textarea class="input-field" id="lf_desc" rows="3">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="field"><label>Icono (emoji)</label><input class="input-field" id="lf_icon" value="'+esc(f.icon||'')+'" placeholder="ej: 🏆⭐🎯" style="font-size:24px"></div>'+
+    '<div class="field"><label>Icono (emoji)</label><input class="input-field" id="lf_icon" value="'+esc(f.icon||'')+'" placeholder="ej: ðŸ†⭐ðŸŽ¯" style="font-size:24px"></div>'+
     '<div class="field"><label>Tipo</label><input class="input-field" id="lf_type" value="'+esc(f.type||'')+'" placeholder="ej: scrims, evaluacion, asistencia"></div>'+
     '<button class="btn-primary" onclick="saveLogro(\''+(id||'')+'\')" style="width:100%;justify-content:center;margin-top:6px">'+ic('save',16)+' Guardar</button>');
 }

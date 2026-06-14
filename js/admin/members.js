@@ -8,27 +8,22 @@ function renderSection_members(){
   var selId='memberSel_'+(Math.random()+1).toString(36).slice(2,8);
   var btn='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+
     '<button class="btn-primary" onclick="memberForm(null)" style="font-size:13px">'+ic('plus',14)+' Nuevo Miembro</button>'+
-    '<button class="btn-secondary" onclick="distributeStudents()" style="font-size:13px">'+ic('users',14)+' Distribuir x Coach</button>'+
+    '<button class="btn-secondary" onclick="distributeStudents()" style="font-size:13px">'+ic('users',14)+' Asignar Todos x Coach</button>'+
     '<button class="btn-secondary" onclick="resetMemberAssignments()" style="font-size:13px;border-color:rgba(139,92,246,0.2);color:#8b5cf6">'+ic('x-circle',14)+' Limpiar Asignaciones</button>'+
-    '</div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">'+
-      '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="'+selId+'" onchange="document.querySelectorAll(\'.msel\').forEach(function(e){e.checked=this.checked},this)"> Seleccionar todos</label>'+
-      '<button class="btn-sm cancel" onclick="deleteSelectedMembers()" style="font-size:12px">'+ic('trash-2',12)+' Eliminar seleccionados (<span id="selCount">0</span>)</button>'+
-      '<button class="btn-sm cancel" onclick="deleteDuplicateMembers()" style="font-size:12px;border-color:rgba(139,92,246,0.2)">'+ic('copy',12)+' Eliminar duplicados</button>'+
+    '<button class="btn-sm cancel" onclick="deleteDuplicateMembers()" style="font-size:12px;border-color:rgba(139,92,246,0.2)">'+ic('copy',12)+' Eliminar duplicados</button>'+
     '</div>';
-  document.getElementById('adminContent').innerHTML=adminTable(members,['','Nombre','Rol','Rango','Coach','Grupo'],function(m,i){
-    return '<td><input type="checkbox" class="msel" data-id="'+m.id+'" onchange="document.getElementById(\'selCount\').textContent=document.querySelectorAll(\'.msel:checked\').length"></td>'+
-      '<td>'+esc(m.name)+'</td><td>'+esc(m.role)+'</td><td>'+esc(m.rank||'-')+'</td>'+
+  document.getElementById('adminContent').innerHTML=adminTable(members,['Nombre','Rol','Rango','Coach','Grupo'],function(m,i){
+    return '<td>'+esc(m.name)+'</td><td>'+esc(m.role)+'</td><td>'+esc(m.rank||'-')+'</td>'+
       '<td>'+esc(m.coach||'-')+'</td>'+
       '<td>'+groupName(m.group_id)+'</td>'+
-      '<td><div class="has-glow admin-actions">'+
+      '<td><div class=" admin-actions">'+
         '<button onclick="memberForm(\''+m.id+'\')" title="Editar">'+ic('pencil',14)+'</button>'+
         '<button onclick="showCoachNotes(\''+esc(m.name)+'\')" title="Notas">'+ic('sticky-note',14)+'</button>'+
         '<button onclick="showRankHistory(\''+esc(m.name)+'\')" title="Rangos">'+ic('trending-up',14)+'</button>'+
         '<button onclick="makeCoachFromMember(\''+esc(m.name)+'\')" title="Hacer Coach">'+ic('user-check',14)+'</button>'+
         '<button class="del" onclick="delMember(\''+m.id+'\')" title="Eliminar">'+ic('trash-2',14)+'</button>'+
       '</div></td>'
-  },'No hay miembros',btn)+(totalCn?'<div style="margin-top:8px;font-size:12px;color:#555">'+totalCn+' notas de coach · '+totalRh+' registros de rango</div>':'');
+  },'No hay miembros',btn,'delMember')+(totalCn?'<div style="margin-top:8px;font-size:12px;color:#555">'+totalCn+' notas de coach · '+totalRh+' registros de rango</div>':'');
 }
 
 function deleteSelectedMembers(){
@@ -53,7 +48,7 @@ function deleteDuplicateMembers(){
 
 function memberForm(id){
   var item=id?DATA.members.find(function(m){return m.id===id}):null;
-  var f=item||{name:'',role:'Duelist',rank:'',coach:dc(),image:'',description:'',group_id:''};
+  var f=item||{name:'',role:'Duelist',rank:'',coach:dc(),image:'',description:'',group_id:'',current_month:1,enrollment_date:new Date().toISOString().slice(0,10),academy_status:'active',primary_role:'',secondary_role:'',specialization:''};
   openModal('<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+(item?'Editar':'Nuevo')+' Miembro</h3>'+
     '<div class="field"><label for="mf_name">Nombre</label><input class="input-field" id="mf_name" value="'+esc(f.name)+'"></div>'+
     '<div class="grid-2"><div class="field"><label for="mf_role">Rol</label><select class="input-field" id="mf_role">'+['Duelist','Initiator','Controller','Sentinel','Flex','Coach'].map(function(r){return'<option value="'+r+'" '+(r===f.role?'selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'+
@@ -61,7 +56,13 @@ function memberForm(id){
     '<div class="grid-2"><div class="field"><label for="mf_coach">Coach</label><select class="input-field" id="mf_coach" onchange="setGroupFromCoach(\'mf_group\',\'mf_coach\')"><option value="">Sin coach</option>'+coachOptions(f.coach||'',f.group_id)+'</select></div>'+
     '<div class="field"><label for="mf_image">Imagen URL</label><input class="input-field" id="mf_image" value="'+esc(f.image||'')+'"></div></div>'+
     '<div class="field"><label for="mf_desc">Descripción</label><textarea class="input-field" id="mf_desc" rows="3">'+esc(f.description||'')+'</textarea></div>'+
-    '<div class="field"><label for="mf_group">Grupo</label><select class="input-field" id="mf_group" onchange="reloadCoachDropdown(\'mf_coach\',this.value);autoAssignCoachToMember(\'mf_coach\',this.value)"><option value="">Sin grupo</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="grid-2"><div class="field"><label for="mf_group">Cohorte</label><select class="input-field" id="mf_group" onchange="reloadCoachDropdown(\'mf_coach\',this.value);autoAssignCoachToMember(\'mf_coach\',this.value)"><option value="">Sin cohorte</option>'+(DATA.groups||[]).map(function(g){return'<option value="'+g.id+'"'+(f.group_id===g.id?' selected':'')+'>'+esc(g.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="mf_month">Mes Actual</label><input type="number" min="1" max="12" class="input-field" id="mf_month" value="'+(f.current_month||1)+'"></div></div>'+
+    '<div class="grid-3"><div class="field"><label for="mf_enrollment">Ingreso</label><input type="date" class="input-field" id="mf_enrollment" value="'+esc(f.enrollment_date||new Date().toISOString().slice(0,10))+'"></div>'+
+    '<div class="field"><label for="mf_status">Estado</label><select class="input-field" id="mf_status">'+['active','recovery','graduated','inactive','draft','academy_team','main_team'].map(function(s){return'<option value="'+s+'" '+(s===f.academy_status?'selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="mf_specialization">Especialización</label><input class="input-field" id="mf_specialization" value="'+esc(f.specialization||'')+'" placeholder="ej: Duelista, IGL"></div></div>'+
+    '<div class="grid-2"><div class="field"><label for="mf_primary_role">Rol Primario</label><input class="input-field" id="mf_primary_role" value="'+esc(f.primary_role||'')+'"></div>'+
+    '<div class="field"><label for="mf_secondary_role">Rol Secundario</label><input class="input-field" id="mf_secondary_role" value="'+esc(f.secondary_role||'')+'"></div></div>'+
     '<button class="btn-primary" onclick="saveMember(\''+(id||'')+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar</button>');
 }
 
@@ -74,7 +75,7 @@ function autoAssignCoachToMember(coachSelectId,groupId){
 }
 
 function saveMember(id){
-  var obj={name:document.getElementById('mf_name').value,role:document.getElementById('mf_role').value,rank:document.getElementById('mf_rank').value,coach:document.getElementById('mf_coach').value,image:document.getElementById('mf_image').value,description:document.getElementById('mf_desc').value,group_id:document.getElementById('mf_group').value};
+  var obj={name:document.getElementById('mf_name').value,role:document.getElementById('mf_role').value,rank:document.getElementById('mf_rank').value,coach:document.getElementById('mf_coach').value,image:document.getElementById('mf_image').value,description:document.getElementById('mf_desc').value,group_id:document.getElementById('mf_group').value,current_month:parseInt(document.getElementById('mf_month').value)||1,enrollment_date:document.getElementById('mf_enrollment').value,academy_status:document.getElementById('mf_status').value,specialization:document.getElementById('mf_specialization').value,primary_role:document.getElementById('mf_primary_role').value,secondary_role:document.getElementById('mf_secondary_role').value};
   if(!obj.name.trim()){toast('El nombre es obligatorio','err');return}
   if(!DATA.members)DATA.members=[];
   var dup=(DATA.members||[]).find(function(m){return m.name.toLowerCase()===obj.name.toLowerCase()&&m.id!==id});
@@ -115,7 +116,7 @@ function showCoachNotes(name){
     '<div style="margin-bottom:14px;max-height:300px;overflow-y:auto;overflow-x:hidden;display:grid;gap:8px">';
   if(!notes.length)h+='<div style="color:#555;padding:12px">Sin notas aún</div>';
   notes.forEach(function(n){
-    h+='<div class="has-glow" style="padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--neon)">'+
+    h+='<div class="" style="padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--neon)">'+
       '<div style="color:#ccc;font-size:14px">'+esc(n.note)+'</div>'+
       '<div style="color:#555;font-size:11px;margin-top:4px">'+esc(n.category)+' · '+(n.created_at?new Date(n.created_at).toLocaleString('es-ES'):'')+'</div></div>';
   });
@@ -140,7 +141,7 @@ function showRankHistory(name){
   if(!ranks.length)h+='<div style="color:#555;padding:12px">Sin registros</div>';
   ranks.forEach(function(r,i){
     var arrow=i<ranks.length-1?(ranks[i].rank!==ranks[i+1].rank?(rankValue(ranks[i].rank)>rankValue(ranks[i+1].rank)?'<span style="color:#8b5cf6"> ?</span>':'<span style="color:#8b5cf6"> ?</span>'):''):'';
-    h+='<div class="has-glow" style="display:flex;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:8px">'+
+    h+='<div class="" style="display:flex;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:8px">'+
       '<span>'+esc(r.rank)+arrow+'</span><span style="color:#555;font-size:13px">'+esc(r.date||'')+'</span></div>';
   });
   h+='</div><div class="field"><label for="rh_rank">Nuevo rango</label><input class="input-field" id="rh_rank" placeholder="ej: Diamond 3"></div>'+
@@ -164,7 +165,7 @@ function autoAssignCoach(groupId){
     var coach=(DATA.coaches||[]).find(function(c){return c.id===gc.coach_id});
     if(!coach)return null;
     var count=(DATA.members||[]).filter(function(m){
-      return m.coach&&m.coach.toLowerCase()===coach.name.toLowerCase()&&(m.group_id||getGroupFromRank(m.rank))===groupId;
+      return m.coach&&m.coach.toLowerCase()===coach.name.toLowerCase()&&(m.group_id||'')===groupId;
     }).length;
     return{name:coach.name,count:count};
   }).filter(Boolean);
@@ -175,12 +176,26 @@ function autoAssignCoach(groupId){
 }
 
 function distributeStudents(){
-  if(!confirm('¿Asignar grupo según rango y distribuir entre coaches automáticamente?'))return;
+  if(!confirm('¿Asignar TODOS los estudiantes a su curso según rango y a un coach?'))return;
   var changes=0;
+  // Step 1: assign group_id based on rank for students without group
   (DATA.members||[]).forEach(function(m){
-    var g=getGroupFromRank(m.rank);
-    if(g&&(!m.group_id||m.group_id!==g)){m.group_id=g;changes++}
+    if(m.group_id)return;
+    var rv=rankValue(m.rank);
+    var course=getCourseFromRank(rv);
+    if(!course)return;
+    var matchGroup=null;
+    var gl=(DATA.groups||[]);
+    // Try to find a group whose name or description matches the course
+    for(var i=0;i<gl.length;i++){
+      var g=gl[i];
+      if(g.name&&g.name.toLowerCase().indexOf(course.name.toLowerCase())>=0){matchGroup=g;break}
+      if(g.description&&g.description.toLowerCase().indexOf(course.name.toLowerCase())>=0){matchGroup=g;break}
+    }
+    if(!matchGroup&&gl.length)matchGroup=gl[0]; // fallback to first group
+    if(matchGroup){m.group_id=matchGroup.id;changes++}
   });
+  // Step 2: distribute within each group to coaches evenly
   (DATA.groups||[]).forEach(function(g){
     var groupCoaches=(DATA.group_coaches||[]).filter(function(gc){return gc.group_id===g.id});
     if(!groupCoaches.length)return;
@@ -190,20 +205,22 @@ function distributeStudents(){
     }).filter(Boolean);
     if(!coachNames.length)return;
     var members=(DATA.members||[]).filter(function(m){return m.group_id===g.id});
-    var unassigned=members.filter(function(m){return !m.coach||coachNames.indexOf(m.coach)<0});
-    if(!unassigned.length)return;
+    if(!members.length)return;
     var counts={};
-    coachNames.forEach(function(n){counts[n]=members.filter(function(m){return m.coach===n}).length});
-    unassigned.forEach(function(m){
+    coachNames.forEach(function(n){counts[n]=0});
+    members.forEach(function(m){
       var min=Infinity,best='';
       coachNames.forEach(function(n){
         if(counts[n]<min){min=counts[n];best=n}
       });
-      if(best){m.coach=best;counts[best]++;changes++}
+      if(best){
+        if(m.coach!==best){m.coach=best;changes++}
+        counts[best]++;
+      }
     });
   });
   if(changes){saveData(DATA);renderSection_members();updateCounts();toast(changes+' cambio(s) aplicados','ok')}
-  else toast('Todos ya tienen grupo y coach asignado','info');
+  else toast('Todos ya están asignados','info');
 }
 
 function resetMemberAssignments(){

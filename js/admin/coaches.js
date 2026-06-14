@@ -5,13 +5,13 @@ function renderSection_coaches(){
   document.getElementById('adminContent').innerHTML=adminTable(DATA.coaches||[],['Nombre','Email','Nombre VALORANT','Especialidad','Estado'],function(c){
     return '<td>'+esc(c.name)+'</td><td><span style="font-size:12px;color:#888">'+esc(c.email||'—')+'</span></td><td>'+esc(c.nickname||'-')+'</td><td>'+esc(c.specialty||'-')+'</td>'+
       '<td><span style="color:'+(c.status==='active'?'#8b5cf6':'#888')+'">'+(c.status==='active'?'Activo':'Inactivo')+'</span></td>'+
-      '<td><div class="has-glow admin-actions">'+
+      '<td><div class=" admin-actions">'+
         '<button onclick="coachForm(\''+c.id+'\')" title="Editar">'+ic('pencil',14)+'</button>'+
         '<button onclick="toggleCoachStatus(\''+c.id+'\')" title="'+(c.status==='active'?'Desactivar':'Activar')+'">'+(c.status==='active'?ic('pause',14):ic('play',14))+'</button>'+
         '<button onclick="assignCoachGroup(\''+c.id+'\')" title="Asignar a Grupo">'+ic('layers',14)+'</button>'+
         '<button class="del" onclick="delCoach(\''+c.id+'\')" title="Eliminar">'+ic('trash-2',14)+'</button>'+
       '</div></td>'
-  },'No hay coaches',btn);
+  },'No hay coaches',btn,'delCoach');
 }
 
 function coachForm(id){
@@ -50,12 +50,9 @@ async function saveCoach(id){
     if(db&&db.from){
       try{
         if(obj.email){
-          var {data:authUser,error:signUpError}=await db.auth.signUp({email:obj.email,password:obj.email+'Qu4sar2026!'});
+          var {error:signUpError}=await db.auth.signUp({email:obj.email,password:obj.email+'Qu4sar2026!'});
           if(signUpError&&signUpError.message&&signUpError.message.indexOf('already')<0)throw signUpError;
-          if(authUser&&authUser.user){
-            await db.from('users').upsert({id:authUser.user.id,email:obj.email,role:'coach',name:obj.name},{onConflict:'id'});
-          }
-          await db.from('admins').upsert({email:obj.email,role:'coach',active:true},{onConflict:'email'});
+          await db.from('admins').upsert({email:obj.email,role:'admin',active:true},{onConflict:'email'});
           toast('Coach creado. Email: '+obj.email+' | Contraseña: '+obj.email+'Qu4sar2026!','info');
         }
       }catch(e){toast('Error al crear usuario: '+(e.message||e),'error')}
@@ -65,11 +62,7 @@ async function saveCoach(id){
     if(idx>=0)DATA.coaches[idx]={...DATA.coaches[idx],...obj};
     if(db&&db.from){
       try{
-        var {data:existingUser}=await db.from('users').select('id').eq('email',obj.email).limit(1);
-        if(existingUser&&existingUser.length){
-          await db.from('users').update({name:obj.name,role:'coach'}).eq('email',obj.email);
-        }
-        await db.from('admins').upsert({email:obj.email,role:'coach',active:obj.status==='active'},{onConflict:'email'});
+        await db.from('admins').upsert({email:obj.email,role:'admin',active:obj.status==='active'},{onConflict:'email'});
       }catch(e){console.log('Error updating coach in Supabase:',e)}
     }
   }
@@ -90,7 +83,6 @@ function delCoach(id){
   DATA.coaches=(DATA.coaches||[]).filter(function(c){return c.id!==id});
   saveData(DATA);renderSection_coaches();updateCounts();toast('Coach eliminado');
   if(db&&db.from&&c){
-    db.from('users').delete().eq('email',c.email).then(function(){}).catch(function(e){console.log('Error deleting user:',e)});
     db.from('admins').delete().eq('email',c.email).then(function(){}).catch(function(e){console.log('Error deleting admin:',e)});
   }
 }
@@ -101,7 +93,6 @@ function toggleCoachStatus(id){
   c.status=c.status==='active'?'inactive':'active';
   saveData(DATA);renderSection_coaches();toast('Coach '+(c.status==='active'?'activado':'desactivado'));
   if(db&&db.from){
-    db.from('users').update({role:c.status==='active'?'coach':'user'}).eq('email',c.email).then(function(){}).catch(function(e){console.log('Error updating user status:',e)});
     db.from('admins').update({active:c.status==='active'}).eq('email',c.email).then(function(){}).catch(function(e){console.log('Error updating admin status:',e)});
   }
 }
@@ -109,13 +100,20 @@ function toggleCoachStatus(id){
 function assignCoachGroup(coachId){
   var coach=(DATA.coaches||[]).find(function(c){return c.id===coachId});
   if(!coach)return;
-  var assigned=(DATA.group_coaches||[]).filter(function(gc){return gc.coach_id===coachId}).map(function(gc){return gc.group_id});
+  var assigned=(DATA.group_coaches||[]).filter(function(gc){return gc.coach_id===coachId}).map(function(gc){return gc.group_id+'|'+(gc.subject||'')+'|'+(gc.month||'')});
   var h='<button class="modal-close" onclick="closeModal()">'+ic('x',16)+'</button><h3>'+ic('layers',16)+' Asignar Coach: '+esc(coach.name)+'</h3><div style="display:grid;gap:10px;margin-bottom:16px">';
   (DATA.groups||[]).forEach(function(g){
-    var checked=assigned.indexOf(g.id)>=0?'checked':'';
-    h+='<label style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;cursor:pointer">'+
-      '<input type="checkbox" id="cg_'+g.id+'" '+checked+' style="width:18px;height:18px;accent-color:var(--neon)">'+
-      '<span>'+esc(g.name)+' <span style="color:#555">('+esc(g.description||'')+')</span></span></label>';
+    var gc=(DATA.group_coaches||[]).find(function(gc){return gc.coach_id===coachId&&gc.group_id===g.id});
+    var checked=gc?'checked':'';
+    var subj=gc?gc.subject||'':'';
+    var mn=gc?gc.month||'':'';
+    h+='<div style="padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px">'+
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:6px">'+
+      '<input type="checkbox" id="cg_'+g.id+'" '+checked+' style="width:18px;height:18px;accent-color:var(--neon)" onchange="document.getElementById(\'cg_fields_'+g.id+'\').style.display=this.checked?\'flex\':\'none\'">'+
+      '<span>'+esc(g.name)+'</span></label>'+
+      '<div id="cg_fields_'+g.id+'" style="display:'+(checked?'flex':'none')+';gap:8px;padding-left:28px">'+
+      '<input class="input-field" id="cg_subject_'+g.id+'" placeholder="Materia" value="'+esc(subj)+'" style="flex:2">'+
+      '<input type="number" min="1" max="12" class="input-field" id="cg_month_'+g.id+'" placeholder="Mes" value="'+mn+'" style="flex:1;max-width:80px"></div></div>';
   });
   h+='</div><button class="btn-primary" onclick="saveCoachGroups(\''+coachId+'\')" style="width:100%;justify-content:center">'+ic('save',16)+' Guardar Asignaciones</button>';
   openModal(h);
@@ -127,7 +125,7 @@ function saveCoachGroups(coachId){
     if(!cb)return;
     if(!DATA.group_coaches)DATA.group_coaches=[];
     DATA.group_coaches=DATA.group_coaches.filter(function(gc){return!(gc.coach_id===coachId&&gc.group_id===g.id)});
-    if(cb.checked)DATA.group_coaches.push({id:uid(),group_id:g.id,coach_id:coachId});
+    if(cb.checked)DATA.group_coaches.push({id:uid(),group_id:g.id,coach_id:coachId,subject:document.getElementById('cg_subject_'+g.id)?.value||'',month:parseInt(document.getElementById('cg_month_'+g.id)?.value)||null});
   });
   saveData(DATA);closeModal();renderSection_coaches();updateCounts();toast('Asignaciones guardadas');
 }

@@ -3,7 +3,7 @@
 function renderSection_team(){
   var btn='<button class="btn-primary" onclick="teamForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nuevo Jugador</button>';
   document.getElementById('adminContent').innerHTML=adminTable(DATA.team,['Nombre','Rol','Rango','Estado'],function(m){
-    return '<td>'+esc(m.name)+'</td><td>'+esc(m.role)+'</td><td>'+esc(m.rank||'-')+'</td><td><span class="badge '+(m.status==='Titular'?'badge-green':m.status==='Suplente'?'badge-yellow':'badge-blue')+'">'+m.status+'</span></td><td><div class="has-glow admin-actions"><button onclick="teamForm(\''+m.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delTeam(\''+m.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay jugadores',btn);
+    return '<td>'+esc(m.name)+'</td><td>'+esc(m.role)+'</td><td>'+esc(m.rank||'-')+'</td><td><span class="badge '+(m.status==='Titular'?'badge-green':m.status==='Suplente'?'badge-yellow':'badge-blue')+'">'+m.status+'</span></td><td><div class=" admin-actions"><button onclick="teamForm(\''+m.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delTeam(\''+m.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay jugadores',btn,'delTeam');
 }
 
 function teamForm(id){

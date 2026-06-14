@@ -7,7 +7,7 @@ function renderSection_scrims(){
   var fh=adminGroupFilterHTML(gid,'renderSection_scrims()');
   var btn='<button class="btn-primary" onclick="scrimForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nuevo Scrim</button>';
   document.getElementById('adminContent').innerHTML=fh+adminTable(items,['Oponente','Resultado','Score','Fecha','Coach','Grupo'],function(s){
-    return '<td>'+esc(s.opponent)+'</td><td><span class="badge '+(s.result==='Victoria'?'badge-green':s.result==='Derrota'?'badge-red':'badge-gray')+'">'+s.result+'</span></td><td>'+s.our+' - '+s.opponent+'</td><td>'+s.date+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td><td><div class="has-glow admin-actions"><button onclick="scrimForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delScrim(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay scrims',btn);
+    return '<td>'+esc(s.opponent)+'</td><td><span class="badge '+(s.result==='Victoria'?'badge-green':s.result==='Derrota'?'badge-red':'badge-gray')+'">'+s.result+'</span></td><td>'+s.our+' - '+s.opponent+'</td><td>'+s.date+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td><td><div class=" admin-actions"><button onclick="scrimForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delScrim(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay scrims',btn,'delScrim');
 }
 
 function scrimForm(id){

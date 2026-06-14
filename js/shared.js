@@ -15,18 +15,98 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
 function ic(n,s){return'<i data-lucide="'+esc(n)+'" style="width:'+(s||18)+'px;height:'+(s||18)+'px;display:inline-block;vertical-align:middle"></i>'}
 function fmtName(n){if(!n)return'';var p=n.split('#');return esc(p[0])+(p[1]?'<span style="opacity:0.5;display:block">#'+esc(p[1])+'</span>':'')}
+var _iconTimer=null;function renderIcons(){if(_iconTimer)clearTimeout(_iconTimer);_iconTimer=setTimeout(function(){if(typeof lucide!=='undefined')lucide.createIcons();_iconTimer=null},50)}
+
+// ========== PERFORMANCE: debounce saveLocal, batch lucide ==========
+var _saveTimer=null;
+var _saveStr='';
+function saveLocal(d){
+  if(_saveTimer)clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(function(){
+    var s=JSON.stringify(d);if(s===_saveStr)return;_saveStr=s;
+    try{localStorage.setItem(STORAGE_KEY,s)}catch(e){}
+  },200);
+}
+function saveLocalNow(d){
+  if(_saveTimer){clearTimeout(_saveTimer);_saveTimer=null}
+  var s=JSON.stringify(d);if(s===_saveStr)return;_saveStr=s;
+  try{localStorage.setItem(STORAGE_KEY,s)}catch(e){}
+}
+
+// ========== RANK TIERS ==========
+var RANK_ORDER=['iron','bronze','silver','gold','platinum','diamond','ascendant','immortal','radiant'];
+var RANK_ORDER_ES=['hierro','bronce','plata','oro','platino','diamante','ascendente','inmortal','radiante'];
+var RANK_TIER_MAP={};
+RANK_ORDER.forEach(function(r,i){RANK_TIER_MAP[r]=i+1});
+RANK_ORDER_ES.forEach(function(r,i){RANK_TIER_MAP[r]=i+1});
+function parseRankTier(rank){
+  if(!rank)return 0;
+  var r=rank.toLowerCase();
+  for(var k in RANK_TIER_MAP){if(r.indexOf(k)>=0)return RANK_TIER_MAP[k]}
+  return 0;
+}
+
+// ========== COURSE SYSTEM ==========
+var COURSE_NAMES=['Rookie','Rookie','Trainee','Trainee','Amateur','Contender','Competitor','Competitor','Elite','Semi-Pro','Semi-Pro','Pro'];
+function getCourseName(month){return COURSE_NAMES[Math.max(0,Math.min(11,month-1))]||'Rookie'}
+var MIN_RANK_PER_MONTH=[1,1,2,2,3,4,5,5,6,7,7,8];
+function getMinRankForMonth(month){return MIN_RANK_PER_MONTH[Math.max(0,Math.min(11,month-1))]||1}
+function getMinRankLabel(month){var t=getMinRankForMonth(month);return RANK_ORDER[t-1]?RANK_ORDER[t-1].charAt(0).toUpperCase()+RANK_ORDER[t-1].slice(1):'—'}
+function meetsRankReq(rank,month){return parseRankTier(rank)>=getMinRankForMonth(month)}
+
+// ========== GRADE SYSTEM ==========
+// Exams 40%, Quizzes 10%, Tasks 25%, Attendance 15%, Participation 10%
+var GRADE_WEIGHTS={exams:0.4,quizzes:0.1,tasks:0.25,attendance:0.15,participation:0.1};
+function calcCourseGrade(memberName){
+  var member=(DATA.members||[]).find(function(m){return m.name===memberName});
+  if(!member)return null;
+  var month=member.current_month||1;
+  var rankOK=meetsRankReq(member.rank||'',month);
+  if(!rankOK)return{total:0,rankOK:false,components:{},label:'Requisito de rango no cumplido: '+getMinRankLabel(month)};
+
+  var myEvals=(DATA.evaluations||[]).filter(function(e){return e.member_name===memberName});
+  var myQuizzes=(DATA.quiz_responses||[]).filter(function(r){return r.member_name===memberName});
+  var myTasks=(DATA.task_completions||[]).filter(function(tc){return tc.member_name===memberName});
+  var myAttendance=(DATA.attendance||[]).filter(function(a){return a.member_name===memberName});
+
+  var totalEvals=filterByGroup(DATA.evaluations||[]).length;
+  var totalQuizzes=filterByGroup(DATA.quizzes||[]).length;
+  var totalTasks=filterByGroup(DATA.tasks||[]).length;
+  var totalAttendance=filterByGroup(DATA.attendance||[]).length;
+
+  var examScore=totalEvals>0?Math.round((myEvals.length/Math.max(1,totalEvals))*100):0;
+  var quizScore=totalQuizzes>0?Math.round((myQuizzes.length/Math.max(1,totalQuizzes))*100):0;
+  var taskScore=totalTasks>0?Math.round((myTasks.length/Math.max(1,totalTasks))*100):0;
+  var attScore=totalAttendance>0?Math.round((myAttendance.filter(function(a){return a.status==='present'}).length/Math.max(1,totalAttendance))*100):0;
+  var participationScore=Math.round((examScore+taskScore+attScore)/3);
+  if(participationScore>100)participationScore=100;
+
+  var total=Math.round(
+    examScore*GRADE_WEIGHTS.exams+
+    quizScore*GRADE_WEIGHTS.quizzes+
+    taskScore*GRADE_WEIGHTS.tasks+
+    attScore*GRADE_WEIGHTS.attendance+
+    participationScore*GRADE_WEIGHTS.participation
+  );
+
+  return{
+    total:Math.min(100,total),
+    rankOK:true,
+    components:{exams:examScore,quizzes:quizScore,tasks:taskScore,attendance:attScore,participation:participationScore},
+    label:'Nota: '+Math.min(100,total)+'%'+(total>=60?' '+ic('check',14):' '+ic('x',14))
+  };
+}
 
 // ========== DATA ==========
 const STORAGE_KEY='quasar_data';
 function defaultData(){return{
-  schedule:[],schedule_history:[],team:[],scrims:[],members:[],coaches:[],academy:[],news:[],stats:[],announcements:[],curriculum:[],tasks:[],substitutions:[],rank_history:[],member_achievements:[],achievements:[],evaluations:[],coach_notes:[],materials:[],task_completions:[],attendance:[],quizzes:[],quiz_responses:[],groups:[],group_coaches:[],applications:[],content:{home:{
+  schedule:[],schedule_history:[],team:[],scrims:[],members:[],coaches:[],academy:[],news:[],stats:[],announcements:[],curriculum:[],tasks:[],substitutions:[],rank_history:[],member_achievements:[],achievements:[],evaluations:[],coach_notes:[],materials:[],task_completions:[],attendance:[],quizzes:[],quiz_responses:[],groups:[],group_coaches:[],applications:[],clips:[],draft_picks:[],content:{home:{
     terms_title:'TÉRMINOS, CONDICIONES Y POLÍTICA DE PRIVACIDAD DE QU4SAR ACADEMY',
     terms_content:'Última actualización: Junio de 2026\n\n1. SOBRE QU4SAR ACADEMY\nQU4SAR Academy es una comunidad independiente dedicada al aprendizaje, desarrollo y perfeccionamiento de habilidades dentro del videojuego VALORANT. Nuestra misión es proporcionar un entorno organizado, respetuoso y orientado al crecimiento de jugadores que buscan mejorar su rendimiento individual y colectivo mediante clases, entrenamientos, análisis de partidas, actividades educativas y participación comunitaria.\nActualmente, todos los servicios ofrecidos por QU4SAR Academy son completamente gratuitos y tienen fines educativos, recreativos y comunitarios.\nQU4SAR Academy no está afiliada, asociada, patrocinada ni respaldada oficialmente por Riot Games, Inc.\n\n2. ACEPTACIÓN DE LOS TÉRMINOS\nAl registrarse, acceder al sitio web, unirse al servidor de Discord, participar en entrenamientos, eventos o utilizar cualquier servicio relacionado con QU4SAR Academy, el usuario declara haber leído, comprendido y aceptado los presentes Términos, Condiciones y Política de Privacidad.\nSi el usuario no está de acuerdo con cualquiera de las disposiciones aquí establecidas, deberá abstenerse de utilizar los servicios ofrecidos por la comunidad.\n\n3. DATOS RECOPILADOS\nQU4SAR Academy podrá recopilar información proporcionada voluntariamente por los usuarios durante procesos de inscripción, participación o interacción con la comunidad.\nEsta información puede incluir:\n• Nombre, alias o apodo.\n• Riot ID.\n• Nombre de usuario de Discord.\n• Rango dentro de VALORANT.\n• Rol principal dentro del juego.\n• Disponibilidad horaria.\n• Objetivos de aprendizaje.\n• Información proporcionada mediante formularios de inscripción.\n• Datos relacionados con participación académica dentro de la plataforma.\nQU4SAR Academy no solicita ni almacena información financiera, bancaria o métodos de pago mientras los servicios permanezcan gratuitos.\n\n4. USO DE LA INFORMACIÓN\nLa información recopilada será utilizada exclusivamente para:\n• Gestionar inscripciones.\n• Organizar grupos de entrenamiento.\n• Coordinar horarios y actividades.\n• Asignar coaches o responsables académicos.\n• Mantener comunicación con los participantes.\n• Gestionar asistencia y progreso.\n• Mejorar la calidad de las actividades ofrecidas.\n• Administrar el funcionamiento interno de la comunidad.\nLa información recopilada no será vendida, alquilada ni cedida a terceros con fines comerciales.\n\n5. ALMACENAMIENTO Y SEGURIDAD DE LOS DATOS\nQU4SAR Academy adopta medidas razonables para proteger la información almacenada mediante herramientas tecnológicas y procedimientos organizativos adecuados.\nSin embargo, ningún sistema informático puede garantizar una seguridad absoluta. En consecuencia, el usuario reconoce y acepta los riesgos inherentes al uso de internet y de servicios digitales.\n\n6. NORMAS DE CONDUCTA\nTodos los miembros de la comunidad deberán mantener un comportamiento respetuoso y profesional.\nSe encuentra prohibido:\n• Realizar actos de acoso o intimidación.\n• Discriminar por cualquier motivo.\n• Emitir amenazas o comportamientos hostiles.\n• Difundir contenido ilegal, ofensivo o inapropiado.\n• Alterar deliberadamente el funcionamiento de la comunidad.\n• Utilizar canales oficiales para spam o publicidad no autorizada.\n• Realizar conductas consideradas tóxicas por la administración.\nLa administración podrá aplicar advertencias, restricciones, suspensiones temporales o expulsiones permanentes cuando considere que un usuario incumple estas normas.\n\n7. PARTICIPACIÓN EN ACTIVIDADES\nLas actividades desarrolladas por QU4SAR Academy incluyen, entre otras:\n• Clases teóricas.\n• Entrenamientos prácticos.\n• Revisiones de partidas.\n• Scrims.\n• Actividades académicas.\n• Eventos comunitarios.\nTodas las actividades son ofrecidas con fines educativos y de desarrollo personal.\nQU4SAR Academy no garantiza:\n• Ascensos de rango.\n• Resultados competitivos específicos.\n• Ingreso a equipos oficiales.\n• Participación en torneos.\n• Éxito competitivo o profesional.\nLos resultados obtenidos dependerán del compromiso, esfuerzo, práctica y desempeño individual de cada participante.\n\n8. CONTENIDO GENERADO POR LOS USUARIOS\nLos usuarios conservan la titularidad de los contenidos que publiquen o compartan dentro de la comunidad.\nAl participar en QU4SAR Academy, el usuario concede una autorización no exclusiva para utilizar dicho contenido con fines educativos, informativos, promocionales o comunitarios relacionados con la academia, respetando siempre la autoría correspondiente.\n\n9. PROPIEDAD INTELECTUAL\nLos elementos identificativos de QU4SAR Academy, incluyendo:\n• Nombre de la comunidad.\n• Logotipos.\n• Diseño visual.\n• Materiales educativos.\n• Recursos gráficos.\n• Documentación interna.\npertenecen a sus respectivos creadores y propietarios.\nSu uso, reproducción o distribución con fines comerciales requerirá autorización previa por escrito.\n\n10. LIMITACIÓN DE RESPONSABILIDAD\nQU4SAR Academy es una iniciativa comunitaria, gratuita y desarrollada por colaboradores voluntarios.\nLa organización, sus administradores, coaches, moderadores y colaboradores no serán responsables por:\n• Pérdida de cuentas de terceros.\n• Problemas técnicos ajenos a la plataforma.\n• Interrupciones de servicios externos.\n• Conflictos entre usuarios.\n• Daños derivados del uso de plataformas de terceros.\n• Resultados competitivos obtenidos por los participantes.\n• Decisiones tomadas por usuarios basadas en recomendaciones proporcionadas dentro de la comunidad.\n\n11. MODIFICACIONES DE LOS TÉRMINOS\nQU4SAR Academy podrá actualizar, modificar o ampliar estos términos cuando resulte necesario para mejorar el funcionamiento de la comunidad o adaptarse a nuevos requerimientos operativos.\nLas modificaciones entrarán en vigor desde el momento de su publicación en los canales oficiales de la academia.\n\n12. CONTACTO\nPara consultas relacionadas con la comunidad, protección de datos, funcionamiento de la plataforma o cualquier aspecto relacionado con estos términos, los usuarios podrán comunicarse mediante los canales oficiales de QU4SAR Academy.\n\nDECLARACIÓN FINAL\nAl registrarse, acceder a la plataforma o participar en cualquiera de las actividades organizadas por QU4SAR Academy, el usuario declara haber leído, comprendido y aceptado íntegramente los presentes Términos, Condiciones y Política de Privacidad.\n\nQU4SAR Academy\n"Aprender, mejorar y competir."'
   }}
 }}
 function getData(){try{var r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r)}catch(e){}var d=defaultData();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){};return d}
-var _saveStr='';function saveLocal(d){var s=JSON.stringify(d);if(s===_saveStr)return;_saveStr=s;try{localStorage.setItem(STORAGE_KEY,s)}catch(e){}}
-window.addEventListener('beforeunload',function(){if(_saveStr)try{localStorage.setItem(STORAGE_KEY,_saveStr)}catch(e){}})
+window.addEventListener('beforeunload',function(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA))}catch(e){}})
 var DATA=getData();if(!DATA.content)DATA.content={home:{}};if(!DATA.content.home)DATA.content.home={};if(!DATA.coaches)DATA.coaches=[];if(!DATA.task_completions)DATA.task_completions=[];
 if(!DATA.content.home.terms_title||!DATA.content.home.terms_content){
   var def=defaultData();
@@ -84,17 +164,13 @@ function showSkeleton(container,count){
   container.innerHTML=h;
 }
 
-// ========== RANK/GROUP HELPERS ==========
-function getGroupFromRank(rank){
-  if(!rank)return'';
-  if(['Hierro','Bronce','Plata','Oro'].some(function(t){return rank.startsWith(t)}))return'g1';
-  if(['Platino','Diamante','Ascendente','Inmortal','Radiante'].some(function(t){return rank.startsWith(t)}))return'g2';
-  return'';
-}
+// ========== GROUP HELPERS ==========
 function groupName(id){var g=(DATA.groups||[]).find(function(g){return g.id===id});return g?g.name:id||'General'}
+var COURSE_NAMES=['Rookie','Rookie','Trainee','Trainee','Amateur','Contender','Competitor','Competitor','Elite','Semi-Pro','Semi-Pro','Pro'];
+function getCourseName(month){return COURSE_NAMES[Math.max(0,Math.min(11,month-1))]||'Rookie'}
 
 // ========== SECTION VISIBILITY ==========
-var ALL_SECTIONS=['schedule','dashboard','team','members','scrims','stats','academy','news','announcements','substitutions','register'];
+var ALL_SECTIONS=['schedule','dashboard','team','members','scrims','stats','academy','news','announcements','substitutions','register','leaderboard','events','clips'];
 var _visCache=null;function getVis(){if(_visCache)return _visCache;try{var r=localStorage.getItem('qsr_sections');if(r){_visCache=JSON.parse(r);return _visCache}}catch(e){}var d={};ALL_SECTIONS.forEach(function(s){d[s]=true});_visCache=d;return d}
 function clearVisCache(){_visCache=null}
 function isVisible(id){var v=getVis();return v[id]!==false}
@@ -111,7 +187,7 @@ function getUserGroup(u){
   var g=u.group_id||'';
   g=String(g).trim().toLowerCase();
   if(g)return g;
-  if(u.rank)return getGroupFromRank(u.rank);
+  if(u.rank)return u.group_id||'';
   return'';
 }
 
@@ -212,7 +288,7 @@ function showDetail(html){
   dc.innerHTML='<button class="close-btn" onclick="closeDetail()">'+ic('x',18)+'</button>'+html;
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow='hidden';
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
 }
 function closeDetail(){
   var ov=document.getElementById('detailOverlay');
@@ -285,4 +361,21 @@ function autoCopySchedule(){
     DATA.schedule.push(cp);
   });
   return src.length;
+}
+function calcMemberXP(member){
+  if(!member||!member.name)return 0;
+  var name=member.name;
+  var xp=0;
+  var myAchs=(window.DATA&&window.DATA.member_achievements||[]).filter(function(ma){return ma.member_name===name});
+  xp+=myAchs.length*150;
+  var doneTasks=(window.DATA&&window.DATA.task_completions||[]).filter(function(tc){return tc.member_name===name});
+  xp+=doneTasks.length*75;
+  var myEvals=(window.DATA&&window.DATA.evaluations||[]).filter(function(e){return e.member_name===name});
+  if(myEvals.length){
+    var avg=(myEvals.reduce(function(s,e){return s+(e.aim||0)+(e.game_sense||0)+(e.communication||0)+(e.teamwork||0)},0)/(myEvals.length*4))*10;
+    xp+=Math.round(avg);
+  }
+  var att=(window.DATA&&window.DATA.attendance||[]).filter(function(a){return a.member_name===name&&a.status==='present'});
+  xp+=att.length*25;
+  return Math.round(xp);
 }

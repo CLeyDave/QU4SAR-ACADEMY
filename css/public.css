@@ -58,36 +58,8 @@
 .login-badge-public .login-badge-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;color:var(--neon-light);background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);text-decoration:none;transition:all 0.2s;cursor:pointer}
 .login-badge-public .login-badge-btn:hover{color:#fff;background:rgba(139,92,246,0.25);border-color:var(--neon)}
 
-@media(max-width:768px){
-  .nav-links{position:static;flex-direction:column;width:100%;display:none;gap:2px;padding:8px 12px;height:auto;justify-content:flex-start}
-  .nav-links.open{display:flex;position:absolute;top:80px;left:0;right:0;background:rgba(0,0,0,0.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;max-height:calc(100vh - 80px);overflow-y:auto}
-  .nav-links a{font-size:14px;padding:10px 16px;text-align:center;width:100%;border-radius:6px}
-  .nav-toggle{display:block}
-  .nav-actions{flex-wrap:wrap;justify-content:flex-end;gap:4px}
-  .nav-actions .btn-sm{font-size:12px;padding:6px 10px}
-  .hero{padding:80px 16px 30px;height:auto;min-height:100vh}
-  .hero h1{font-size:clamp(2rem,12vw,3.5rem)}
-  .hero p{font-size:15px}
-  .hero .tagline{font-size:14px}
-  .features-grid,.news-grid{grid-template-columns:1fr}
-  .section{padding:60px 0}
-  .cta-box{padding:30px 20px}
-  .cta-box h2{font-size:clamp(20px,5vw,28px)}
-  .footer-inner{grid-template-columns:1fr}
-  .team-grid,.news-grid{grid-template-columns:1fr}
-  .section-title{font-size:clamp(22px,6vw,32px)}
-  .section-subtitle{font-size:14px}
-}
-@media(max-width:480px){
-  .hero{padding:70px 12px 24px}
-  .hero h1{font-size:clamp(1.6rem,10vw,2.2rem)}
-  .nav-links a{font-size:13px;padding:8px 12px}
-  .navbar-inner{padding:0 12px 0 0}
-  .nav-logo-text{font-size:17px}
-  .nav-logo-icon{width:36px;height:36px}
-  .nav-actions .btn-sm{font-size:11px;padding:5px 8px}
-  .section{padding:40px 0}
-}
+
+
 
 /* ===== OVERLAYS ===== */
 .login-overlay{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(16px)}
@@ -120,4 +92,4 @@ tr:hover td{background:rgba(139,92,246,0.015)}
 .field .hint{font-size:11px;color:#555;margin-top:2px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+

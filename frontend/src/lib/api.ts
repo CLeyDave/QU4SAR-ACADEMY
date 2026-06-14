@@ -1,4 +1,5 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const NEXT_API = process.env.NEXT_PUBLIC_NEXT_API_URL || '';
 
 interface FetchOptions extends RequestInit {
   token?: string;
@@ -203,5 +204,23 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
     }).then((res) => res.json());
+  },
+
+  // === Next.js API Routes (Fase 12) ===
+  tracker: {
+    get: (region: string, name: string, tag: string) =>
+      fetch(`${NEXT_API}/api/tracker/${region}/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`).then((r) =>
+        r.json()
+      ),
+  },
+
+  reports: {
+    get: () =>
+      fetch(`${NEXT_API}/api/admin/reports`).then((r) => r.json()),
+  },
+
+  cohorts: {
+    progress: (id: string) =>
+      fetch(`${NEXT_API}/api/cohorts/${id}/progress`).then((r) => r.json()),
   },
 };

@@ -37,16 +37,8 @@
 .register-hero p{color:#888;max-width:600px;margin:14px auto 0;font-size:17px}
 
 /* RESPONSIVE */
-@media(max-width:768px){
-  .register-row{grid-template-columns:1fr}
-  .roles-grid{grid-template-columns:1fr}
-  .register-grid{grid-template-columns:1fr}
-  .register-hero{padding:100px 16px 30px}
-}
-@media(max-width:480px){
-  .nav-logo-text{font-size:17px}
-  .nav-logo-icon{width:36px;height:36px}
-}
+
+
 
 /* ===== UTILITIES ===== */
 .flex{display:flex}.flex-center{display:flex;align-items:center;justify-content:center}.flex-between{display:flex;align-items:center;justify-content:space-between}
@@ -59,4 +51,4 @@
 .field .hint{font-size:11px;color:#555;margin-top:2px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+

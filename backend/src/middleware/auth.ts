@@ -15,7 +15,9 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'qu4sar_s3cr3t_k3y_2024_esports') as {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET no configurado en variables de entorno');
+    const decoded = jwt.verify(token, secret) as {
       userId: string;
       role: string;
     };

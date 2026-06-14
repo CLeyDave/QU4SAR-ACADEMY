@@ -94,7 +94,7 @@ function renderCoachDashboard(coachName){
     var attInfo=attByMember[m.name]||{present:0,total:0};
     var attRate=attInfo.total?Math.round(attInfo.present/attInfo.total*100):0;
     var achCount=(DATA.member_achievements||[]).filter(function(ma){return ma.member_name===m.name}).length;
-    var xp=calcMemberXP?calcMemberXP(m):0;
+    var xp=typeof calcMemberXP==='function'?calcMemberXP(m):0;
     return {name:m.name,avgScore:avgScore,tasksDone:doneTasks,attRate:attRate,achs:achCount,xp:xp,rank:m.rank||'—'};
   });
   compareData.sort(function(a,b){return b.xp-a.xp});
@@ -172,6 +172,36 @@ function renderCoachDashboard(coachName){
     return h;
   }
 
+  // === BUILD TASK SUBMISSIONS (4.4) ===
+  function submissionsHTML(){
+    var subs=(DATA.task_submissions||[]).filter(function(s){return memberNames[s.member_name]});
+    if(!subs.length)return'';
+    var grouped={};
+    subs.forEach(function(s){
+      if(!grouped[s.task_id])grouped[s.task_id]={task:null,files:[]};
+      if(!grouped[s.task_id].task)grouped[s.task_id].task=tasks.find(function(t){return t.id===s.task_id});
+      grouped[s.task_id].files.push(s);
+    });
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title" style="cursor:pointer" onclick="var e=document.getElementById(\'ccSubsBody\');e.style.display=e.style.display===\'none\'?\'\':\'none\'">'+ic('upload',14)+' ENTREGAS DE ARCHIVOS <span style="color:#888;font-size:11px;font-weight:400">('+subs.length+')</span> '+ic('chevron-down',12)+'</div>'+
+      '<div id="ccSubsBody">';
+    Object.keys(grouped).forEach(function(tid){
+      var g=grouped[tid];
+      if(!g||!g.files.length)return;
+      h+='<div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,0.02);border-radius:8px;border-left:2px solid rgba(139,92,246,0.2)">'+
+        '<div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:6px">'+(g.task?esc(g.task.title):'Tarea eliminada')+'</div>';
+      g.files.forEach(function(f){
+        h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;font-size:11px">'+
+          '<span style="color:#a78bfa;font-weight:500">'+esc(f.member_name)+'</span>'+
+          (f.file_url?'<a href="'+esc(f.file_url)+'" target="_blank" style="color:var(--neon-light);display:inline-flex;align-items:center;gap:4px" title="'+esc(f.file_name||'')+'">'+ic('external-link',11)+' Ver</a>':'<span style="color:#666">Sin archivo</span>')+
+          '<span style="color:#555">'+timeAgo(f.submitted_at)+'</span></div>';
+      });
+      h+='</div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
+
   // === BUILD ATTENDANCE CHART (2.2) ===
   function chartHTML(){
     if(!topStudents.length)return'';
@@ -189,7 +219,7 @@ function renderCoachDashboard(coachName){
 
   // === BUILD TOP STUDENTS ===
   function topHTML(){
-    h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
       '<div class="cc-section-title">'+ic('zap',14)+' TOP ALUMNOS</div>';
     compareData.slice(0,5).forEach(function(s,i){
       h+='<div class="cc-student-row"><span class="pos">'+(i+1)+'</span><span class="name">'+esc(s.name)+'</span><span class="stat">'+s.xp+' XP</span><span class="stat" style="color:'+(s.attRate>=70?'#4ade80':'#f43f5e')+'">'+s.attRate+'%</span><span class="stat" style="color:#a78bfa">'+s.achs+' logros</span></div>';
@@ -208,6 +238,27 @@ function renderCoachDashboard(coachName){
       h+='<tr><td>'+(i+1)+'</td><td style="font-weight:500;color:#e0e0e0">'+esc(s.name)+'</td><td class="rank">'+esc(s.rank)+'</td><td>'+s.xp+'</td><td>'+(s.avgScore||'—')+'</td><td>'+s.tasksDone+'</td><td style="color:'+(s.attRate>=70?'#4ade80':'#f43f5e')+'">'+s.attRate+'%</td><td>'+s.achs+'</td></tr>';
     });
     h+='</tbody></table></div>';
+    return h;
+  }
+
+  // === COURSE PROGRESSION ===
+  function progressionHTML(){
+    var active=members.filter(function(m){return m.academy_status==='active'||!m.academy_status});
+    if(!active.length)return'';
+    var h='<div class="glass-card" style="padding:16px 18px;margin-bottom:12px">'+
+      '<div class="cc-section-title">'+ic('trending-up',14)+' PROGRESIÓN DEL CURSO</div>'+
+      '<div style="font-size:11px;color:#666;margin-top:4px">Requisito de rango para aprobar al siguiente mes</div>';
+    active.forEach(function(m){
+      var month=m.current_month||1;
+      var nextReq=getMonthRankReq(month+1);
+      var studentRank=rankValue(m.rank);
+      var meetsReq=studentRank>=nextReq.minVal;
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin-top:8px">'+
+        '<div style="flex:1;min-width:0"><div><span style="color:#e0e0e0;font-weight:500">'+esc(m.name)+'</span> <span style="color:#888;font-size:13px">Mes '+month+'/'+nextReq.name+'</span></div>'+
+        '<div style="font-size:11px;color:#666;margin-top:2px">Req: '+nextReq.minRank+'+ · Tiene: '+(m.rank||'—')+' '+(meetsReq?'<span style="color:#4ade80">✔</span>':'<span style="color:#f43f5e">✘</span>')+'</div></div>'+
+        '<button class="btn-sm" style="font-size:11px;padding:4px 12px;'+(meetsReq?'':'opacity:0.5;pointer-events:none')+'" onclick="passStudentMonth(\''+esc(m.name)+'\')">'+ic('chevron-right',12)+' Pasar</button></div>';
+    });
+    h+='</div>';
     return h;
   }
 
@@ -234,14 +285,16 @@ function renderCoachDashboard(coachName){
       '</div>'+
       '<!-- VISTA SEMANAL (2.1) -->'+weekCalHTML()+
       '<!-- ALERTAS TAREAS (2.3) -->'+alertsHTML()+
+      '<!-- ENTREGAS (4.4) -->'+submissionsHTML()+
       '<!-- CHARTS ROW (2.2) -->'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+chartHTML()+topHTML()+'</div>'+
       '<!-- COMPARATIVA (2.4) -->'+compareHTML()+
+      '<!-- PROGRESIÓN -->'+progressionHTML()+
       '<!-- TIMELINE -->'+timelineHTML()+
     '</div>';
 
   document.getElementById('adminContent').innerHTML=html;
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
 }
 
 function changeCoachWeek(dir){
@@ -284,7 +337,41 @@ function coachEditProfile(coachId){
     '<button class="btn-primary" onclick="saveCoachProfile(\''+coachId+'\')" style="width:100%;justify-content:center;margin-top:14px">'+ic('save',16)+' Guardar Cambios</button>';
 
   openModal(modalHTML);
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
+}
+
+function getMonthRankReq(month){
+  if(month<=2)return{name:'Rookie',minRank:'Hierro',minVal:1};
+  if(month<=4)return{name:'Trainee',minRank:'Bronce',minVal:2};
+  if(month<=6)return{name:'Amateur',minRank:'Plata',minVal:3};
+  if(month<=8)return{name:'Competitor',minRank:'Oro',minVal:4};
+  if(month<=10)return{name:'Elite',minRank:'Platino',minVal:5};
+  if(month<=12)return{name:'Semi-Pro',minRank:'Diamante',minVal:6};
+  return{name:'Pro',minRank:'Ascendente',minVal:7};
+}
+
+function passStudentMonth(name){
+  if(!confirm('¿Avanzar a '+esc(name)+' al siguiente mes?'))return;
+  var m=(DATA.members||[]).find(function(m){return m.name===name});
+  if(!m){toast('Miembro no encontrado','err');return}
+  var nextMonth=(m.current_month||1)+1;
+  var req=getMonthRankReq(nextMonth);
+  var studentRank=rankValue(m.rank);
+  if(studentRank<req.minVal){
+    toast(esc(name)+' necesita al menos '+req.minRank+' para pasar al mes '+nextMonth+' ('+req.name+'). Tiene: '+(m.rank||'—'),'err');
+    return;
+  }
+  m.current_month=nextMonth;
+  if(m.current_month>12){
+    m.current_month=12;
+    m.academy_status='graduated';
+    toast(name+' ha completado todos los meses. ¡Graduado!','ok');
+  }else{
+    toast(name+' avanzó al mes '+(m.current_month||1)+' ('+req.name+')','ok');
+  }
+  saveData(DATA);
+  var cn=currentUser&&currentUser.coachName;
+  if(cn)renderCoachDashboard(cn);
 }
 
 function saveCoachProfile(coachId){
@@ -323,5 +410,5 @@ function renderAdminDashboard(){
     {n:(DATA.academy||[]).length,l:'Academia',c:'#eab308, #ca8a04',i:ic('graduation-cap',18)},
     {n:(DATA.announcements||[]).length,l:'Anuncios',c:'#a78bfa, #8b5cf6',i:ic('megaphone',18)},
   ].map(function(c){return'<div class="glass-card dash-card"><div class="glow" style="background:linear-gradient(135deg,'+c.c+')"></div><div class="num gradient-text">'+c.n+'</div><div class="lbl"><span class="icon">'+c.i+'</span> '+c.l+'</div></div>'}).join('')+'</div>';
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
 }

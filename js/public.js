@@ -89,7 +89,7 @@ function toggleNav(){document.getElementById('navLinks').classList.toggle('open'
 function renderPublicSections(){
   safeRender(renderHero,'hero');
   safeRender(renderFooter,'footer');
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
 }
 function safeRender(fn,name){try{fn()}catch(e){console.log('Render error ['+name+']:',e)}}
 function updateLoginBadge(){
@@ -131,10 +131,34 @@ function logoutIndex(){
       if(fetches[3].data)DATA.coaches=fetches[3].data;
       if(fetches[4].data)DATA.groups=fetches[4].data;
       if(fetches[5].data)DATA.group_coaches=fetches[5].data;
-      if(fetches[6].data)DATA.members=fetches[6].data;
+      if(fetches[6].data){
+        var localMembers=(DATA.members||[]).reduce(function(acc,m){acc[m.name]=m;return acc},{});
+        DATA.members=fetches[6].data.map(function(supM){
+          var localM=localMembers[supM.name];
+          if(localM){(window.EXTRAS_KEYS||[]).forEach(function(k){if(localM[k]!==undefined&&localM[k]!==null&&localM[k]!=='')supM[k]=localM[k]})}
+          return supM;
+        });
+      }
       saveLocal(DATA);
+      // Realtime
+      if(!rtChannel){try{
+        rtChannel=db.channel('public-changes')
+          .on('postgres_changes',{event:'*',schema:'public',table:'members'},function(payload){
+            if(!DATA.members)return;
+            if(payload.eventType==='DELETE'){DATA.members=DATA.members.filter(function(m){return m.id!==payload.old.id})}
+            else if(payload.new){
+              var idx=DATA.members.findIndex(function(m){return m.id===payload.new.id});
+              if(idx>=0){
+                var old=DATA.members[idx];
+                DATA.members[idx]=payload.new;
+                (window.EXTRAS_KEYS||[]).forEach(function(k){if(old[k])DATA.members[idx][k]=old[k]});
+              }else{DATA.members.push(payload.new)}
+            }
+            saveLocal(DATA);
+          }).subscribe();
+      }catch(e){console.log('Realtime:',e)}}
       var ds=document.getElementById('dbStatus');
-      if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='online';if(typeof lucide!=="undefined")lucide.createIcons()}
+      if(ds){ds.innerHTML='<i data-lucide="wifi" style="width:12px;height:12px;vertical-align:middle"></i> <span>conectado</span>';ds.className='online';if(typeof lucide!=="undefined")renderIcons()}
     }
   }catch(e){console.log('DB unavailable:',e)}
   renderPublicSections();

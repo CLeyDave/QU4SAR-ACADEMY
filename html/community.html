@@ -39,6 +39,9 @@
       <a href="javascript:;" onclick="showSection('news')" data-section="news"><i data-lucide="newspaper" style="width:14px;height:14px"></i> Noticias</a>
       <a href="javascript:;" onclick="showSection('announcements')" data-section="announcements"><i data-lucide="megaphone" style="width:14px;height:14px"></i> Anuncios</a>
       <a href="javascript:;" onclick="showSection('substitutions')" data-section="substitutions"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Suplentes</a>
+      <a href="javascript:;" onclick="showSection('leaderboard')" data-section="leaderboard"><i data-lucide="trophy" style="width:14px;height:14px"></i> Leaderboard</a>
+      <a href="javascript:;" onclick="showSection('events')" data-section="events"><i data-lucide="calendar-check" style="width:14px;height:14px"></i> Eventos</a>
+      <a href="javascript:;" onclick="showSection('clips')" data-section="clips"><i data-lucide="film" style="width:14px;height:14px"></i> Clips</a>
     </div>
     <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menú">☰</button>
   </div>
@@ -138,6 +141,37 @@
   </div>
 </section>
 
+<!-- LEADERBOARD -->
+<section id="section-leaderboard" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Leaderboard</span></h2>
+    <p class="section-subtitle">Clasificación de la comunidad por rendimiento y progreso</p>
+    <div id="leaderboardFilters" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px"></div>
+    <div id="leaderboardContent"></div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="section-events" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Eventos</span></h2>
+    <p class="section-subtitle">Próximos eventos, scrims y actividades de la comunidad</p>
+    <div id="eventsContent"></div>
+  </div>
+</section>
+
+<!-- CLIPS -->
+<section id="section-clips" class="section page">
+  <div class="section-bg"></div>
+  <div class="container">
+    <h2 class="section-title"><span class="gradient-text">Clips Destacados</span></h2>
+    <p class="section-subtitle">Mejores momentos de la comunidad QU4SAR</p>
+    <div id="clipsContent"></div>
+  </div>
+</section>
+
 <!-- DETAIL OVERLAY -->
 <div id="detailOverlay" class="detail-overlay" onclick="if(event.target===this)closeDetail()">
   <div class="detail-card" id="detailCard"></div>
@@ -165,6 +199,7 @@
 <div class="toast" id="toast"></div>
 <a href="students.html" class="community-home-btn" id="communityPanelBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Mi Panel</a>
 <a href="../" class="community-home-btn" id="communityHomeBtn"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> Inicio</a>
+<script src="../js/constants.js"></script>
 <script src="../js/shared.js"></script>
 <script src="../js/students.js"></script>
 </body>

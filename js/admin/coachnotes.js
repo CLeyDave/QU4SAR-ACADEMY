@@ -7,7 +7,7 @@ function renderSection_coachnotes(){
   var fh=adminGroupFilterHTML(gid,'renderSection_coachnotes()');
   var btn='<button class="btn-primary" onclick="coachNoteForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nueva Nota</button>';
   document.getElementById('adminContent').innerHTML=fh+adminTable(items,['Miembro','Nota','Categoría','Coach','Grupo','Fecha'],function(n){
-    return '<td>'+esc(n.member_name)+'</td><td><div class="cell-preview" onclick="viewCoachNote(\''+n.id+'\')">'+esc(n.note)+'</div></td><td><span class="badge badge-purple">'+esc(n.category||'general')+'</span></td><td>'+esc(n.coach||'—')+'</td><td>'+groupName(n.group_id)+'</td><td>'+(n.created_at?new Date(n.created_at).toLocaleDateString('es-ES'):'')+'</td><td><div class="has-glow admin-actions"><button onclick="coachNoteForm(\''+n.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delCoachNote(\''+n.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay notas del coach',btn);
+    return '<td>'+esc(n.member_name)+'</td><td><div class="cell-preview" onclick="viewCoachNote(\''+n.id+'\')">'+esc(n.note)+'</div></td><td><span class="badge badge-purple">'+esc(n.category||'general')+'</span></td><td>'+esc(n.coach||'—')+'</td><td>'+groupName(n.group_id)+'</td><td>'+(n.created_at?new Date(n.created_at).toLocaleDateString('es-ES'):'')+'</td><td><div class=" admin-actions"><button onclick="coachNoteForm(\''+n.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delCoachNote(\''+n.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay notas del coach',btn,'delCoachNote');
 }
 
 function coachNoteForm(id){

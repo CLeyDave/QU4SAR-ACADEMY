@@ -30,8 +30,8 @@ function renderSection_applications(){
           (a.availability?'<div><span style="color:#666">Disponibilidad:</span> '+esc(a.availability)+'</div>':'')+
         '</div>'+
         (roles?'<div style="font-size:14px;margin-bottom:10px"><span style="color:#666">Roles elegidos:</span> <span style="color:var(--neon)">'+esc(roles)+'</span></div>':'')+
-        (a.objectives?'<div class="has-glow" style="font-size:14px;margin-bottom:8px;padding:10px 14px;background:rgba(139,92,246,0.04);border-radius:8px;border-left:3px solid var(--neon)"><span style="color:#666;font-weight:600">Objetivos:</span><br><span style="color:#ccc">'+esc(a.objectives)+'</span></div>':'')+
-        (a.reason?'<div class="has-glow" style="font-size:14px;margin-bottom:6px;padding:10px 14px;background:rgba(139,92,246,0.04);border-radius:8px;border-left:3px solid var(--neon)"><span style="color:#666;font-weight:600">Motivación:</span><br><span style="color:#ccc">'+esc(a.reason)+'</span></div>':'')+
+        (a.objectives?'<div class="" style="font-size:14px;margin-bottom:8px;padding:10px 14px;background:rgba(139,92,246,0.04);border-radius:8px;border-left:3px solid var(--neon)"><span style="color:#666;font-weight:600">Objetivos:</span><br><span style="color:#ccc">'+esc(a.objectives)+'</span></div>':'')+
+        (a.reason?'<div class="" style="font-size:14px;margin-bottom:6px;padding:10px 14px;background:rgba(139,92,246,0.04);border-radius:8px;border-left:3px solid var(--neon)"><span style="color:#666;font-weight:600">Motivación:</span><br><span style="color:#ccc">'+esc(a.reason)+'</span></div>':'')+
         '<div style="font-size:12px;color:#444;margin-top:8px">'+(a.created_at?new Date(a.created_at).toLocaleString('es-ES'):'')+'</div>'+
       '</div>';
     });
@@ -47,7 +47,7 @@ function autoAssignCoach(groupId){
     var coach=(DATA.coaches||[]).find(function(c){return c.id===gc.coach_id});
     if(!coach)return null;
     var count=(DATA.members||[]).filter(function(m){
-      return m.coach&&m.coach.toLowerCase()===coach.name.toLowerCase()&&(m.group_id||getGroupFromRank(m.rank))===groupId;
+      return m.coach&&m.coach.toLowerCase()===coach.name.toLowerCase()&&(m.group_id||'')===groupId;
     }).length;
     return{name:coach.name,count:count};
   }).filter(Boolean);
@@ -67,7 +67,7 @@ function acceptApp(id){
     toast('Ya existe un miembro con ese nombre: '+memberName,'err');renderSection_applications();return
   }
   a.status='accepted';
-  var groupId=getGroupFromRank(a.rank||'');
+  var groupId=a.group_id||'';
   var coach=groupId?autoAssignCoach(groupId):'';
   var member={id:uid(),name:memberName,role:a.main_role||'Miembro',rank:a.rank||'',group_id:groupId,coach:coach,image:'',description:''};
   DATA.members.push(member);

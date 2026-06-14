@@ -4,13 +4,13 @@ function renderSection_substitutions(){
   var gid=(document.getElementById('adminGF')&&document.getElementById('adminGF').value)||'';
   var items=filterByCurrentCoach(DATA.substitutions||[]);
   if(gid)items=items.filter(function(i){return i.group_id===gid});
-  var fh=adminGroupFilterHTML(gid,'renderSubstitutions()');
+  var fh=adminGroupFilterHTML(gid,'renderSection_substitutions()');
   var btn='<button class="btn-primary" onclick="subForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nueva Sustitución</button>';
   document.getElementById('adminContent').innerHTML=fh+adminTable(items,['Solicitante','Rol','Estado','Cupo','Coach','Grupo'],function(s){
     var badges={open:'badge-yellow',fulfilled:'badge-green',cancelled:'badge-red'};
-    return '<td>'+esc(s.requesting_member)+'</td><td>'+esc(s.needed_role)+'</td><td><span class="badge '+(badges[s.status]||'badge-gray')+'">'+esc(s.status)+'</span></td><td>'+esc(s.filled_by||'-')+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td><td><div class="has-glow admin-actions">'+
+    return '<td>'+esc(s.requesting_member)+'</td><td>'+esc(s.needed_role)+'</td><td><span class="badge '+(badges[s.status]||'badge-gray')+'">'+esc(s.status)+'</span></td><td>'+esc(s.filled_by||'-')+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td><td><div class=" admin-actions">'+
       (s.status==='open'?'<button onclick="fulfillSub(\''+s.id+'\')" title="Cumplida">'+ic('check',14)+'</button><button onclick="cancelSub(\''+s.id+'\')" title="Cancelar">'+ic('x',14)+'</button>':'')+
-      '<button onclick="subForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delSub(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay sustituciones',btn);
+      '<button onclick="subForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delSub(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay sustituciones',btn,'delSub');
 }
 
 function subForm(id){

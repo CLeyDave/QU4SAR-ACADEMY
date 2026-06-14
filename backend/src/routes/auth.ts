@@ -26,9 +26,11 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) return res.status(500).json({ error: 'JWT_SECRET no configurado en el servidor' });
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.JWT_SECRET || 'qu4sar_s3cr3t_k3y_2024_esports',
+      jwtSecret,
       { expiresIn: '24h' }
     );
 

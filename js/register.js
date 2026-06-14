@@ -65,7 +65,7 @@ function submitApp(){
     msg.textContent='Error al enviar: '+err.message;
     msg.style.color='#8b5cf6';
     btn.disabled=false;btn.innerHTML=ic('send',16)+' Enviar Solicitud';
-    if(typeof lucide!=="undefined")lucide.createIcons();
+    if(typeof lucide!=="undefined")renderIcons();
     setTimeout(function(){msg.textContent=''},5000);
   });
 }
@@ -73,7 +73,7 @@ function resetForm(btn){
   document.getElementById('registerForm').querySelectorAll('input,select,textarea').forEach(function(el){el.value=''});
   document.querySelectorAll('#reg_roles input').forEach(function(cb){cb.checked=false;cb.closest('.role-opt').classList.remove('checked')});
   btn.disabled=false;btn.innerHTML=ic('send',16)+' Enviar Solicitud';
-  if(typeof lucide!=="undefined")lucide.createIcons();
+  if(typeof lucide!=="undefined")renderIcons();
   setTimeout(function(){document.getElementById('regMsg').textContent=''},4000);
 }
 
@@ -104,6 +104,8 @@ function showLoginStatus(){
       if(fetches[1].data)DATA.applications=fetches[1].data;
       if(fetches[2].data){var o={};fetches[2].data.forEach(function(c){o[c.key]=c.value});DATA.content={home:o}}
       saveLocal(DATA);
+      // Retry pending apps
+      try{var pending=JSON.parse(localStorage.getItem('qsr_pending_apps')||'[]');if(pending.length){pending.forEach(function(app){delete app.id;db.from('applications').insert([{...app,status:'pending'}]).then()});localStorage.removeItem('qsr_pending_apps')}}catch(e){}
     }
   }catch(e){console.log('DB unavailable:',e)}
   showLoginStatus();

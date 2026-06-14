@@ -30,11 +30,11 @@ function renderSection_schedule(){
 
   var table=adminTable(items,['Título','Tipo','Día','Horario','Coach','Grupo'],function(s){
     return '<td>'+esc(s.title)+'</td><td>'+esc(s.type)+'</td><td>'+days[s.day]+'</td><td>'+esc(toLocalTime(s.start,s.tz))+' - '+esc(toLocalTime(s.end,s.tz))+'</td><td>'+esc(s.coach||'-')+'</td><td>'+groupName(s.group_id)+'</td>'+
-      '<td><div class="has-glow admin-actions">'+
+      '<td><div class=" admin-actions">'+
         '<button onclick="schedForm(\''+s.id+'\')" title="Editar">'+ic('pencil',14)+'</button>'+
         '<button class="del" onclick="delSched(\''+s.id+'\')" title="Eliminar">'+ic('trash-2',14)+'</button>'+
       '</div></td>'
-  },'No hay horarios',btn);
+  },'No hay horarios',btn,'delSched');
 
   var hist=(DATA.schedule_history||[]).slice().reverse();
   var histHTML='<div style="margin-top:32px"><h4 style="cursor:pointer;color:var(--neon);font-size:14px;display:flex;align-items:center;gap:6px" onclick="var e=document.getElementById(\'histBody\');e.style.display=e.style.display===\'none\'?\'\':\'none\'">'+ic('clock',14)+' Historial de cambios <span style="font-size:11px;color:#666">('+(hist.length||0)+')</span></h4>'+

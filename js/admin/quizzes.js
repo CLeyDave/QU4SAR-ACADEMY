@@ -8,7 +8,7 @@ function renderSection_quizzes(){
   var fh=adminGroupFilterHTML(gid,'renderSection_quizzes()');
   var btn='<button class="btn-primary" onclick="quizForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nuevo Quiz</button>';
   document.getElementById('adminContent').innerHTML=fh+adminTable(items,['Título','Preguntas','Coach','Grupo'],function(q){
-    return '<td>'+esc(q.title)+'</td><td>'+(q.questions||[]).length+'</td><td>'+esc(q.coach||'—')+'</td><td>'+groupName(q.group_id)+'</td><td><div class="has-glow admin-actions"><button onclick="quizForm(\''+q.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delQuiz(\''+q.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay quizzes',btn);
+    return '<td>'+esc(q.title)+'</td><td>'+(q.questions||[]).length+'</td><td>'+esc(q.coach||'—')+'</td><td>'+groupName(q.group_id)+'</td><td><div class=" admin-actions"><button onclick="quizForm(\''+q.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delQuiz(\''+q.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay quizzes',btn,'delQuiz');
 }
 
 function quizForm(id){
@@ -60,7 +60,7 @@ function quizQHTML(q,i){
     opts.map(function(o,j){return'<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">'+
       '<input type="radio" name="qf_correct_'+i+'" value="'+j+'" '+(q.correct===j?'checked':'')+'>'+
       '<input class="input-field" id="qf_q_'+i+'_opt_'+j+'" placeholder="Opción '+(j+1)+'" value="'+esc(o)+'" style="flex:1;padding:8px 12px;font-size:13px">'+
-      '<span style="color:#666;font-size:11px">'+(q.correct===j?'✓ Correcta':'')+'</span></label>'}).join('')+'</div>'+
+      '<span style="color:#666;font-size:11px">'+(q.correct===j?ic('check',12)+' Correcta':'')+'</span></label>'}).join('')+'</div>'+
     '<div class="field" style="margin-top:6px"><input class="input-field" id="qf_q_'+i+'_exp" placeholder="Explicación (opcional)" value="'+esc(q.explanation||'')+'" style="padding:8px 12px;font-size:12px"></div></div>';
 }
 

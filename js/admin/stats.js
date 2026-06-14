@@ -7,7 +7,7 @@ function renderSection_stats(){
   var fh=adminGroupFilterHTML(gid,'renderSection_stats()');
   var btn='<button class="btn-primary" onclick="statsForm(null)" style="margin-bottom:14px;font-size:13px">'+ic('plus',14)+' Nuevas Stats</button>';
   document.getElementById('adminContent').innerHTML=fh+adminTable(items,['Temporada','Partidas','Victorias','Derrotas','MVPs','Grupo'],function(s){
-    return '<td>'+esc(s.season)+'</td><td>'+s.matches+'</td><td style="color:#8b5cf6">'+s.wins+'</td><td style="color:#8b5cf6">'+s.losses+'</td><td>'+s.mvps+'</td><td>'+groupName(s.group_id)+'</td><td><div class="has-glow admin-actions"><button onclick="statsForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delStats(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay estadísticas',btn);
+    return '<td>'+esc(s.season)+'</td><td>'+s.matches+'</td><td style="color:#8b5cf6">'+s.wins+'</td><td style="color:#8b5cf6">'+s.losses+'</td><td>'+s.mvps+'</td><td>'+groupName(s.group_id)+'</td><td><div class=" admin-actions"><button onclick="statsForm(\''+s.id+'\')">'+ic('pencil',14)+'</button><button class="del" onclick="delStats(\''+s.id+'\')">'+ic('trash-2',14)+'</button></div></td>'},'No hay estadísticas',btn,'delStats');
 }
 
 function statsForm(id){
